@@ -61,7 +61,7 @@
 - [x] Aggiungere Docs (Codice e user)
 - [x] Rifare log e cli di server e client
 - [ ] Sistemare repo
-- [ ] Comando create lato client per creare template
+- [x] Comando create lato client per creare template
 - [ ] Altro comando cli per vedere in RealTime consumo di risorse di tutti i client e boh altre info
 - [ ] Aggiungere un comando cli per vedere le flag che sono state inviate al server
 - [ ] Aggiungere un bottone sulla table per aggiornarla senza ricaricare la pagina
@@ -69,7 +69,7 @@
 
 - [ ] Aggiungere numero client attacanti realtime displayato sulla dashboard,
 - [ ] Aggiungere un display che misura ram e cpu del processo (cli - client, web - server)
-- [ ] Ottimizzazione exploiter per gestire servizi di macchine down etc...
+- [x] Ottimizzazione exploiter per gestire servizi di macchine down etc...
 - [ ] Config Reloader (hot realod of config file || button to reload)
 - [ ] api/button to delete/remove the flag queue
 - [ ] api/button to send flags, instead of waiting the timer
