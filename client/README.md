@@ -52,6 +52,16 @@ if __name__ == "__main__":
 
 > **Your only task: write the exploit logic!**
 
+### 🔧 Using the Template Generator
+
+Run the template generator with:
+
+```bash
+./new_exploit.sh <exploit_name>
+```
+
+This will create a new Python file in the `exploits/` directory with the basic structure already set up, including the `@exploit_manager` decorator
+
 ---
 
 # 🚀 Running Your Exploit
@@ -64,7 +74,12 @@ Follow these steps to run your exploit with the client:
    cd CookieFarm/client
    ```
 
-2. Inside the `exploits/` folder, create your exploit script following the structure explained above.
+2. Inside the `exploits/` folder, create your exploit script following the structure explained above or using the template generator:
+
+   ```bash
+   chmod +x new_exploit.sh
+   ./new_exploit.sh <exploit_name>
+   ```
 
 3. Execute the following command:
 
