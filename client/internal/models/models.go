@@ -33,12 +33,11 @@ type ConfigServer struct {
 
 // ConfigClient contains all client-side configuration options.
 type ConfigClient struct {
-	SubmitFlagServerTime uint64    `json:"submit_flag_server_time" yaml:"submit_flag_server_time"` // Time interval (ms) between flag submissions
-	Services             []Service `json:"services" yaml:"services"`                               // List of services to exploit
-	RangeIPTeams         uint8     `json:"range_ip_teams" yaml:"range_ip_teams"`                   // Number of teams / IP range
-	FormatIPTeams        string    `json:"format_ip_teams" yaml:"format_ip_teams"`                 // Format string for generating team IPs
-	MyTeamIP             string    `json:"my_team_ip" yaml:"my_team_ip"`                           // IP address of the current team
-	RegexFlag            string    `json:"regex_flag" yaml:"regex_flag"`                           // Regex used to identify flags in output
+	Services      []Service `json:"services" yaml:"services"`               // List of services to exploit
+	RangeIPTeams  uint8     `json:"range_ip_teams" yaml:"range_ip_teams"`   // Number of teams / IP range
+	FormatIPTeams string    `json:"format_ip_teams" yaml:"format_ip_teams"` // Format string for generating team IPs
+	MyTeamIP      string    `json:"my_team_ip" yaml:"my_team_ip"`           // IP address of the current team
+	RegexFlag     string    `json:"regex_flag" yaml:"regex_flag"`           // Regex used to identify flags in output
 }
 
 // Config aggregates both server and client configuration,
@@ -68,4 +67,14 @@ type ParsedFlagOutput struct {
 	FlagCode    string `json:"flag_code"`    // The actual flag string
 	Status      string `json:"status"`       // Status of the flag submission (eg "success", "failed", "error", "fatal")
 	Message     string `json:"message"`      // Additional message or error information
+}
+
+type EventWS struct {
+	Type    string `json:"type"`
+	Payload []byte `json:"payload"`
+}
+
+type EventWSFlag struct {
+	Type    string `json:"type"`
+	Payload Flag   `json:"payload"`
 }

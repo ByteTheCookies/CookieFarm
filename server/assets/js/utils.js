@@ -27,7 +27,6 @@ export function validateConfigForm(document, tagify) {
     range_ip_teams: val => parseInt(val) > 0,
     max_flag_batch_size: val => parseInt(val) > 0,
     submit_flag_checker_time: val => parseInt(val) >= 0,
-    submit_flag_server_time: val => parseInt(val) >= 0,
   };
 
   const resultBox = document.getElementById("config-result");
@@ -66,7 +65,6 @@ export function buildConfigFromDOM(document, tagify) {
       submit_flag_checker_time: Number(get("submit_flag_checker_time")),
     },
     client: {
-      submit_flag_server_time: Number(get("submit_flag_server_time")),
       services: getServiceEntries(tagify),
       range_ip_teams: Number(get("range_ip_teams")),
       format_ip_teams: get("format_ip_teams"),

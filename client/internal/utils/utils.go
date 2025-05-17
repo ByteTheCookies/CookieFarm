@@ -4,7 +4,6 @@ package utils
 import (
 	"errors"
 	"fmt"
-	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -78,16 +77,11 @@ func ValidateArgs(args models.Args) error {
 		return errors.New("missing required --exploit argument")
 	}
 
-	if *config.BaseURLServer == "" {
+	if *config.HostServer == "" {
 		return errors.New("missing required --base_url_server argument")
 	}
 	if *args.Password == "" {
 		return errors.New("missing required --password argument")
-	}
-
-	_, err := url.ParseRequestURI(*config.BaseURLServer)
-	if err != nil {
-		return fmt.Errorf("invalid URL format: %v", err)
 	}
 
 	if *args.TickTime < 1 {
@@ -99,7 +93,7 @@ func ValidateArgs(args models.Args) error {
 		return fmt.Errorf("error resolving exploit path: %v", err)
 	}
 
-	if info, err := os.Stat(exploitPath); err == nil && info.Mode()&0111 == 0 {
+	if info, err := os.Stat(exploitPath); err == nil && info.Mode()&0o111 == 0 {
 		return fmt.Errorf("exploit file is not executable")
 	}
 

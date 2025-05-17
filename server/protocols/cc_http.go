@@ -19,7 +19,7 @@ func Submit(host string, team_token string, flags []string) ([]models.ResponsePr
 		return nil, fmt.Errorf("error during marshalling: %w", err)
 	}
 
-	url := "http://" + host + "/submit"
+	url := "http://" + host + "/flags"
 	req, err := http.NewRequest(http.MethodPut, url, bytes.NewBuffer(jsonData))
 	if err != nil {
 		return nil, fmt.Errorf("error during request creation: %w", err)

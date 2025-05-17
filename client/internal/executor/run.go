@@ -23,7 +23,7 @@ type ExecutionResult struct {
 func Start(exploitPath, password string, tickTime int, threadCount int, logPath string) (*ExecutionResult, error) {
 	cmd := exec.Command(
 		exploitPath,
-		*config.BaseURLServer,
+		*config.HostServer,
 		password,
 		strconv.Itoa(tickTime),
 		config.Current.ConfigClient.RegexFlag,

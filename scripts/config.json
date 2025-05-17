@@ -7,7 +7,6 @@
     "protocol": "cc_http"
   },
   "client": {
-    "submit_flag_server_time": 10,
     "services": [
       {
         "name": "CookieService",

@@ -4,6 +4,7 @@ import (
 	"github.com/ByteTheCookies/cookieserver/internal/config"
 	"github.com/ByteTheCookies/cookieserver/internal/database"
 	"github.com/ByteTheCookies/cookieserver/internal/utils"
+	"github.com/ByteTheCookies/cookieserver/internal/websockets"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	jwtware "github.com/gofiber/jwt/v3"
@@ -55,6 +56,10 @@ func RegisterRoutes(app *fiber.App) {
 	privateAPI.Post("/submit-flags", HandlePostFlags)
 	privateAPI.Post("/submit-flag", HandlePostFlag)
 	privateAPI.Post("/config", HandlePostConfig)
+
+	websocketsAPI := app.Group("/ws")
+	manager := websockets.NewManager()
+	websocketsAPI.All("", manager.ServeWS)
 }
 
 // GetStatus is a simple public endpoint used to check if the server is online.

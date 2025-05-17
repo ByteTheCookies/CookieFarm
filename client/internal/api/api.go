@@ -26,7 +26,7 @@ func SendFlag(flags ...models.Flag) error {
 		return err
 	}
 
-	ServerURL := *config.BaseURLServer + "/api/v1/submit-flags"
+	ServerURL := "http://" + *config.HostServer + "/api/v1/submit-flags"
 	req, err := http.NewRequest(http.MethodPost, ServerURL, bytes.NewReader(body))
 	if err != nil {
 		log.Error().Err(err).Str("url", ServerURL).Msg("error creating request")
@@ -58,7 +58,7 @@ func SendFlag(flags ...models.Flag) error {
 
 // GetConfig retrieves the configuration from the CookieFarm server API.
 func GetConfig() (models.Config, error) {
-	ServerURL := *config.BaseURLServer + "/api/v1/config"
+	ServerURL := "http://" + *config.HostServer + "/api/v1/config"
 	req, err := http.NewRequest(http.MethodGet, ServerURL, nil)
 	if err != nil {
 		return models.Config{}, fmt.Errorf("error creating config request: %w", err)
@@ -88,7 +88,7 @@ func GetConfig() (models.Config, error) {
 
 // Login sends a login request to the CookieFarm server API.
 func Login(password string) (string, error) {
-	ServerURL := *config.BaseURLServer + "/api/v1/auth/login"
+	ServerURL := "http://" + *config.HostServer + "/api/v1/auth/login"
 
 	_, err := url.Parse(ServerURL)
 	if err != nil {

@@ -21,7 +21,7 @@ status = {
 
 flag_store = set()
 
-@app.route("/submit", methods=['PUT'])
+@app.route("/flags", methods=['PUT'])
 def check_flags():
     responses = []
 
