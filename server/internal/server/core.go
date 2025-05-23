@@ -68,7 +68,7 @@ func StartFlagProcessingLoop(ctx context.Context) {
 
 // UpdateFlags updates the status of flags in the database.
 func UpdateFlags(flags []models.ResponseProtocol) {
-	valid := flags[:0]
+	valid := make([]models.ResponseProtocol, 0, len(flags))
 
 	accepted, denied, errored := 0, 0, 0
 	for _, f := range flags {

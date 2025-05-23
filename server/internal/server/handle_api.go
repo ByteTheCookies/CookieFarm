@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"encoding/json"
+	"strconv"
 	"strings"
 
 	"github.com/ByteTheCookies/cookieserver/internal/config"
@@ -92,33 +93,33 @@ func HandleCustomQuery(c *fiber.Ctx) error {
 	order := c.Query("order", "")
 
 	filters := []database.FilterQuery{
-		database.FilterQuery{
+		{
 			FilterName:  "team_id",
-			FilterValue: string(filterTeamID),
+			FilterValue: strconv.Itoa(filterTeamID),
 		},
-		database.FilterQuery{
+		{
 			FilterName:  "port_service",
-			FilterValue: string(filterService),
+			FilterValue: strconv.Itoa(filterService),
 		},
-		database.FilterQuery{
+		{
 			FilterName:  "status",
-			FilterValue: string(filterStatus),
+			FilterValue: filterStatus,
 		},
-		database.FilterQuery{
+		{
 			FilterName:  "time",
-			FilterValue: string(filterTime),
+			FilterValue: strconv.Itoa(filterTime),
 		},
 	}
 
 	searchQuery := []database.SearchQuery{
-		database.SearchQuery{
+		{
 			SearchName:  "flag_code",
 			SearchValue: search,
 		},
 	}
 
 	sortQuery := []database.SortQuery{}
-	for _, order := range strings.Split(order, ",") {
+	for order := range strings.SplitSeq(order, ",") {
 		mode := true
 		if order[0] == '-' {
 			mode = false
@@ -136,7 +137,7 @@ func HandleCustomQuery(c *fiber.Ctx) error {
 		SearchQuery: searchQuery,
 	}
 
-	flags, err := database.BuildCustomQuery(finalQuery)
+	flags, err := database.GetCustomFlags(finalQuery)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(models.ResponseError{
 			Error: err.Error(),
@@ -152,7 +153,6 @@ func HandleCustomQuery(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(data)
-
 }
 
 // ---------- POST ----------------

@@ -56,7 +56,7 @@ func GetExecutableDir() string {
 const windowSize = 5
 
 func MakePagination(current, totalPages int) []int {
-	pages := []int{}
+	pages := make([]int, 0, windowSize)
 
 	half := windowSize / 2
 	start := current - half

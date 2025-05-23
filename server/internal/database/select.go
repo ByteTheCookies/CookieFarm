@@ -66,10 +66,9 @@ func GetPagedFlags(limit, offset uint) ([]models.Flag, error) {
 }
 
 // GetCustomFlags retrieves flags based on a custom query.
-func GetCustomFlags(customQuery CustomQuery) ([]models.Flag, error) {
-	query, _ := BuildCustomQuery(customQuery)
-	// NOTTE NOTTE A DOMANI
-	return queryFlags(query, customQuery)
+func GetCustomFlags(queryParams CustomQuery) ([]models.Flag, error) {
+	query, _ := BuildCustomQuery(queryParams)
+	return queryFlags(query, queryParams)
 }
 
 // --------- Flag Code Only ---------
@@ -116,18 +115,18 @@ func queryFlags(query string, args ...any) ([]models.Flag, error) {
 	}
 	defer rows.Close()
 
-	var flags []models.Flag
-	flagPtr := new(models.Flag)
+	flags := make([]models.Flag, 0)
 	for rows.Next() {
+		var flag models.Flag
 		if err := rows.Scan(
-			&flagPtr.FlagCode, &flagPtr.ServiceName, &flagPtr.PortService,
-			&flagPtr.SubmitTime, &flagPtr.ResponseTime, &flagPtr.Status,
-			&flagPtr.TeamID, &flagPtr.Msg,
+			&flag.FlagCode, &flag.ServiceName, &flag.PortService,
+			&flag.SubmitTime, &flag.ResponseTime, &flag.Status,
+			&flag.TeamID, &flag.Msg,
 		); err != nil {
 			logger.Log.Error().Err(err).Msg("Failed to scan row in queryFlags")
 			return nil, err
 		}
-		flags = append(flags, *flagPtr)
+		flags = append(flags, flag)
 	}
 
 	return flags, nil
@@ -168,9 +167,8 @@ func queryFlagCodes(query string, args ...any) ([]string, error) {
 
 // BuildCustomQuery builds a custom SQL query based on the provided filter, sort, and search criteria.
 // It constructs a SQL query string with the specified conditions and returns it.
-// FAR VEDERE A FRANCO
 func BuildCustomQuery(customQuery CustomQuery) (string, error) {
-	var finalQuery string = baseFlagQuery
+	var finalQuery = baseFlagQuery
 
 	if len(customQuery.FilterQuery) > 0 {
 		finalQuery += " WHERE"
@@ -211,5 +209,4 @@ func BuildCustomQuery(customQuery CustomQuery) (string, error) {
 	}
 
 	return finalQuery, nil
-
 }
