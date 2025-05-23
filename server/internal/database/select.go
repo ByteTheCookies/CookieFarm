@@ -27,9 +27,23 @@ type SortQuery struct {
 	SortValue bool // 0 asc 1 desc
 }
 
+func (s SortQuery) IsEmpy() bool {
+	if s.SortName == "" {
+		return true
+	}
+	return false
+}
+
 type SearchQuery struct {
 	SearchName  string
 	SearchValue string
+}
+
+func (s SearchQuery) IsEmpy() bool {
+	if s.SearchName == "" && s.SearchValue == "" {
+		return true
+	}
+	return false
 }
 
 type CustomQuery struct {
@@ -75,9 +89,32 @@ func GetPagedFlags(limit uint, offset uint) ([]models.Flag, error) {
 }
 
 // GetCustomFlags retrieves flags based on a custom query.
-func GetCustomFlags(queryParams CustomQuery, limit uint, offest uint) ([]models.Flag, error) {
-	query, _ := BuildCustomQuery(queryParams)
-	return queryFlags(query, queryParams, limit, offest)
+func GetCustomFlags(queryParams CustomQuery, limit uint, offset uint) ([]models.Flag, error) {
+	query, err := BuildCustomQuery(queryParams)
+	if err != nil {
+		return nil, err
+	}
+
+	args := make([]any, 0)
+
+	// Add filter arguments
+	for _, filter := range queryParams.FilterQuery {
+		if filter.FilterName != "" && filter.FilterValue != "" {
+			args = append(args, filter.FilterValue)
+		}
+	}
+
+	// Add search arguments
+	for _, search := range queryParams.SearchQuery {
+		if search.SearchName != "" && search.SearchValue != "" {
+			args = append(args, "%"+search.SearchValue+"%")
+		}
+	}
+
+	// Add limit and offset
+	args = append(args, limit, offset)
+
+	return queryFlags(query, args...)
 }
 
 // --------- Flag Code Only ---------
@@ -109,6 +146,9 @@ func GetPagedFlagCodeList(limit, offset uint) ([]string, error) {
 func queryFlags(query string, args ...any) ([]models.Flag, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
+
+	logger.Log.Debug().Str("query", query).Msg("Querying flags")
+	logger.Log.Debug().Msgf("args %+v", args)
 
 	stmt, err := DB.PrepareContext(ctx, query)
 	if err != nil {
@@ -203,7 +243,10 @@ func BuildCustomQuery(customQuery CustomQuery) (string, error) {
 		} else {
 			finalQuery += " WHERE"
 		}
-		finalQuery += " " + customQuery.SearchQuery[0].SearchValue + " LIKE ?"
+		logger.Log.Debug().Str("search", customQuery.SearchQuery[0].SearchValue).Msg("Search query")
+		logger.Log.Debug().Str("search", customQuery.SearchQuery[0].SearchName).Msg("Search query")
+
+		finalQuery += " " + customQuery.SearchQuery[0].SearchName + " LIKE ?"
 	}
 
 	if len(customQuery.SortQuery) > 0 {
@@ -224,6 +267,8 @@ func BuildCustomQuery(customQuery CustomQuery) (string, error) {
 	}
 
 	finalQuery += " LIMIT ? OFFSET ?"
+
+	logger.Log.Debug().Str("query", finalQuery).Msg("Final custom query")
 
 	return finalQuery, nil
 }

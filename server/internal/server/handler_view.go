@@ -2,7 +2,6 @@ package server
 
 import (
 	"math"
-	"strconv"
 	"strings"
 
 	"github.com/ByteTheCookies/cookieserver/internal/config"
@@ -95,6 +94,24 @@ func ValidateSearchQuery(value string, threshold string, field string) database.
 	}
 }
 
+func ValidateSortQuery(value bool, threshold string, field string) database.SortQuery {
+	if field == threshold {
+		return database.SortQuery{}
+	}
+	return database.SortQuery{
+		SortName:  field,
+		SortValue: value,
+	}
+}
+
+func parseFilter(field string) string {
+	return strings.Split(field, "-")[1]
+}
+
+func parseSort(field string) string {
+	return strings.Split(field, "-")[1]
+}
+
 // HandlePartialsFlags renders only the flags rows as a partial view.
 // It fetches a limited and paginated list of flags from the database.
 func HandlePartialsFlags(c *fiber.Ctx) error {
@@ -110,50 +127,34 @@ func HandlePartialsFlags(c *fiber.Ctx) error {
 	logger.Log.Debug().Int("offset", offset).Int("limit", limit).Msg("Paginated flags request")
 
 	filters := []database.FilterQuery{}
+	sorts := []database.SortQuery{}
+	searchQuery := []database.SearchQuery{}
+	// Get all query params list
+	queryParams := c.Queries()
 
-	filterTeamID := ValidateFiltersQuery(
-		strconv.Itoa(c.QueryInt("filter-teamid", -1)),
-		"-1",
-		"team_id",
-	)
-	if !filterTeamID.IsEmpy() {
-		filters = append(filters, filterTeamID)
-	}
+	for key, value := range queryParams {
+		if strings.HasPrefix(key, "filter-") {
+			filter := ValidateFiltersQuery(
+				value,
+				"-1",
+				parseFilter(key),
+			)
+			if !filter.IsEmpy() {
+				filters = append(filters, filter)
+			}
+		}
 
-	filterService := ValidateFiltersQuery(
-		strconv.Itoa(c.QueryInt("filter-service", 0)),
-		"-1",
-		"port_service",
-	)
-	if !filterService.IsEmpy() {
-		filters = append(filters, filterService)
-	}
+		if strings.HasPrefix(key, "sort-") {
+			sort := ValidateSortQuery(
+				value == "true",
+				"-1",
+				parseFilter(key),
+			)
+			if !sort.IsEmpy() {
+				sorts = append(sorts, sort)
+			}
+		}
 
-	filterStatus := ValidateFiltersQuery(
-		c.Query("filter-status", ""),
-		"",
-		"status",
-	)
-	if !filterStatus.IsEmpy() {
-		filters = append(filters, filterStatus)
-	}
-
-	filterResponseTime := ValidateFiltersQuery(
-		strconv.Itoa(c.QueryInt("filter-response-time", 0)),
-		"0",
-		"response_time",
-	)
-	if !filterResponseTime.IsEmpy() {
-		filters = append(filters, filterResponseTime)
-	}
-
-	filterSubmitTime := ValidateFiltersQuery(
-		strconv.Itoa(c.QueryInt("filter-submit-time", 0)),
-		"0",
-		"submit_time",
-	)
-	if !filterSubmitTime.IsEmpy() {
-		filters = append(filters, filterSubmitTime)
 	}
 
 	search := ValidateSearchQuery(
@@ -161,35 +162,41 @@ func HandlePartialsFlags(c *fiber.Ctx) error {
 		"",
 		"msg",
 	)
-
-	searchQuery := []database.SearchQuery{search}
-
-	sortQuery := []database.SortQuery{}
-	for order := range strings.SplitSeq(c.Query("order", ""), ",") {
-		mode := true
-		if order[0] == '-' {
-			mode = false
-		}
-
-		sortQuery = append(sortQuery, database.SortQuery{
-			SortName:  order[1:],
-			SortValue: mode,
-		})
+	if !search.IsEmpy() {
+		searchQuery = append(searchQuery, search)
 	}
+
+	logger.Log.Debug().Msg("GG")
 
 	finalQuery := database.CustomQuery{
 		FilterQuery: filters,
-		SortQuery:   sortQuery,
+		SortQuery:   sorts,
 		SearchQuery: searchQuery,
 	}
 
+	logger.Log.Debug().Msgf("Final Query: %+v", finalQuery)
+	// Loggami tutto in modo approfondito
+	logger.Log.Debug().Msgf("Filters: %+v", filters)
+	logger.Log.Debug().Msgf("Sorts: %+v", sorts)
+	logger.Log.Debug().Msgf("Search: %+v", searchQuery)
+	logger.Log.Debug().Msgf("QueryParams: %+v", queryParams)
+	logger.Log.Debug().Msgf("Limit: %d", limit)
+	logger.Log.Debug().Msgf("Offset: %d", offset)
+	// Le len
+
+	logger.Log.Debug().Msgf("Filters len: %d", len(finalQuery.FilterQuery))
+	logger.Log.Debug().Msgf("Sorts len: %d", len(finalQuery.SortQuery))
+	logger.Log.Debug().Msgf("Search len: %d", len(finalQuery.SearchQuery))
+
 	var flags []models.Flag
 	if len(finalQuery.FilterQuery) == 0 && len(finalQuery.SearchQuery) == 0 && len(finalQuery.SortQuery) == 0 {
+		logger.Log.Debug().Msg("No filters, search or sort query provided")
 		flags, err = database.GetPagedFlags(uint(limit), uint(offset))
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).SendString("Error retrieving flags")
 		}
 	} else {
+		logger.Log.Debug().Msg("Filters, search or sort query provided")
 		flags, err = database.GetCustomFlags(finalQuery, uint(limit), uint(offset))
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).SendString("Error retrieving flags")
