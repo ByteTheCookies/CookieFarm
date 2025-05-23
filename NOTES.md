@@ -57,7 +57,17 @@
 - [x] Aggiungere un bottone sulla table per aggiornarla senza ricaricare la pagina
 
 ## RELEASE 1.1
-- [ ] Filtri, Search flag, Sort @suga
+- [ ] Filtri
+   Filtri componibili fatti da SQL
+   - [ ] Filtri per servizi
+   - [ ] Filtri per team
+   - [ ] Fitri per Status
+   - [ ] Filtri per tempo (last 30m, last 1h, ...)
+- [ ] Search message
+   - [ ] Search WHERE msg LIKE '%?%'
+- [ ] Sort @suga
+    - [ ] Sort by team
+    - [ ] Sort by time
 - [ ] Compatibilità windows/macos @Dabi
 - [ ] Tutorial nella dashboard @suga
 - [ ] Possibilità di scaricare dal server il client @suga -> dependes on (Tutorial nella dashboard @suga)

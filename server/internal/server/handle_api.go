@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"encoding/json"
+	"strings"
 
 	"github.com/ByteTheCookies/cookieserver/internal/config"
 	"github.com/ByteTheCookies/cookieserver/internal/database"
@@ -75,6 +76,83 @@ func HandleGetPaginatedFlags(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(data)
+}
+
+// CAPIRE LA BEST PRACTICE PER LE QUERY
+// Filtro per porta e team_id
+// http://.../api/v1/flags?filter-teamid=team_id&filter-port=port
+// + = DESC , - = ASC
+// http://.../api/v1/flags?filter-teamid=65&filter-service=8080&filter-status=DENIED&filter-time=90&search=ciao&order=+response_time,-team_id, +submit_time
+func HandleCustomQuery(c *fiber.Ctx) error {
+	filterTeamID := c.QueryInt("filter-teamid", -1)
+	filterService := c.QueryInt("filter-service", 0)
+	filterStatus := c.Query("filter-status", "")
+	filterTime := c.QueryInt("filter-time", 0)
+	search := c.Query("search", "")
+	order := c.Query("order", "")
+
+	filters := []database.FilterQuery{
+		database.FilterQuery{
+			FilterName:  "team_id",
+			FilterValue: string(filterTeamID),
+		},
+		database.FilterQuery{
+			FilterName:  "port_service",
+			FilterValue: string(filterService),
+		},
+		database.FilterQuery{
+			FilterName:  "status",
+			FilterValue: string(filterStatus),
+		},
+		database.FilterQuery{
+			FilterName:  "time",
+			FilterValue: string(filterTime),
+		},
+	}
+
+	searchQuery := []database.SearchQuery{
+		database.SearchQuery{
+			SearchName:  "flag_code",
+			SearchValue: search,
+		},
+	}
+
+	sortQuery := []database.SortQuery{}
+	for _, order := range strings.Split(order, ",") {
+		mode := true
+		if order[0] == '-' {
+			mode = false
+		}
+
+		sortQuery = append(sortQuery, database.SortQuery{
+			SortName:  order[1:],
+			SortValue: mode,
+		})
+	}
+
+	finalQuery := database.CustomQuery{
+		FilterQuery: filters,
+		SortQuery:   sortQuery,
+		SearchQuery: searchQuery,
+	}
+
+	flags, err := database.BuildCustomQuery(finalQuery)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(models.ResponseError{
+			Error: err.Error(),
+		})
+	}
+
+	if flags == nil {
+		flags = []models.Flag{}
+	}
+	data := models.ResponseFlags{
+		Nflags: len(flags),
+		Flags:  flags,
+	}
+
+	return c.JSON(data)
+
 }
 
 // ---------- POST ----------------

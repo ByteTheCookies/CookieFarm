@@ -8,8 +8,29 @@ import (
 	"github.com/ByteTheCookies/cookieserver/internal/models"
 )
 
+type FilterQuery struct {
+	FilterName  string
+	FilterValue string
+}
+
+type SortQuery struct {
+	SortName  string
+	SortValue bool // 0 asc 1 desc
+}
+
+type SearchQuery struct {
+	SearchName  string
+	SearchValue string
+}
+
+type CustomQuery struct {
+	FilterQuery []FilterQuery
+	SortQuery   []SortQuery
+	SearchQuery []SearchQuery
+}
+
 const (
-	baseFlagQuery         = `SELECT flag_code, service_name,port_service, submit_time, response_time, status, team_id, msg FROM flags`
+	baseFlagQuery         = `SELECT flag_code, service_name, port_service, submit_time, response_time, status, team_id, msg FROM flags`
 	queryAllFlags         = baseFlagQuery + " ORDER BY submit_time DESC"
 	queryFirstNFlags      = baseFlagQuery + " ORDER BY submit_time DESC LIMIT ?"
 	queryUnsubmittedFlags = baseFlagQuery + " WHERE status = 'UNSUBMITTED' ORDER BY submit_time ASC LIMIT ?"
@@ -42,6 +63,13 @@ func GetFirstNFlags(limit uint) ([]models.Flag, error) {
 // GetPagedFlags retrieves the flags from the database starting at the given offset.
 func GetPagedFlags(limit, offset uint) ([]models.Flag, error) {
 	return queryFlags(queryPagedFlags, limit, offset)
+}
+
+// GetCustomFlags retrieves flags based on a custom query.
+func GetCustomFlags(customQuery CustomQuery) ([]models.Flag, error) {
+	query, _ := BuildCustomQuery(customQuery)
+	// NOTTE NOTTE A DOMANI
+	return queryFlags(query, customQuery)
 }
 
 // --------- Flag Code Only ---------
@@ -136,4 +164,52 @@ func queryFlagCodes(query string, args ...any) ([]string, error) {
 	}
 
 	return codes, nil
+}
+
+// BuildCustomQuery builds a custom SQL query based on the provided filter, sort, and search criteria.
+// It constructs a SQL query string with the specified conditions and returns it.
+// FAR VEDERE A FRANCO
+func BuildCustomQuery(customQuery CustomQuery) (string, error) {
+	var finalQuery string = baseFlagQuery
+
+	if len(customQuery.FilterQuery) > 0 {
+		finalQuery += " WHERE"
+		for i, filter := range customQuery.FilterQuery {
+			if i > 0 {
+				finalQuery += " AND"
+			}
+			if filter.FilterName == "time" { // TODO: FAI VEDERE A FRANCO
+				finalQuery += " unixepoch('now') - response_time <= ?*60"
+				continue
+			}
+			finalQuery += " " + filter.FilterName + " = ?"
+		}
+	}
+
+	if len(customQuery.SearchQuery) > 0 {
+		if len(customQuery.FilterQuery) > 0 {
+			finalQuery += " AND"
+		} else {
+			finalQuery += " WHERE"
+		}
+		finalQuery += " " + customQuery.SearchQuery[0].SearchValue + " LIKE ?"
+	}
+
+	if len(customQuery.SortQuery) > 0 {
+		finalQuery += " ORDER BY"
+		for i, sort := range customQuery.SortQuery {
+			if i > 0 {
+				finalQuery += ","
+			}
+			finalQuery += " " + sort.SortName
+			if sort.SortValue {
+				finalQuery += " DESC"
+			} else {
+				finalQuery += " ASC"
+			}
+		}
+	}
+
+	return finalQuery, nil
+
 }
