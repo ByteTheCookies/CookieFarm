@@ -8,9 +8,18 @@ import (
 	"github.com/ByteTheCookies/cookieserver/internal/models"
 )
 
+// CI SEI? ok guardIa
+
 type FilterQuery struct {
 	FilterName  string
 	FilterValue string
+}
+
+func (f FilterQuery) IsEmpy() bool {
+	if f.FilterName == "" && f.FilterValue == "" {
+		return true
+	}
+	return false
 }
 
 type SortQuery struct {
@@ -61,14 +70,14 @@ func GetFirstNFlags(limit uint) ([]models.Flag, error) {
 }
 
 // GetPagedFlags retrieves the flags from the database starting at the given offset.
-func GetPagedFlags(limit, offset uint) ([]models.Flag, error) {
+func GetPagedFlags(limit uint, offset uint) ([]models.Flag, error) {
 	return queryFlags(queryPagedFlags, limit, offset)
 }
 
 // GetCustomFlags retrieves flags based on a custom query.
-func GetCustomFlags(queryParams CustomQuery) ([]models.Flag, error) {
+func GetCustomFlags(queryParams CustomQuery, limit uint, offest uint) ([]models.Flag, error) {
 	query, _ := BuildCustomQuery(queryParams)
-	return queryFlags(query, queryParams)
+	return queryFlags(query, queryParams, limit, offest)
 }
 
 // --------- Flag Code Only ---------
@@ -176,8 +185,12 @@ func BuildCustomQuery(customQuery CustomQuery) (string, error) {
 			if i > 0 {
 				finalQuery += " AND"
 			}
-			if filter.FilterName == "time" { // TODO: FAI VEDERE A FRANCO
+			if filter.FilterName == "submit_time" {
 				finalQuery += " unixepoch('now') - response_time <= ?*60"
+				continue
+			}
+			if filter.FilterName == "response_time" {
+				finalQuery += " unixepoch('now') - submit_time <= ?*60"
 				continue
 			}
 			finalQuery += " " + filter.FilterName + " = ?"
@@ -206,7 +219,11 @@ func BuildCustomQuery(customQuery CustomQuery) (string, error) {
 				finalQuery += " ASC"
 			}
 		}
+	} else {
+		finalQuery += " ORDER BY submit_time DESC"
 	}
+
+	finalQuery += " LIMIT ? OFFSET ?"
 
 	return finalQuery, nil
 }

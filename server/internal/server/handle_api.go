@@ -91,6 +91,8 @@ func HandleCustomQuery(c *fiber.Ctx) error {
 	filterTime := c.QueryInt("filter-time", 0)
 	search := c.Query("search", "")
 	order := c.Query("order", "")
+	limit := c.QueryInt("limit", config.DefaultLimit)
+	offset := c.QueryInt("offset", config.DefaultOffeset)
 
 	filters := []database.FilterQuery{
 		{
@@ -137,7 +139,7 @@ func HandleCustomQuery(c *fiber.Ctx) error {
 		SearchQuery: searchQuery,
 	}
 
-	flags, err := database.GetCustomFlags(finalQuery)
+	flags, err := database.GetCustomFlags(finalQuery, uint(limit), uint(offset))
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(models.ResponseError{
 			Error: err.Error(),
