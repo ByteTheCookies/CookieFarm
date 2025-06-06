@@ -1,21 +1,19 @@
 #!/bin/sh
 
-# Default fallback per la porta
 PORT="${PORT:-8080}"
 DEBUG="${DEBUG:-false}"
 
-# Costruisci il comando base
-CMD="/app/bin/cookieserver -p \"$PASSWORD\" -P \"$PORT\""
+CMD="/app/bin/cookieserver"
 
-# Aggiungi config file se esiste
+CMD="$CMD -p \"$PASSWORD\""
+CMD="$CMD -P \"$PORT\""
+
 if [ -n "$CONFIG_FROM_FILE" ]; then
     CMD="$CMD -c \"$CONFIG_FROM_FILE\""
 fi
 
-# Aggiungi flag debug solo se DEBUG=true
 if [ "$DEBUG" = "true" ]; then
     CMD="$CMD -d"
 fi
 
-# Esegui
 eval exec $CMD

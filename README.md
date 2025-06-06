@@ -59,9 +59,9 @@ Make sure you have the following installed:
     ```bash
       # Server configuration
       DEBUG=false                   # Enable debug mode for verbose logging
-      SERVER_PASSWORD=SuperSecret  # Set a strong password for authentication
+      PASSWORD=SuperSecret  # Set a strong password for authentication
       CONFIG_FROM_FILE=config.yml  # Set if the server takes the config from config.yml in the filesystem; otherwise, do not set the variable
-      SERVER_PORT=8080            # Define the port the server will listen on
+      PORT=8080            # Define the port the server will listen on
     ```
 
   > ⚠️ For production environments, set `DEBUG=false` and use a strong, unique password

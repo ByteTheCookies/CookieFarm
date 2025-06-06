@@ -14,6 +14,8 @@ services:
       DEBUG: ${DEBUG}
     volumes:
       - sqlite_bp:/app/database
+    networks:
+      - cookiefarm-network
   frontend:
     build:
       context: ./frontend
@@ -25,6 +27,14 @@ services:
       - NODE_ENV=production
     depends_on:
       - app
+    networks:
+      - cookiefarm-network
 
 volumes:
   sqlite_bp:
+    driver: local
+
+networks:
+  cookiefarm-network:
+    driver: bridge
+    name: cookiefarm-network
