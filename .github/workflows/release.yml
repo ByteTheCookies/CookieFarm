@@ -1,0 +1,38 @@
+#
+# Releaser workflow setup
+# https://goreleaser.com/ci/actions/
+#
+name: release
+
+# run only on tags
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write # needed to write releases
+  id-token: write # needed for keyless signing
+  packages: write # needed for ghcr access
+  attestations: write # needed for provenance
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # this is important, otherwise it won't checkout the full tree (i.e. no previous tags)
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - uses: sigstore/cosign-installer@v3.8.2 # installs cosign
+      - uses: anchore/sbom-action/download-syft@v0.20.0 # installs syft
+      - uses: goreleaser/goreleaser-action@v6 # run goreleaser
+        with:
+          version: latest
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DISCORD_WEBHOOK_ID: ${{ secrets.DISCORD_WEBHOOK_ID }}
+          DISCORD_WEBHOOK_TOKEN: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}

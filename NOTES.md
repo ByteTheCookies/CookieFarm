@@ -73,6 +73,7 @@
 ## RELEASE 1.2
 
 - [ ] Install cookieclient (binary) with pip @suga
+- [ ] Exploit test
 - [ ] Update data structure:
   1. Rename Flag struct to ClientData
   2. Add username, exploit name
