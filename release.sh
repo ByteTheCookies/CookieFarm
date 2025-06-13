@@ -10,7 +10,6 @@ if [ -z "$type" ] || [ -z "$version" ]; then
   exit 1
 fi
 
-
 SOURCE_BRANCH="release/$version"
 git switch $SOURCE_BRANCH
 git rm -r $FILES_TO_REMOVE

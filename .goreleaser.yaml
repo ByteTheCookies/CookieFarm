@@ -64,23 +64,21 @@ changelog:
       - "^monitoring:"
 
 release:
-  name_template: "Release {{.Tag}}"
+  name_template: "CookieFarm release {{.Tag}}"
   header: |
-    ## CookieFarm {{.Tag}}
-
     Welcome to this new release of CookieFarm! 🍪
-
-    ### What's New
 
   footer: |
     **Full Changelog**: https://github.com/ByteTheCookies/CookieFarm/compare/{{.PreviousTag}}...{{.Tag}}
+
+    Make by ByteTheCookies with ❤️ and cookies
 
 report_sizes: true
 
 announce:
   discord:
     enabled: true
-    message_template: "New CookieFarm release {{.Tag}} is out!"
-    author: "akiidjk & suga"
-    color: "CDA158"
+    message_template: "New **CookieFarm** release {{.Tag}} is out! :cookie~1:"
+    author: "ByteTheCookies"
+    color: "13476184"
     icon_url: "https://bytethecookies.github.io/logo/logo.png"
