@@ -10,20 +10,13 @@ if [ -z "$type" ] || [ -z "$version" ]; then
   exit 1
 fi
 
-if [ "$type" == "release" ]; then
-    SOURCE_BRANCH="release/$version"
-    git switch $SOURCE_BRANCH
-    git rm -r $FILES_TO_REMOVE
-    git commit -m "Pulizia file non destinati alla produzione"
-    git flow release publish "$version"
-    git push
-    git flow release finish "$version" --nodevelopmerge -Fp
-elif [ "$type" == "hotfix" ]; then
-  git flow hotfix finish "$version" -Fp
-  SOURCE_BRANCH="hotfix/$version"
-else
-  echo "Invalid type: must be 'release' or 'hotfix'"
-  exit 1
-fi
+
+SOURCE_BRANCH="release/$version"
+git switch $SOURCE_BRANCH
+git rm -r $FILES_TO_REMOVE
+git commit -m "Pulizia file non destinati alla produzione"
+git flow release publish "$version"
+git push
+git flow release finish "$version" --nodevelopmerge -Fp
 
 git switch main
