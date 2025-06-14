@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ByteTheCookies/CookieFarm/internal/server/protocols"
 	"github.com/ByteTheCookies/CookieFarm/pkg/logger"
+	"github.com/ByteTheCookies/CookieFarm/pkg/protocols"
 )
 
 const (

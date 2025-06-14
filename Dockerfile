@@ -20,10 +20,10 @@ WORKDIR /app
 RUN apk add --no-cache libc6-compat dos2unix
 
 COPY --from=build /app/bin/cookieserver /app/bin/cookieserver
-COPY --from=build /app/internal/server/public /app/public
+COPY --from=build /app/internal/server/public /app/internal/server/public
 COPY --from=build /app/config.yml /app/config.yml
-COPY --from=build /app/internal/server/protocols /app/protocols
-COPY --from=build /app/internal/server/ui/views /app/internal/ui/views
+COPY --from=build /app/pkg/protocols /app/protocols
+COPY --from=build /app/internal/server/ui/views /app/internal/server/ui/views
 
 RUN touch ./cookiefarm.db
 

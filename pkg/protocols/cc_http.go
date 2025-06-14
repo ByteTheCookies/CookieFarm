@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/ByteTheCookies/CookieFarm/internal/server/protocols"
+	"github.com/ByteTheCookies/CookieFarm/pkg/protocols"
 )
 
 func Submit(host string, team_token string, flags []string) ([]protocols.ResponseProtocol, error) {

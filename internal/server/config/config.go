@@ -2,8 +2,8 @@
 package config
 
 import (
-	"github.com/ByteTheCookies/CookieFarm/internal/server/protocols"
 	"github.com/ByteTheCookies/CookieFarm/pkg/models"
+	"github.com/ByteTheCookies/CookieFarm/pkg/protocols"
 )
 
 var SharedConfig models.ConfigShared // Initialize the config struct

@@ -96,17 +96,25 @@ server-clean:
 	@rm -rf $(SERVER_BIN_DIR)/* $(SERVER_LOGS_DIR)/*
 
 server-build-plugins:
-	@for file in $$(find ./internal/server/protocols -name '*.go' ! -name 'protocols.go'); do \
-		filename=$$(basename $$file); \
-		pluginname=$${filename%.go}; \
-		go build -race -gcflags -m -buildmode=plugin -o "./internal/server/protocols/$$pluginname.so" "$$file"; \
+	@for file in $(shell find ./pkg/protocols -name '*.go' ! -name 'protocols.go'); do \
+		if grep -q '^package main' "$$file"; then \
+			filename=$$(basename $$file); \
+			pluginname=$${filename%.go}; \
+			go build -race -gcflags="all=-m" -buildmode=plugin -o "./pkg/protocols/$$pluginname.so" "$$file"; \
+		else \
+			echo "Skipping $$file: not a main package"; \
+		fi; \
 	done
 
 server-build-plugins-prod:
-	@for file in $$(find ./internal/server/protocols -name '*.go' ! -name 'protocols.go'); do \
-		filename=$$(basename $$file); \
-		pluginname=$${filename%.go}; \
-		GOOS=$(GOOS) GOARCH=$(GOARCH) go build -trimpath -buildmode=plugin -ldflags="-s -w" -o "./internal/server/protocols/$$pluginname.so" "$$file"; \
+	@for file in $(shell find ./pkg/protocols -name '*.go' ! -name 'protocols.go'); do \
+		if grep -q '^package main' "$$file"; then \
+			filename=$$(basename $$file); \
+			pluginname=$${filename%.go}; \
+			GOOS=$(GOOS) GOARCH=$(GOARCH) go build -trimpath -buildmode=plugin -ldflags="-s -w" -o "./pkg/protocols/$$pluginname.so" "$$file"; \
+		else \
+			echo "Skipping $$file: not a main package"; \
+		fi; \
 	done
 
 server-watch:

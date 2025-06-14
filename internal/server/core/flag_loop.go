@@ -5,10 +5,10 @@ import (
 	"time"
 
 	"github.com/ByteTheCookies/CookieFarm/internal/server/config"
-	"github.com/ByteTheCookies/CookieFarm/internal/server/protocols"
 	"github.com/ByteTheCookies/CookieFarm/internal/server/sqlite"
 	"github.com/ByteTheCookies/CookieFarm/pkg/logger"
 	"github.com/ByteTheCookies/CookieFarm/pkg/models"
+	"github.com/ByteTheCookies/CookieFarm/pkg/protocols"
 )
 
 var shutdownCancel context.CancelFunc
