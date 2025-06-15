@@ -84,6 +84,13 @@ def get_flag_somewhere():
     except FileNotFoundError:
         return "Error: Text file not found"
 
+
+# ============ Service #6 ============
+@app.route('/get-more-flags/', methods=['GET'])
+def get_more_flag():
+    flags = [generate_random_flag() for _ in range(5)]
+    return "<br>".join(flags)
+
 @app.route('/')
 def index():
     return render_template("index.html")
