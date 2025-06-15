@@ -13,15 +13,18 @@ type ConfigServer struct {
 	HostFlagchecker       string `json:"host_flagchecker" yaml:"host_flagchecker"`                 // Address of the flagchecker server
 	TeamToken             string `json:"team_token" yaml:"team_token"`                             // Authentication token for team identity
 	Protocol              string `json:"protocol" yaml:"protocol"`                                 // Protocol used to communicate with the flagchecker server
+	TickTime              int    `json:"tick_time" yaml:"tick_time"`                               // Duration of one game tick in seconds
+	StartTime             string `json:"start_time" yaml:"start_time"`                             // CTF competition start time (ISO 8601 format)
 }
 
 // ConfigClient contains all client-side configuration options.
 type ConfigClient struct {
 	RegexFlag     string    `json:"regex_flag" yaml:"regex_flag"`           // Regex used to identify flags in output
 	FormatIPTeams string    `json:"format_ip_teams" yaml:"format_ip_teams"` // Format string for generating team IPs
-	MyTeamIP      string    `json:"my_team_ip" yaml:"my_team_ip"`           // IP address of the current team
+	MyTeamID      string    `json:"my_team_id" yaml:"my_team_id"`           // ID of the current team
 	Services      []Service `json:"services" yaml:"services"`               // List of services to exploit
 	RangeIPTeams  uint8     `json:"range_ip_teams" yaml:"range_ip_teams"`   // Number of teams / IP range
+	NOPTeam       int       `json:"nop_team" yaml:"nop_team"`               // The id of the nop team in the ctf
 }
 
 // ConfigShared aggregates both server and client configuration,
@@ -39,14 +42,16 @@ const (
 	StatusError       = "ERROR"       // Status for error flags
 )
 
-// Flag represents a single flag captured during a CTF round.
+// ClientData represents a single flag captured during a CTF round.
 // It includes metadata about the submission and the service context.
-type Flag struct {
+type ClientData struct {
 	SubmitTime   uint64 `json:"submit_time"`   // UNIX timestamp when the flag was submitted
 	ResponseTime uint64 `json:"response_time"` // UNIX timestamp when a response was received
 	FlagCode     string `json:"flag_code"`     // Actual flag string
 	ServiceName  string `json:"service_name"`  // Human-readable name of the service
 	Status       string `json:"status"`        // Status of the submission (e.g., "unsubmitted", "accepted", "denied")
+	Username     string `json:"username"`      // Username of client
+	ExploitName  string `json:"exploit_name"`  // Name of the exploit
 	Msg          string `json:"msg"`           // Message from the flag checker service
 	PortService  uint16 `json:"port_service"`  // Port of the vulnerable service
 	TeamID       uint16 `json:"team_id"`       // ID of the team the flag was captured from

@@ -25,7 +25,7 @@ func CreateForm(command string) ([]textinput.Model, []string) {
 		inputs, labels = createLoginForm()
 	case "config update":
 		inputs, labels = createConfigUpdateForm()
-	case "exploit run":
+	case "exploit run", "exploit test":
 		inputs, labels = createExploitRunForm()
 	case "exploit create", "exploit remove":
 		inputs, labels = createExploitNameForm()
@@ -185,7 +185,7 @@ func ValidateForm(command string, inputs []textinput.Model) error {
 		return validateLoginForm(inputs)
 	case "config update":
 		return validateConfigUpdateForm(inputs)
-	case "exploit run":
+	case "exploit run", "exploit test":
 		return validateExploitRunForm(inputs)
 	case "exploit create", "exploit remove":
 		return validateExploitNameForm(inputs)

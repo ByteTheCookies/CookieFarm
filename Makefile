@@ -56,6 +56,7 @@ help:
 	@echo -e ""
 	@echo -e "  $(CYAN)make client-build$(RESET)           - Build the client"
 	@echo -e "  $(CYAN)make client-run$(RESET)             - Run the client"
+	@echo -e "  $(CYAN)make client-install$(RESET)         - Install the client"
 	@echo -e "  $(CYAN)make client-test$(RESET)            - Run client tests"
 	@echo -e "  $(CYAN)make client-install$(RESET)         - Install the client"
 	@echo -e "  $(CYAN)make client-clean$(RESET)           - Clean client build"
@@ -150,11 +151,11 @@ client-build-prod:
 client-run: client-build
 	@$(CLIENT_BIN_DIR)$(PATHSEP)$(CLIENT_BINARY_NAME)
 
+client-install: client-build
+	@sudo cp $(CLIENT_BIN_DIR)$(PATHSEP)$(CLIENT_BINARY_NAME) /usr/local/bin/$(CLIENT_BINARY_NAME)
+
 client-test:
 	@go test ./...
-
-client-install: client-build
-	@go install .
 
 # === SHARED TOOLS ===
 

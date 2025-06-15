@@ -58,6 +58,7 @@ func createConfigMenu() list.Model {
 func createExploitMenu() list.Model {
 	exploitMenuItems := []list.Item{
 		menuItem{title: "Run Exploit", description: "Run an exploit against other teams", command: "exploit run"},
+		menuItem{title: "Test Exploit", description: "Test an exploit on the nop team", command: "exploit test"},
 		menuItem{title: "Create Exploit", description: "Create a new exploit template", command: "exploit create"},
 		menuItem{title: "List Exploits", description: "List all running exploits", command: "exploit list"},
 		menuItem{title: "Stop Exploit", description: "Stop a running exploit", command: "exploit stop"},
@@ -126,7 +127,7 @@ func IsDirectCommand(command string) bool {
 // RequiresInput checks if the command requires user input
 func RequiresInput(command string) bool {
 	switch command {
-	case "config login", "config update", "exploit run", "exploit create", "exploit remove", "exploit stop":
+	case "config login", "config update", "exploit run", "exploit create", "exploit remove", "exploit stop", "exploit test":
 		return true
 	default:
 		return false

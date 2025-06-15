@@ -74,15 +74,15 @@
 
 - [ ] Install cookieclient (binary) with pip @suga
 - [ ] Exploit test
-- [ ] Update data structure:
+- [x] Update data structure:
   1. Rename Flag struct to ClientData
   2. Add username, exploit name
   3. Addare nella config del server: ticktime, ad_start
-- [ ] Client update:
-  - [ ] Handle the stats that client sends to the server @akiidjk
-  - [ ] Add the Test command to the client (run the exploit only for the NOP team) @akiidjk
-    - [ ] Add in the Server Config (`config.yml`) the id of the NOP team @akiidjk
-    - [ ] Replace in the Server Config (`config.yml`) the 'my ip' with the id of the team NOT the ip address @akiidjk
+- [x] Client update:
+  - [x] Handle the stats that client sends to the server @akiidjk
+  - [x] Add the Test command to the client (run the exploit only for the NOP team) @akiidjk
+    - [x] Add in the Server Config (`config.yml`) the id of the NOP team @akiidjk
+    - [x] Replace in the Server Config (`config.yml`) the 'my ip' with the id of the team NOT the ip address @akiidjk
 - [ ] Design con shadcnui @suga
   - [ ] Tutorial nella dashboard @suga
   - [ ] Possibilità di scaricare dal server il client @suga -> dependes on (Tutorial nella dashboard @suga)
