@@ -29,7 +29,7 @@ func HandleGetAllFlags(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{Error: err.Error()})
 	}
 	if flags == nil {
-		flags = []models.Flag{}
+		flags = []models.ClientData{}
 	}
 	data := ResponseFlags{
 		Nflags: len(flags),
@@ -67,7 +67,7 @@ func HandleGetPaginatedFlags(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{Error: err.Error()})
 	}
 	if flags == nil {
-		flags = []models.Flag{}
+		flags = []models.ClientData{}
 	}
 	return c.JSON(ResponseFlags{
 		Nflags: len(flags),

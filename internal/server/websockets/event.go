@@ -23,7 +23,7 @@ func init() {
 
 // FlagHandler will send out a message to all other participants in the chat
 func FlagHandler(event Event, client *Client) error {
-	var flag models.Flag
+	var flag models.ClientData
 	if err := json.Unmarshal(event.Payload, &flag); err != nil {
 		return fmt.Errorf("bad payload in request: %v", err)
 	}

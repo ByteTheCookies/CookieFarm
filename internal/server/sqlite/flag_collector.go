@@ -17,13 +17,13 @@ const (
 
 // FlagCollector manages the collection and flushing of flags to the database
 type FlagCollector struct {
-	buffer     []models.Flag  // Buffer for storing flags
-	mutex      sync.Mutex     // Mutex for thread-safe access
-	flushTimer *time.Timer    // Timer for periodic flushing
-	stopChan   chan struct{}  // Channel to signal stop
-	running    bool           // Indicates if the collector is running
-	flushCond  *sync.Cond     // Condition variable for flushing
-	stats      CollectorStats // Statistics about the collector
+	buffer     []models.ClientData // Buffer for storing flags
+	mutex      sync.Mutex          // Mutex for thread-safe access
+	flushTimer *time.Timer         // Timer for periodic flushing
+	stopChan   chan struct{}       // Channel to signal stop
+	running    bool                // Indicates if the collector is running
+	flushCond  *sync.Cond          // Condition variable for flushing
+	stats      CollectorStats      // Statistics about the collector
 }
 
 // CollectorStats holds statistics about the flag collector
@@ -48,7 +48,7 @@ var (
 func GetCollector() *FlagCollector {
 	once.Do(func() {
 		c := &FlagCollector{
-			buffer:   make([]models.Flag, 0, maxBufferSize),
+			buffer:   make([]models.ClientData, 0, maxBufferSize),
 			stopChan: make(chan struct{}),
 		}
 		c.flushCond = sync.NewCond(&c.mutex)
@@ -136,7 +136,7 @@ func (fc *FlagCollector) Stop() error {
 }
 
 // AddFlag adds a flag to the collector's buffer
-func (fc *FlagCollector) AddFlag(flag models.Flag) error {
+func (fc *FlagCollector) AddFlag(flag models.ClientData) error {
 	fc.mutex.Lock()
 	defer fc.mutex.Unlock()
 
@@ -155,7 +155,7 @@ func (fc *FlagCollector) AddFlag(flag models.Flag) error {
 
 	if len(fc.buffer) >= maxBufferSize {
 		logger.Log.Debug().Msg("Flushing flag buffer due to size limit")
-		flagsToInsert := make([]models.Flag, len(fc.buffer))
+		flagsToInsert := make([]models.ClientData, len(fc.buffer))
 		copy(flagsToInsert, fc.buffer)
 		fc.buffer = fc.buffer[:0]
 
@@ -195,7 +195,7 @@ func (fc *FlagCollector) FlushWithContext(ctx context.Context) error {
 		return nil
 	}
 
-	flagsToInsert := make([]models.Flag, len(fc.buffer))
+	flagsToInsert := make([]models.ClientData, len(fc.buffer))
 	copy(flagsToInsert, fc.buffer)
 	fc.buffer = fc.buffer[:0]
 

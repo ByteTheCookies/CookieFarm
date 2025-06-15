@@ -86,6 +86,8 @@ func (h *CommandHandler) executeFormCommand(command string, formData *FormData) 
 				output, err = h.handleConfigUpdate(formData)
 			case "exploit run":
 				output, err = h.handleExploitRun(formData)
+			case "exploit test":
+				output, err = h.handleExploitTest(formData)
 			case "exploit create":
 				output, err = h.handleExploitCreate(formData)
 			case "exploit remove":
@@ -139,6 +141,20 @@ func (h *CommandHandler) handleExploitRun(formData *FormData) (string, error) {
 	}
 
 	return h.cmdRunner.ExecuteExploitRun(exploitPath, servicePort, tickTime, threadCount)
+}
+
+// handleExploitRun processes exploit test command
+func (h *CommandHandler) handleExploitTest(formData *FormData) (string, error) {
+	exploitPath := formData.Fields["Exploit Path"]
+	servicePort := formData.Fields["Service Port"]
+	tickTime := formData.Fields["Tick Time (seconds)"]
+	threadCount := formData.Fields["Thread Count"]
+
+	if exploitPath == "" || servicePort == "" {
+		return "", errors.New("exploit path and service port are required")
+	}
+
+	return h.cmdRunner.ExecuteExploitTest(exploitPath, servicePort, tickTime, threadCount)
 }
 
 // handleExploitCreate processes exploit create command

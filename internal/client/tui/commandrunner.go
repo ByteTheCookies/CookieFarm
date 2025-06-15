@@ -150,13 +150,84 @@ func (*CommandRunner) ExecuteConfigUpdate(host, port, username string, useHTTPS 
 var ExploitTableData []ExploitProcess
 
 // ExecuteExploitCommand executes exploit-related commands
-func (*CommandRunner) ExecuteExploitCommand(subcommand string) (string, error) {
+func (r *CommandRunner) ExecuteExploitCommand(subcommand string) (string, error) {
 	switch subcommand {
 	case "list":
 		return "", nil
 	default:
 		return "", fmt.Errorf("unknown exploit subcommand: %s", subcommand)
 	}
+}
+
+func (r *CommandRunner) ExecuteExploitTest(
+	exploitPath, servicePort string,
+	tickTime, threadCount string,
+) (string, error) {
+	tickTimeInt := 120  // default
+	threadCountInt := 5 // default
+	var servicePortUint16 uint16
+	var err error
+
+	if tickTime != "" {
+		tickTimeInt, err = strconv.Atoi(tickTime)
+		if err != nil {
+			return "", fmt.Errorf("invalid tick time: %s", tickTime)
+		}
+	}
+
+	if threadCount != "" {
+		threadCountInt, err = strconv.Atoi(threadCount)
+		if err != nil {
+			return "", fmt.Errorf("invalid thread count: %s", threadCount)
+		}
+	}
+
+	if servicePort == "" {
+		return "", errors.New("service port is required")
+	}
+	port, err := strconv.Atoi(servicePort)
+	if err != nil {
+		return "", fmt.Errorf("invalid service port: %s", servicePort)
+	}
+	servicePortUint16 = uint16(port)
+
+	result, err := exploit.Run(
+		exploitPath,
+		tickTimeInt,
+		threadCountInt,
+		servicePortUint16,
+		false,
+	)
+	if err != nil {
+		return "", err
+	}
+
+	r.currentExploitPID = result.PID
+
+	go func() {
+		for line := range result.OutputChan {
+			select {
+			case r.exploitOutputChan <- ExploitOutput{Content: line, PID: result.PID}:
+			default:
+			}
+		}
+	}()
+
+	go func() {
+		for err := range result.ErrorChan {
+			select {
+			case r.exploitOutputChan <- ExploitOutput{Error: err, PID: result.PID}:
+			default:
+			}
+		}
+	}()
+
+	var initialOutput strings.Builder
+	initialOutput.WriteString(fmt.Sprintf("Exploit started with PID: %d\n", result.PID))
+	initialOutput.WriteString(fmt.Sprintf("Running with %d threads, tick time %d seconds\n", threadCountInt, tickTimeInt))
+	initialOutput.WriteString("Output streaming started. Live updates will appear below...\n")
+
+	return initialOutput.String(), nil
 }
 
 func (r *CommandRunner) ExecuteExploitRun(
@@ -196,6 +267,7 @@ func (r *CommandRunner) ExecuteExploitRun(
 		tickTimeInt,
 		threadCountInt,
 		servicePortUint16,
+		false,
 	)
 	if err != nil {
 		return "", err
