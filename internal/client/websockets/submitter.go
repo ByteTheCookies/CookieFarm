@@ -14,12 +14,12 @@ type EventWS struct {
 }
 
 type EventWSFlag struct {
-	Type    string      `json:"type"`
-	Payload models.Flag `json:"payload"`
+	Type    string            `json:"type"`
+	Payload models.ClientData `json:"payload"`
 }
 
 // Start initializes the submission loop to the cookiefarm server.
-func Start(flagsChan <-chan models.Flag) error {
+func Start(flagsChan <-chan models.ClientData) error {
 	logger.Log.Info().Msg("Starting submission loop to the cookiefarm server...")
 	conn, err := GetConnection()
 	if err != nil {

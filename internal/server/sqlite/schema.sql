@@ -6,7 +6,9 @@ CREATE TABLE IF NOT EXISTS flags (
     response_time INTEGER, -- Unix timestamp
     msg VARCHAR(255) NOT NULL DEFAULT '',
     status VARCHAR(255) NOT NULL,
-    team_id INTEGER NOT NULL
+    team_id INTEGER NOT NULL,
+    username VARCHAR(255) NOT NULL DEFAULT '',
+    exploit_name VARCHAR(255) NOT NULL DEFAULT ''
 );
 
 CREATE INDEX IF NOT EXISTS idx_flags_submit_time

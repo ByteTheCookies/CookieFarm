@@ -11,7 +11,7 @@ import (
 
 // AddFlagsWithContext adds a batch of flags to the database with a custom context.
 // It divides the flags into batches to insert in chunks, helping avoid hitting query parameter limits.
-func AddFlagsWithContext(ctx context.Context, flags []models.Flag) error {
+func AddFlagsWithContext(ctx context.Context, flags []models.ClientData) error {
 	if len(flags) == 0 {
 		return nil
 	}
@@ -55,7 +55,7 @@ func AddFlagsWithContext(ctx context.Context, flags []models.Flag) error {
 
 // AddFlags adds a batch of flags to the database with a default timeout.
 // It calls AddFlagsWithContext with a timeout context.
-func AddFlags(flags []models.Flag) error {
+func AddFlags(flags []models.ClientData) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	return AddFlagsWithContext(ctx, flags)
@@ -63,11 +63,11 @@ func AddFlags(flags []models.Flag) error {
 
 // AddFlag adds a single flag to the database.
 // It calls the AddFlags function to add the flag as a batch of size 1.
-func AddFlag(flag models.Flag) error {
-	return AddFlags([]models.Flag{flag})
+func AddFlag(flag models.ClientData) error {
+	return AddFlags([]models.ClientData{flag})
 }
 
 // AddFlagWithContext adds a single flag to the database with a custom context.
-func AddFlagWithContext(ctx context.Context, flag models.Flag) error {
-	return AddFlagsWithContext(ctx, []models.Flag{flag})
+func AddFlagWithContext(ctx context.Context, flag models.ClientData) error {
+	return AddFlagsWithContext(ctx, []models.ClientData{flag})
 }
