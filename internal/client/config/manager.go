@@ -172,6 +172,19 @@ func (cm *ConfigManager) LoadLocalConfigFromFile() error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 
+	if _, err := os.Stat(DefaultConfigPath); os.IsNotExist(err) {
+		logger.Log.Warn().Msgf("Config directory does not exist at %s, creating it", DefaultConfigPath)
+		err = os.MkdirAll(DefaultConfigPath, 0o755)
+		if err != nil {
+			return fmt.Errorf("error creating config directory: %w", err)
+		}
+
+		if _, err := os.Create(filepath.Join(DefaultConfigPath, "config.yml")); err != nil {
+			return fmt.Errorf("error creating default config file: %w", err)
+		}
+
+	}
+
 	configFileContent, err := os.ReadFile(filepath.Join(DefaultConfigPath, "config.yml"))
 	if err != nil {
 		if os.IsNotExist(err) {
