@@ -86,7 +86,7 @@ func reset(cmd *cobra.Command, args []string) {
 func update(cmd *cobra.Command, args []string) {
 	cm := config.GetConfigManager()
 	if cliHost == "localhost" && cliPort == 8080 && cliUsername == "cookieguest" && !cliHTTPS {
-		logger.Log.Warn().Msg("All default args detected. Update skipped. For available options, run `cookieclient config update --help`")
+		logger.Log.Warn().Msg("All default args detected. Update skipped. For available options, run `ckc config update --help`")
 		return
 	}
 	localConfig := config.ConfigLocal{
@@ -159,7 +159,7 @@ func LoginHandler(password string) (string, error) {
 
 	err := cm.LoadLocalConfigFromFile()
 	if err != nil {
-		logger.Log.Error().Err(err).Msg("Error loading local configuration, try to run: `cookieclient config reset`")
+		logger.Log.Error().Err(err).Msg("Error loading local configuration, try to run: `ckc config reset`")
 		return "", err
 	}
 

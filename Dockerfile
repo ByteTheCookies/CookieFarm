@@ -19,7 +19,7 @@ WORKDIR /app
 
 RUN apk add --no-cache libc6-compat dos2unix
 
-COPY --from=build /app/bin/cookieserver /app/bin/cookieserver
+COPY --from=build /app/bin/cks /app/bin/cks
 COPY --from=build /app/internal/server/public /app/internal/server/public
 COPY --from=build /app/config.yml /app/config.yml
 COPY --from=build /app/pkg/protocols /app/protocols

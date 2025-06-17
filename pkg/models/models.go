@@ -14,7 +14,8 @@ type ConfigServer struct {
 	TeamToken             string `json:"team_token" yaml:"team_token"`                             // Authentication token for team identity
 	Protocol              string `json:"protocol" yaml:"protocol"`                                 // Protocol used to communicate with the flagchecker server
 	TickTime              int    `json:"tick_time" yaml:"tick_time"`                               // Duration of one game tick in seconds
-	StartTime             string `json:"start_time" yaml:"start_time"`                             // CTF competition start time (ISO 8601 format)
+	StartTime             string `json:"start_time" yaml:"start_time"`                             // CTF competition start time (HH:MM:SS format)
+	EndTime               string `json:"end_time" yaml:"end_time"`                                 // CTF competition end time (HH:MM:SS format)
 }
 
 // ConfigClient contains all client-side configuration options.

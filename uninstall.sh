@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-BINARY_PATH="/usr/local/bin/cookieclient"
+BINARY_PATH="/usr/local/bin/ckc"
 CONFIG_PATH="$HOME/.config/cookiefarm"
 
 echo "🧹 Starting CookieFarm uninstallation..."

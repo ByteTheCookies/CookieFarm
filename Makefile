@@ -13,7 +13,7 @@ SERVER_BIN_DIR := ./bin
 SERVER_CMD_DIR := ./cmd/server/
 SERVER_LOGS_DIR := ./logs
 SERVER_MAIN_FILE := main.go
-SERVER_BINARY_NAME := cookieserver
+SERVER_BINARY_NAME := cks
 GOOS ?= linux
 GOARCH ?= amd64
 
@@ -24,14 +24,14 @@ CLIENT_LOGS_DIR := ./logs
 CLIENT_MAIN_FILE := main.go
 
 ifeq ($(OS),Windows_NT)
-	CLIENT_BINARY_NAME := cookieclient.exe
+	CLIENT_BINARY_NAME := ckc.exe
 	RM_CMD := if exist
 	RM_DIR_CMD := rmdir /s /q
 	MKDIR_CMD := if not exist "$@" mkdir
 	ECHO_CMD := echo
 	PATHSEP := \\
 else
-	CLIENT_BINARY_NAME := cookieclient
+	CLIENT_BINARY_NAME := ckc
 	RM_CMD := rm -rf
 	RM_DIR_CMD := rm -rf
 	MKDIR_CMD := mkdir -p
@@ -133,13 +133,13 @@ client-build:
 client-build-windows:
 	@$(ECHO_CMD) "$(CYAN)[*] Building client for Windows...$(RESET)"
 	@$(MKDIR_CMD) $(CLIENT_BIN_DIR)
-	@GOOS=windows GOARCH=amd64 go build -o $(CLIENT_BIN_DIR)$(PATHSEP)cookieclient.exe $(CLIENT_CMD_DIR)$(CLIENT_MAIN_FILE)
+	@GOOS=windows GOARCH=amd64 go build -o $(CLIENT_BIN_DIR)$(PATHSEP)$(CLIENT_BINARY_NAME) $(CLIENT_CMD_DIR)$(CLIENT_MAIN_FILE)
 	@$(ECHO_CMD) "$(GREEN)[+] Windows build complete!$(RESET)"
 
 client-build-linux:
 	@$(ECHO_CMD) "$(CYAN)[*] Building client for Linux...$(RESET)"
 	@$(MKDIR_CMD) $(CLIENT_BIN_DIR)
-	@GOOS=linux GOARCH=amd64 go build -o $(CLIENT_BIN_DIR)$(PATHSEP)cookieclient $(CLIENT_CMD_DIR)$(CLIENT_MAIN_FILE)
+	@GOOS=linux GOARCH=amd64 go build -o $(CLIENT_BIN_DIR)$(PATHSEP)$(CLIENT_BINARY_NAME) $(CLIENT_CMD_DIR)$(CLIENT_MAIN_FILE)
 	@$(ECHO_CMD) "$(GREEN)[+] Linux build complete!$(RESET)"
 
 client-build-prod:

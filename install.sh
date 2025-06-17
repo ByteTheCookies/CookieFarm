@@ -5,8 +5,8 @@ set -euo pipefail
 REPO="ByteTheCookies/CookieFarm"
 INSTALL_DIR="/usr/local/bin"
 TMP_DIR="$(mktemp -d)"
-ASSET_NAME="cookieclient"
-FINAL_NAME="cookieclient"
+ASSET_NAME="ckc"
+FINAL_NAME="ckc"
 
 REQUIRED_CMDS=("curl" "jq")
 

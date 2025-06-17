@@ -8,6 +8,7 @@ server:
   protocol: "cc_http"
   tick_time: 120
   start_time: "idk"
+  end_time: "idk"
 
 client:
   services:

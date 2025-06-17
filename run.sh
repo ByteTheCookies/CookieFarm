@@ -3,7 +3,7 @@
 PORT="${PORT:-8080}"
 DEBUG="${DEBUG:-false}"
 
-CMD="/app/bin/cookieserver"
+CMD="/app/bin/cks"
 
 CMD="$CMD -p \"$PASSWORD\""
 CMD="$CMD -P \"$PORT\""

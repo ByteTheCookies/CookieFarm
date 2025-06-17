@@ -24,7 +24,7 @@ fi
 cleanup() {
     echo "🧹 Pulizia in corso... Chiudo terminali e Docker..."
     kitty @ close-window --match title:flagchecker || true
-    kitty @ close-window --match title:cookieserver || true
+    kitty @ close-window --match title:cks || true
     kitty @ close-window --match title:service || true
     kitty @ close-window --match title:frontend || true
     docker compose down
@@ -62,7 +62,7 @@ cd "$SERVER_DIR"
 
 if [[ $2 -eq 1 ]]; then
     echo "🔒 Modalità produzione attivata!"
-    kitty --title "cookieserver" bash -c "make build-plugins-prod ;make run-prod; chmod +x ./cookieserver; ./cookieserver; exec bash" &
+    kitty --title "cookieserver" bash -c "make build-plugins-prod ;make run-prod; chmod +x ./cks; ./cks; exec bash" &
 else
     echo "🔓 Modalità sviluppo attivata!"
     kitty --title "cookieserver" bash -c "make build-plugins; make run ARGS='--config config.yml --debug'; exec bash" &
