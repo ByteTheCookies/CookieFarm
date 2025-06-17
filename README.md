@@ -86,21 +86,21 @@ Make sure you have the following installed:
 
 2. Log in and configure the client:
    ```bash
-   ckc config login -P SuperSecret -N
-   ckc config update -h 192.168.1.10 -p 8000 -u your_username -N
+   ckc config login -P SuperSecret
+   ckc config update -h 192.168.1.10 -p 8000 -u your_username
    ```
 
 3. Install the Python helper module and create a new exploit template:
    ```bash
    pip install cookiefarm-exploiter
-   ckc create -n your_exploit_name -N
+   ckc create -n your_exploit_name
    ```
 
    This will generate `your_exploit_name.py` in `~/.cookiefarm/exploits/`.
 
 4. Run your exploit:
    ```bash
-   ckc attack -e your_exploit_name.py -p 1234 -t 120 -T 40 -N
+   ckc attack -e your_exploit_name.py -p 1234 -t 120 -T 40
    ```
 
 📘 For more usage examples, check out the [client documentation](./docs/client/README.md).
