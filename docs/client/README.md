@@ -17,7 +17,7 @@ To install the CookieFarm client, run the following command:
 bash <(curl -fsSL https://raw.githubusercontent.com/ByteTheCookies/CookieFarm/refs/heads/main/install.sh)
 ```
 
-After installation, the `cookieclient` command will be globally available in your terminal. By default, it will launch in interactive TUI (Text User Interface) mode.
+After installation, the `ckc` command will be globally available in your terminal. By default, it will launch in interactive TUI (Text User Interface) mode.
 
 To uninstall the client:
 
@@ -33,15 +33,15 @@ The CookieFarm client has two interface modes:
 
 1. **Interactive TUI Mode** (default): A colorful, user-friendly interface with menus and keyboard navigation
    ```bash
-   cookieclient
+   ckc
    # TUI starts automatically
    ```
 
 2. **Traditional CLI Mode**: For scripts, automation, or environments where TUI isn't supported
    ```bash
-   cookieclient --no-tui
+   ckc --no-tui
    # OR
-   COOKIECLIENT_NO_TUI=1 cookieclient
+   COOKIECLIENT_NO_TUI=1 ckc
    ```
 
 > In the rest of this guide, commands will be shown for both TUI and CLI modes. The `-N` flag is used to indicate that the command should run in CLI mode without TUI. If you set the environment variable `COOKIECLIENT_NO_TUI=1`, you can run commands without the `-N` flag.
@@ -75,7 +75,7 @@ The CookieFarm client has two interface modes:
 1. **Log in** to the server:
    ```bash
    # In CLI mode (with no environment variable setted):
-   cookieclient config login -P SuperSecret -N
+   ckc config login -P SuperSecret -N
 
    # In TUI mode:
    # Navigate to: Configuration → Login → Enter credentials
@@ -84,7 +84,7 @@ The CookieFarm client has two interface modes:
 2. **Update configuration** with server details:
    ```bash
    # In CLI mode (with no environment variable setted):
-   cookieclient config update -h 192.168.1.10 -p 8000 -u CookieMonster -N
+   ckc config update -h 192.168.1.10 -p 8000 -u CookieMonster -N
 
    # In TUI mode:
    # Navigate to: Configuration → Update Config → Fill the form
@@ -99,7 +99,7 @@ The CookieFarm client has two interface modes:
 4. **Create a new exploit template**:
    ```bash
    # In CLI mode (with no environment variable setted):
-   cookieclient exploit create -n my_exploit -N
+   ckc exploit create -n my_exploit -N
 
    # In TUI mode:
    # Navigate to: Exploits → Create Exploit → Enter name
@@ -110,7 +110,7 @@ The CookieFarm client has two interface modes:
 6. **Run the exploit**:
    ```bash
    # In CLI mode (with no environment variable setted):
-   cookieclient exploit run -e my_exploit.py -p 1234 -t 120 -T 40 -N
+   ckc exploit run -e my_exploit.py -p 1234 -t 120 -T 40 -N
 
    # In TUI mode:
    # Navigate to: Exploits → Run Exploit → Complete the form
@@ -145,7 +145,7 @@ The TUI offers these main views:
 Authenticate with the server using a password:
 ```bash
 # In CLI mode (with no environment variable setted):
-cookieclient config login -P <password> -N
+ckc config login -P <password> -N
 
 # In TUI mode:
 # Navigate to: Configuration → Login → Enter password
@@ -157,7 +157,7 @@ Parameters:
 Update the client configuration (all fields optional, at least one required):
 ```bash
 # In CLI mode (with no environment variable setted):
-cookieclient config update -h <server_ip> -p <port> -u <username> [-s] -N
+ckc config update -h <server_ip> -p <port> -u <username> [-s] -N
 
 # In TUI mode:
 # Navigate to: Configuration → Update Config → Fill the form
@@ -172,7 +172,7 @@ Parameters:
 Display the current configuration:
 ```bash
 # In CLI mode (with no environment variable setted):
-cookieclient config show -N
+ckc config show -N
 
 # In TUI mode:
 # Navigate to: Configuration → Show Config
@@ -182,7 +182,7 @@ cookieclient config show -N
 Reset the configuration to default:
 ```bash
 # In CLI mode (with no environment variable setted):
-cookieclient config reset -N
+ckc config reset -N
 
 # In TUI mode:
 # Navigate to: Configuration → Reset Config
@@ -192,7 +192,7 @@ cookieclient config reset -N
 Log out and clear the current session:
 ```bash
 # In CLI mode (with no environment variable setted):
-cookieclient config logout -N
+ckc config logout -N
 
 # In TUI mode:
 # Navigate to: Configuration → Logout
@@ -204,7 +204,7 @@ cookieclient config logout -N
 Create a new exploit template:
 ```bash
 # In CLI mode (with no environment variable setted):
-cookieclient exploit create -n <exploit_name> -N
+ckc exploit create -n <exploit_name> -N
 
 # In TUI mode:
 # Navigate to: Exploits → Create Exploit → Enter name
@@ -216,7 +216,7 @@ Parameters:
 *Example:*
 ```bash
 # In CLI mode (with no environment variable setted):
-cookieclient exploit create -n ./my_exploit -N
+ckc exploit create -n ./my_exploit -N
 
 # In TUI mode:
 # Navigate to: Exploits → Create Exploit → Enter name as `./my_exploit`
@@ -227,7 +227,7 @@ In this case, the exploit will be created in the current directory.
 Run an exploit:
 ```bash
 # In CLI mode (with no environment variable setted):
-cookieclient exploit run -e <exploit_file> -p <port> [-t <timeout>] [-T <threads>] [-d] -N
+ckc exploit run -e <exploit_file> -p <port> [-t <timeout>] [-T <threads>] [-d] -N
 
 # In TUI mode:
 # Navigate to: Exploits → Run Exploit → Fill the form
@@ -244,7 +244,7 @@ Parameters:
 *Example:*
 ```bash
 # In CLI mode (with no environment variable setted):
-cookieclient exploit run -e my_exploit.py -p 1234 -t 120 -T 40 -N
+ckc exploit run -e my_exploit.py -p 1234 -t 120 -T 40 -N
 # This will return the PID of the running exploit.
 #
 # In TUI mode:
@@ -256,7 +256,7 @@ cookieclient exploit run -e my_exploit.py -p 1234 -t 120 -T 40 -N
 List all running exploits:
 ```bash
 # In CLI mode (with no environment variable setted):
-cookieclient exploit list -N
+ckc exploit list -N
 
 # In TUI mode:
 # Navigate to: Exploits → List Running Exploits
@@ -266,7 +266,7 @@ cookieclient exploit list -N
 Remove a saved exploit template:
 ```bash
 # In CLI mode (with no environment variable setted):
-cookieclient exploit remove -n <exploit_name> -N
+ckc exploit remove -n <exploit_name> -N
 
 # In TUI mode:
 # Navigate to: Exploits → Remove Exploit → Enter exploit name
@@ -278,7 +278,7 @@ Parameters:
 Stop a running exploit:
 ```bash
 # In CLI mode (with no environment variable setted):
-cookieclient exploit stop -p <pid> -N
+ckc exploit stop -p <pid> -N
 
 # In TUI mode:
 # Navigate to: Exploits → Stop Exploit → Enter PID

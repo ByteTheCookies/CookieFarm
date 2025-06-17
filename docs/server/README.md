@@ -44,21 +44,24 @@ The YAML config file as be like that:
 configured: true
 
 server:
-  host_flagchecker: "http://flagchecker:1234"
-  team_token: "4242424242424242424"
-  submit_flag_checker_time: 10
+  host_flagchecker: "<ip_flagchecker>:<port_flagchecker>"
+  team_token: "<your_team_token>"
+  submit_flag_checker_time: 120
   max_flag_batch_size: 1000
   protocol: "cc_http"
+  tick_time: 120
+  start_time: <start_time>
+  end_time: <end_time>
 
 client:
-  submit_flag_server_time: 10
   services:
-    - name: "ExampleService"
+    - name: "CookieService"
       port: 8081
   range_ip_teams: 29
   format_ip_teams: "10.10.{}.1"
-  my_team_ip: "10.10.0.1"
+  my_team_id: 1
   regex_flag: "[A-Z0-9]{31}="
+  nop_team: 0
 ```
 
 
