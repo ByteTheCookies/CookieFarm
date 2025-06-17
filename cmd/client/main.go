@@ -47,7 +47,7 @@ func main() {
 		}
 	}
 
-	if cm.GetUseTUI() && os.Getenv("COOKIECLIENT_NO_TUI") == "" {
+	if cm.GetUseTUI() {
 		if err := tui.StartTUI(banner, debug); err != nil {
 			fmt.Printf("Error starting TUI: %v\nFalling back to CLI mode\n", err)
 			if cm.GetUseBanner() {
