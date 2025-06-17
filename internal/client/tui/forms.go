@@ -42,6 +42,7 @@ func CreateForm(command string) ([]textinput.Model, []string) {
 
 // createLoginForm creates form for login command
 func createLoginForm() ([]textinput.Model, []string) {
+	cm := config.GetConfigManager()
 	var inputs []textinput.Model
 	var labels []string
 
@@ -52,6 +53,46 @@ func createLoginForm() ([]textinput.Model, []string) {
 	passwordInput.Width = 30
 	inputs = append(inputs, passwordInput)
 	labels = append(labels, "Password")
+
+	// Host input
+	hostInput := textinput.New()
+	hostInput.Placeholder = "localhost"
+	hostInput.CharLimit = 64
+	hostInput.Width = 30
+	hostInput.SetValue(cm.GetLocalConfig().Host)
+	inputs = append(inputs, hostInput)
+	labels = append(labels, "Host")
+
+	// Port input
+	portInput := textinput.New()
+	portInput.Placeholder = "8080"
+	portInput.CharLimit = 5
+	portInput.Width = 10
+	portInput.SetValue(strconv.Itoa(int(cm.GetLocalConfig().Port)))
+	inputs = append(inputs, portInput)
+	labels = append(labels, "Port")
+
+	// Username input
+	usernameInput := textinput.New()
+	usernameInput.Placeholder = "cookieguest"
+	usernameInput.CharLimit = 32
+	usernameInput.Width = 30
+	usernameInput.SetValue(cm.GetLocalConfig().Username)
+	inputs = append(inputs, usernameInput)
+	labels = append(labels, "Username")
+
+	// HTTPS input
+	httpsInput := textinput.New()
+	httpsInput.Placeholder = "false"
+	httpsInput.CharLimit = 5
+	httpsInput.Width = 10
+	if cm.GetLocalConfig().HTTPS {
+		httpsInput.SetValue("true")
+	} else {
+		httpsInput.SetValue("false")
+	}
+	inputs = append(inputs, httpsInput)
+	labels = append(labels, "HTTPS (true/false)")
 
 	return inputs, labels
 }

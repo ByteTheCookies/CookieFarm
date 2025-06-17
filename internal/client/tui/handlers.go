@@ -109,12 +109,21 @@ func (h *CommandHandler) executeFormCommand(command string, formData *FormData) 
 // handleLogin processes login command
 func (h *CommandHandler) handleLogin(formData *FormData) (string, error) {
 	password := formData.Fields["Password"]
+	host := formData.Fields["Host"]
+	port := formData.Fields["Port"]
+	username := formData.Fields["Username"]
+	httpsStr := formData.Fields["HTTPS (true/false)"]
 
 	if password == "" {
 		return "", errors.New("username and password are required")
 	}
 
-	return h.cmdRunner.ExecuteLogin(password)
+	portValue, err := strconv.Atoi(port)
+	if err != nil {
+		return "", fmt.Errorf("invalid port number: %s", err)
+	}
+
+	return h.cmdRunner.ExecuteLogin(password, host, username, uint16(portValue), strings.ToLower(httpsStr) == "true")
 }
 
 // handleConfigUpdate processes config update command

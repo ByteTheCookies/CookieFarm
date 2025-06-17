@@ -114,7 +114,16 @@ func (*CommandRunner) ExecuteConfigCommand(subcommand string) (string, error) {
 }
 
 // ExecuteLogin handles the login command
-func (*CommandRunner) ExecuteLogin(password string) (string, error) {
+func (*CommandRunner) ExecuteLogin(password, host, username string, port uint16, https bool) (string, error) {
+	cm := config.GetConfigManager()
+	configuration := config.ConfigLocal{
+		Host:     host,
+		Username: username,
+		Port:     port,
+		HTTPS:    https,
+	}
+	cm.SetLocalConfig(configuration)
+	cm.WriteLocalConfigToFile()
 	cmd.Password = password
 	pathSession, err := cmd.LoginHandler(password)
 	if err != nil {

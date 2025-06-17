@@ -34,7 +34,6 @@ func Execute() {
 func init() {
 	RootCmd.AddCommand(ConfigCmd)
 	RootCmd.PersistentFlags().BoolVarP(&debug, "debug", "D", false, "Enable debug logging")
-	RootCmd.PersistentFlags().BoolVarP(&useTUI, "no-tui", "N", false, "Disable TUI mode")
 	RootCmd.PersistentFlags().BoolVarP(&useBanner, "no-banner", "B", false, "Remove banner on startup")
 
 	RootCmd.PersistentPreRun = func(cmd *cobra.Command, args []string) {

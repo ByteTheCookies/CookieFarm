@@ -36,10 +36,10 @@ func createMainMenu() list.Model {
 // createConfigMenu creates the configuration menu
 func createConfigMenu() list.Model {
 	configMenuItems := []list.Item{
+		menuItem{title: "Login", description: "Login to the server", command: "config login"},
 		menuItem{title: "Show Config", description: "Show current configuration", command: "config show"},
 		menuItem{title: "Update Config", description: "Update configuration settings", command: "config update"},
 		menuItem{title: "Reset Config", description: "Reset configuration to defaults", command: "config reset"},
-		menuItem{title: "Login", description: "Login to the server", command: "config login"},
 		menuItem{title: "Logout", description: "Logout from the server", command: "config logout"},
 		menuItem{title: "Back", description: "Return to main menu", command: "back"},
 	}

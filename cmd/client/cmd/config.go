@@ -106,6 +106,7 @@ func update(cmd *cobra.Command, args []string) {
 
 // login handles user login
 func login(cmd *cobra.Command, args []string) {
+	update(cmd, args)
 	sessionPath, err := LoginHandler(Password)
 	if err != nil {
 		logger.Log.Error().Err(err).Msg("Login failed")
@@ -149,6 +150,10 @@ func init() {
 	editConfigCmd.Flags().StringVarP(&cliUsername, "username", "u", "cookieguest", "Username for authenticating to the server")
 	editConfigCmd.Flags().BoolVarP(&cliHTTPS, "https", "s", false, "Use HTTPS for secure communication with the server")
 
+	loginConfigCmd.Flags().StringVarP(&cliHost, "host", "H", "localhost", "Server host to connect to")
+	loginConfigCmd.Flags().Uint16VarP(&cliPort, "port", "p", 8080, "Server port to connect to")
+	loginConfigCmd.Flags().StringVarP(&cliUsername, "username", "u", "cookieguest", "Username for authenticating to the server")
+	loginConfigCmd.Flags().BoolVarP(&cliHTTPS, "https", "s", false, "Use HTTPS for secure communication with the server")
 	loginConfigCmd.Flags().StringVarP(&Password, "password", "P", "", "Password for authenticating to the server")
 	loginConfigCmd.MarkFlagRequired("password")
 }
@@ -156,7 +161,6 @@ func init() {
 // LoginHandler handles user login
 func LoginHandler(password string) (string, error) {
 	cm := config.GetConfigManager()
-
 	err := cm.LoadLocalConfigFromFile()
 	if err != nil {
 		logger.Log.Error().Err(err).Msg("Error loading local configuration, try to run: `ckc config reset`")
