@@ -2,6 +2,7 @@
 package logger
 
 import (
+	_ "embed"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -9,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/charmbracelet/lipgloss"
 	"github.com/rs/zerolog"
 )
 
@@ -30,6 +32,9 @@ var (
 	LogFile  *os.File       // logFile represents the log file for the CookieFarm client.
 	useTUI   bool           // NoTUI indicates whether to disable the TUI mode for logging
 )
+
+//go:embed banner.txt
+var banner string
 
 const defaultLogPath = "/tmp/cookielogs"
 
@@ -123,4 +128,17 @@ func Close() {
 	if LogFile != nil {
 		_ = LogFile.Close()
 	}
+}
+
+func PrintBanner(data string) {
+	bannerStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("#CDA157")).
+		Bold(true).
+		BorderStyle(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color("#CDA157")).
+		Padding(1, 2).
+		MarginBottom(1).
+		MarginTop(1)
+	formattedBanner := strings.ReplaceAll(banner, "<type>", data)
+	fmt.Print(bannerStyle.Render(formattedBanner))
 }

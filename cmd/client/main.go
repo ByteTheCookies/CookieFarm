@@ -21,9 +21,6 @@ func isCompletionCommand() bool {
 	return false
 }
 
-//go:embed banner.txt
-var banner string
-
 func main() {
 	cm := config.GetConfigManager()
 	debug := false
@@ -48,11 +45,11 @@ func main() {
 	}
 
 	if cm.GetUseTUI() {
-		if err := tui.StartTUI(banner, debug); err != nil {
+		if err := tui.StartTUI(debug); err != nil {
 			fmt.Printf("Error starting TUI: %v\nFalling back to CLI mode\n", err)
 			if cm.GetUseBanner() {
 				if !isCompletionCommand() {
-					fmt.Println(banner)
+					logger.PrintBanner("client")
 				}
 			}
 			cmd.Execute()
@@ -60,7 +57,7 @@ func main() {
 	} else {
 		if cm.GetUseBanner() {
 			if !isCompletionCommand() {
-				fmt.Println(banner)
+				logger.PrintBanner("client")
 			}
 		}
 		cmd.Execute()

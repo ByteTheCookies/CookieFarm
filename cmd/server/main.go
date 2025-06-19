@@ -4,7 +4,6 @@ package main
 import (
 	"context"
 	_ "embed"
-	"fmt"
 	"os/signal"
 	"syscall"
 	"time"
@@ -18,11 +17,8 @@ import (
 	"github.com/spf13/pflag"
 )
 
-//go:embed banner.txt
-var banner string
-
 func init() {
-	fmt.Println(banner)
+	logger.PrintBanner("server")
 
 	config.Debug = pflag.BoolP("debug", "d", false, "Enable debug-level logging")
 	config.ConfigPath = pflag.StringP("config", "c", "", "Path to the configuration file")
