@@ -72,12 +72,12 @@
 
 ## RELEASE 1.2
 
-- [ ] Install cookieclient (binary) with pip @suga
+- [x] Install cookieclient (binary) with pip @suga
 - [x] Exploit test
 - [x] Update data structure:
-  - [ ] Rename Flag struct to ClientData
+  - [x] Rename Flag struct to ClientData
   - [ ] Add username, exploit name
-  - [ ] Addare nella config del server: ticktime, ad_start
+  - [x] Addare nella config del server: ticktime, ad_start
 - [x] Client update:
   - [x] Handle the stats that client sends to the server @akiidjk
   - [x] Add the Test command to the client (run the exploit only for the NOP team) @akiidjk
