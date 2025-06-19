@@ -44,8 +44,12 @@ The CookieFarm client has two interface modes:
    COOKIECLIENT_NO_TUI=1 ckc
    ```
 
-> In the rest of this guide, commands will be shown for both TUI and CLI modes. The `-N` flag is used to indicate that the command should run in CLI mode without TUI. If you set the environment variable `COOKIECLIENT_NO_TUI=1`, you can run commands without the `-N` flag.
-
+> [!NOTE]
+> If you add params at the end of the command, they will be parsed as CLI commands. For example:
+> ```bash
+> ckc config login -P SuperSecret
+> # This will run the `config login` command in CLI mode.
+> ```
 ## 🚀 Client Command Overview
 
 ### Configuration Commands
@@ -63,6 +67,7 @@ The CookieFarm client has two interface modes:
 | Command                      | Description                                        | Detailed Usage |
 |-----------------------------|----------------------------------------------------| -------------------------------------------------|
 | `exploit create`            | Create a new exploit template                      | [Section](#exploit-create-command) |
+| `exploit test`              | Test an exploit template (exploit the NOP team)     | [Section](#exploit-test-command) |
 | `exploit run`               | Run an exploit against a target                   | [Section](#exploit-run-command) |
 | `exploit list`              | List all currently running exploits                | [Section](#exploit-list-command) |
 | `exploit remove`            | Remove an exploit template                         | [Section](#exploit-remove-command) |
@@ -75,42 +80,34 @@ The CookieFarm client has two interface modes:
 1. **Log in** to the server:
    ```bash
    # In CLI mode (with no environment variable setted):
-   ckc config login -P SuperSecret -N
+   ckc config login -P SuperSecret -h 192.168.1.10 -p 8000 -u CookieMonster
 
    # In TUI mode:
    # Navigate to: Configuration → Login → Enter credentials
    ```
 
-2. **Update configuration** with server details:
-   ```bash
-   # In CLI mode (with no environment variable setted):
-   ckc config update -h 192.168.1.10 -p 8000 -u CookieMonster -N
 
-   # In TUI mode:
-   # Navigate to: Configuration → Update Config → Fill the form
-   ```
-
-3. **Install the helper Python module**:
+2. **Install the helper Python module**:
    ```bash
    pip install cookiefarm-exploiter
    ```
   > For more information about the helper module, check the [cookiefarm-exploiter documentation](https://github.com/ByteTheCookies/CookieFarmExploiter)
 
-4. **Create a new exploit template**:
+3. **Create a new exploit template**:
    ```bash
    # In CLI mode (with no environment variable setted):
-   ckc exploit create -n my_exploit -N
+   ckc exploit create -n my_exploit
 
    # In TUI mode:
    # Navigate to: Exploits → Create Exploit → Enter name
    ```
 
-5. **Write your exploit** in the created file `~/.config/cookiefarm/exploits/my_exploit.py`.
+4. **Write your exploit** in the created file `~/.config/cookiefarm/exploits/my_exploit.py`.
 
-6. **Run the exploit**:
+5. **Run the exploit**:
    ```bash
    # In CLI mode (with no environment variable setted):
-   ckc exploit run -e my_exploit.py -p 1234 -t 120 -T 40 -N
+   ckc exploit run -e my_exploit.py -p 1234 -t 120 -T 40
 
    # In TUI mode:
    # Navigate to: Exploits → Run Exploit → Complete the form
@@ -145,19 +142,22 @@ The TUI offers these main views:
 Authenticate with the server using a password:
 ```bash
 # In CLI mode (with no environment variable setted):
-ckc config login -P <password> -N
+ckc config login -P <password> -h <server_ip> -p <port> -u <username>
 
 # In TUI mode:
 # Navigate to: Configuration → Login → Enter password
 ```
 Parameters:
 - `-P <password>`: The password for the server. This is required for authentication.
+- `-h <server_ip>`: IP address of the server.
+- `-p <port>`: Port of the server.
+- `-u <username>`: Username for the client. (default is `cookieguest`)
 
 ### Config Update Command
 Update the client configuration (all fields optional, at least one required):
 ```bash
 # In CLI mode (with no environment variable setted):
-ckc config update -h <server_ip> -p <port> -u <username> [-s] -N
+ckc config update -h <server_ip> -p <port> -u <username> [-s]
 
 # In TUI mode:
 # Navigate to: Configuration → Update Config → Fill the form
@@ -172,7 +172,7 @@ Parameters:
 Display the current configuration:
 ```bash
 # In CLI mode (with no environment variable setted):
-ckc config show -N
+ckc config show
 
 # In TUI mode:
 # Navigate to: Configuration → Show Config
@@ -182,7 +182,7 @@ ckc config show -N
 Reset the configuration to default:
 ```bash
 # In CLI mode (with no environment variable setted):
-ckc config reset -N
+ckc config reset
 
 # In TUI mode:
 # Navigate to: Configuration → Reset Config
@@ -192,7 +192,7 @@ ckc config reset -N
 Log out and clear the current session:
 ```bash
 # In CLI mode (with no environment variable setted):
-ckc config logout -N
+ckc config logout
 
 # In TUI mode:
 # Navigate to: Configuration → Logout
@@ -204,7 +204,7 @@ ckc config logout -N
 Create a new exploit template:
 ```bash
 # In CLI mode (with no environment variable setted):
-ckc exploit create -n <exploit_name> -N
+ckc exploit create -n <exploit_name>
 
 # In TUI mode:
 # Navigate to: Exploits → Create Exploit → Enter name
@@ -216,18 +216,30 @@ Parameters:
 *Example:*
 ```bash
 # In CLI mode (with no environment variable setted):
-ckc exploit create -n ./my_exploit -N
+ckc exploit create -n ./my_exploit
 
 # In TUI mode:
 # Navigate to: Exploits → Create Exploit → Enter name as `./my_exploit`
 ```
 In this case, the exploit will be created in the current directory.
 
+
+### Exploit Test Command
+Test an exploit against the NOP team:
+```bash
+# In CLI mode (with no environment variable setted):
+ckc exploit test -e <exploit_file> [-t <timeout>] [-T <threads>]
+
+# In TUI mode:
+# Navigate to: Exploits → Test Exploit → Fill the form
+```
+
+
 ### Exploit Run Command
 Run an exploit:
 ```bash
 # In CLI mode (with no environment variable setted):
-ckc exploit run -e <exploit_file> -p <port> [-t <timeout>] [-T <threads>] [-d] -N
+ckc exploit run -e <exploit_file> -p <port> [-t <timeout>] [-T <threads>] [-d]
 
 # In TUI mode:
 # Navigate to: Exploits → Run Exploit → Fill the form
@@ -244,7 +256,7 @@ Parameters:
 *Example:*
 ```bash
 # In CLI mode (with no environment variable setted):
-ckc exploit run -e my_exploit.py -p 1234 -t 120 -T 40 -N
+ckc exploit run -e my_exploit.py -p 1234 -t 120 -T 40
 # This will return the PID of the running exploit.
 #
 # In TUI mode:
@@ -256,7 +268,7 @@ ckc exploit run -e my_exploit.py -p 1234 -t 120 -T 40 -N
 List all running exploits:
 ```bash
 # In CLI mode (with no environment variable setted):
-ckc exploit list -N
+ckc exploit list
 
 # In TUI mode:
 # Navigate to: Exploits → List Running Exploits
@@ -266,7 +278,7 @@ ckc exploit list -N
 Remove a saved exploit template:
 ```bash
 # In CLI mode (with no environment variable setted):
-ckc exploit remove -n <exploit_name> -N
+ckc exploit remove -n <exploit_name>
 
 # In TUI mode:
 # Navigate to: Exploits → Remove Exploit → Enter exploit name
@@ -278,7 +290,7 @@ Parameters:
 Stop a running exploit:
 ```bash
 # In CLI mode (with no environment variable setted):
-ckc exploit stop -p <pid> -N
+ckc exploit stop -p <pid>
 
 # In TUI mode:
 # Navigate to: Exploits → Stop Exploit → Enter PID
