@@ -2,6 +2,8 @@ package server
 
 import (
 	"context"
+	"os"
+	"path/filepath"
 
 	json "github.com/bytedance/sonic"
 
@@ -72,6 +74,36 @@ func HandleGetPaginatedFlags(c *fiber.Ctx) error {
 	return c.JSON(ResponseFlags{
 		Nflags: len(flags),
 		Flags:  flags,
+	})
+}
+
+func HandleGetProtocols(c *fiber.Ctx) error {
+	searchPaths := []string{
+		"pkg/protocols",
+		"protocols",
+	}
+
+	var protocolNames []string
+	for _, path := range searchPaths {
+		if protocols, err := os.ReadDir(path); err == nil {
+			for _, entry := range protocols {
+				if entry.IsDir() {
+					protocolNames = append(protocolNames, entry.Name())
+				} else if matched, _ := filepath.Match("*.so", entry.Name()); matched {
+					protocolNames = append(protocolNames, entry.Name())
+				}
+			}
+			break
+		}
+	}
+
+	if len(protocolNames) == 0 {
+		logger.Log.Error().Msg("Failed to read protocols directory")
+		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{Error: "No protocols found"})
+	}
+
+	return c.JSON(fiber.Map{
+		"protocols": protocolNames,
 	})
 }
 

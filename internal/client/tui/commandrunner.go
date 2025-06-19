@@ -159,7 +159,7 @@ func (*CommandRunner) ExecuteConfigUpdate(host, port, username string, useHTTPS 
 var ExploitTableData []ExploitProcess
 
 // ExecuteExploitCommand executes exploit-related commands
-func (r *CommandRunner) ExecuteExploitCommand(subcommand string) (string, error) {
+func (*CommandRunner) ExecuteExploitCommand(subcommand string) (string, error) {
 	switch subcommand {
 	case "list":
 		return "", nil

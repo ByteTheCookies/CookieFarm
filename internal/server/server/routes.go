@@ -45,6 +45,7 @@ func RegisterRoutes(app *fiber.App) {
 	publicAPI := app.Group("/api/v1")
 	publicAPI.Get("/", GetStatus) // Simple status check
 	publicAPI.Post("/auth/login", NewLimiter(), HandleLogin)
+	publicAPI.Get("/protocols", HandleGetProtocols)
 
 	// ------------------ PRIVATE API ------------------
 
