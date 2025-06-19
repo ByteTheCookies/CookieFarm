@@ -89,8 +89,8 @@ func GetSelectedItem(menu list.Model) (menuItem, bool) {
 
 // UpdateMenuSize updates the size of all menus
 func UpdateMenuSize(mainMenu, configMenu, exploitMenu *list.Model, width, height int) {
-	headerHeight := 6 // Banner + title
-	footerHeight := 2 // Help section
+	headerHeight := 12 // Banner + title
+	footerHeight := 2  // Help section
 
 	menuHeight := height - headerHeight - footerHeight
 
