@@ -4,6 +4,7 @@ package main
 import (
 	"context"
 	_ "embed"
+	"fmt"
 	"os/signal"
 	"syscall"
 	"time"
@@ -18,7 +19,7 @@ import (
 )
 
 func init() {
-	logger.PrintBanner("server")
+	fmt.Print(logger.GetBanner("server"))
 
 	config.Debug = pflag.BoolP("debug", "d", false, "Enable debug-level logging")
 	config.ConfigPath = pflag.StringP("config", "c", "", "Path to the configuration file")

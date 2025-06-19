@@ -130,7 +130,7 @@ func Close() {
 	}
 }
 
-func PrintBanner(data string) {
+func GetBanner(data string) string {
 	bannerStyle := lipgloss.NewStyle().
 		Foreground(lipgloss.Color("#CDA157")).
 		Bold(true).
@@ -140,5 +140,5 @@ func PrintBanner(data string) {
 		MarginBottom(1).
 		MarginTop(1)
 	formattedBanner := strings.ReplaceAll(banner, "<type>", data)
-	fmt.Print(bannerStyle.Render(formattedBanner))
+	return bannerStyle.Render(formattedBanner)
 }

@@ -45,11 +45,11 @@ func main() {
 	}
 
 	if cm.GetUseTUI() {
-		if err := tui.StartTUI(debug); err != nil {
+		if err := tui.StartTUI(logger.GetBanner("client"), debug); err != nil {
 			fmt.Printf("Error starting TUI: %v\nFalling back to CLI mode\n", err)
 			if cm.GetUseBanner() {
 				if !isCompletionCommand() {
-					logger.PrintBanner("client")
+					fmt.Print(logger.GetBanner("client"))
 				}
 			}
 			cmd.Execute()
@@ -57,7 +57,7 @@ func main() {
 	} else {
 		if cm.GetUseBanner() {
 			if !isCompletionCommand() {
-				logger.PrintBanner("client")
+				fmt.Print(logger.GetBanner("client"))
 			}
 		}
 		cmd.Execute()

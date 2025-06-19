@@ -15,7 +15,7 @@ import (
 )
 
 // New creates a new TUI model
-func New() Model {
+func New(banner string) Model {
 	mainMenu, configMenu, exploitMenu := InitializeMenus()
 
 	spinnerInstance := spinner.New()
@@ -43,6 +43,7 @@ func New() Model {
 		mainMenu:     mainMenu,
 		configMenu:   configMenu,
 		exploitMenu:  exploitMenu,
+		banner:       banner,
 		help:         help.New(),
 		cmdRunner:    NewCommandRunner(),
 		spinner:      spinnerInstance,
@@ -416,7 +417,7 @@ func (m Model) SetupExploitTableCmd() tea.Cmd {
 }
 
 // StartTUI launches the TUI application
-func StartTUI(debug bool) error {
+func StartTUI(banner string, debug bool) error {
 	cm := config.GetConfigManager()
 	err := cm.LoadLocalConfigFromFile()
 	if err != nil {
@@ -430,7 +431,7 @@ func StartTUI(debug bool) error {
 	}
 
 	p := tea.NewProgram(
-		New(),
+		New(banner),
 		tea.WithAltScreen(),
 		tea.WithMouseCellMotion(),
 	)
