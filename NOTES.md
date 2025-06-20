@@ -86,6 +86,7 @@
 - [x] Design con shadcnui @suga
   - [ ] Tutorial nella dashboard @suga
   - [ ] Possibilità di scaricare dal server il client @suga -> dependes on (Tutorial nella dashboard @suga)
+- [ ] Comando da client per inviare le flag al checker @akiidjk
 - [ ] Compatibilità macos @Dabi
 - [ ] Aggiungere un display che misura ram e cpu del processo (cli - client, web - server)
 - [ ] Aggiungere numero client attacanti realtime displayato sulla dashboard,
