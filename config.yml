@@ -12,10 +12,18 @@ server:
 
 client:
   services:
-    - name: "CookieService"
-      port: 8081
-  range_ip_teams: 29
-  format_ip_teams: "10.10.{}.1"
-  my_team_id: 1
+    - name: "ExCCel"
+      port: 8000
+    - name: "CookingNonna"
+      port: 2222
+    - name: "CCForms-backend"
+      port: 3001
+    - name: "CCForms-frontend"
+      port: 3000
+    - name: "CCalendar"
+      port: 80
+  range_ip_teams: 40
+  format_ip_teams: "10.60.{}.1"
+  my_team_id: 33
   regex_flag: "[A-Z0-9]{31}="
   nop_team: 0
