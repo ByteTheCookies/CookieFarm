@@ -77,7 +77,7 @@ Make sure you have the following installed:
   pip install cookiefarm
   ```
 
-   > After installation, the `ckc` command is available globally in your terminal (or in your virtual environment if you are using one).
+  > After installation, the `ckc` command is available globally in your terminal (or in your virtual environment if you are using one).
 
 2. Log in and configure the client:
    ```bash
