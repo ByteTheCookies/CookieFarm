@@ -57,10 +57,10 @@ client:
   services:
     - name: "CookieService"
       port: 8081
-  range_ip_teams: 29
   format_ip_teams: "10.10.{}.1"
-  my_team_id: 1
   regex_flag: "[A-Z0-9]{31}="
+  range_ip_teams: 29
+  my_team_id: 1
   nop_team: 0
 ```
 

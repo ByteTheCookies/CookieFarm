@@ -49,12 +49,7 @@ Make sure you have the following installed:
 
 ### 🖥️ Starting the Server
 
-1. Move into the `server/` directory:
-   ```bash
-   cd server/
-   ```
-
-2. Create an `.env` file in the server directory to configure the environment settings:
+1. Create an `.env` file in the server directory to configure the environment settings:
 
     ```bash
       # Server configuration
@@ -66,7 +61,7 @@ Make sure you have the following installed:
 
   > ⚠️ For production environments, set `DEBUG=false` and use a strong, unique password
 
-3. Start the server with Docker Compose:
+2. Start the server with Docker Compose:
    ```bash
    docker compose up --build
    ```
@@ -77,30 +72,28 @@ Make sure you have the following installed:
 
 ### 💻 Using the Client & Running Exploits
 
-1. Run the installation script:
-   ```bash
-   bash <(curl -fsSL https://raw.githubusercontent.com/ByteTheCookies/CookieFarm/refs/heads/main/install.sh)
-   ```
+1. Run the installation :
+  ```bash
+  pip install cookiefarm
+  ```
 
-   > After installation, the `ckc` command is globally accessible.
+   > After installation, the `ckc` command is available globally in your terminal (or in your virtual environment if you are using one).
 
 2. Log in and configure the client:
    ```bash
-   ckc config login -P SuperSecret
-   ckc config update -h 192.168.1.10 -p 8000 -u your_username
+   ckc config login -P SuperSecret -h 192.168.1.10 -p 8000 -u your_username
    ```
 
 3. Install the Python helper module and create a new exploit template:
    ```bash
-   pip install cookiefarm-exploiter
-   ckc create -n your_exploit_name
+   ckc exploit create -n your_exploit_name
    ```
 
    This will generate `your_exploit_name.py` in `~/.cookiefarm/exploits/`.
 
 4. Run your exploit:
    ```bash
-   ckc attack -e your_exploit_name.py -p 1234 -t 120 -T 40
+   ckc exploit run -e your_exploit_name.py -p 1234 -t 120 -T 40
    ```
 
 📘 For more usage examples, check out the [client documentation](./docs/client/README.md).

@@ -14,7 +14,7 @@ Before you begin, make sure you have:
 To install the CookieFarm client, run the following command:
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/ByteTheCookies/CookieFarm/refs/heads/main/install.sh)
+pip install cookiefarm
 ```
 
 After installation, the `ckc` command will be globally available in your terminal. By default, it will launch in interactive TUI (Text User Interface) mode.
@@ -22,7 +22,7 @@ After installation, the `ckc` command will be globally available in your termina
 To uninstall the client:
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/ByteTheCookies/CookieFarm/refs/heads/main/uninstall.sh)
+pip uninstall cookiefarm
 ```
 
 ---
@@ -77,7 +77,12 @@ The CookieFarm client has two interface modes:
 
 ## 🧪 Exploitation Workflow
 
-1. **Log in** to the server:
+1. **Install the client** using pip:
+   ```bash
+   pip install cookiefarm
+   ```
+   
+2. **Log in** to the server:
    ```bash
    # In CLI mode (with no environment variable setted):
    ckc config login -P SuperSecret -h 192.168.1.10 -p 8000 -u CookieMonster
@@ -85,13 +90,6 @@ The CookieFarm client has two interface modes:
    # In TUI mode:
    # Navigate to: Configuration → Login → Enter credentials
    ```
-
-
-2. **Install the helper Python module**:
-   ```bash
-   pip install cookiefarm-exploiter
-   ```
-  > For more information about the helper module, check the [cookiefarm-exploiter documentation](https://github.com/ByteTheCookies/CookieFarmExploiter)
 
 3. **Create a new exploit template**:
    ```bash
