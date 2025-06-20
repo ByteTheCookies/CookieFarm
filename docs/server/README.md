@@ -36,8 +36,8 @@ To configure the server, you need to create a `.env` file with the following par
 |----------------------|----------------------------------------------------------------------|--------------|
 | `DEBUG`              | Enables debug mode when set to `true`                                | `false`      |
 | `CONFIG_PATH`        | Path to a YAML config file (instead of using the web form)           | N/A          |
-| `SERVER_PASSWORD`    | Password to access the server web interface                          | `"password"` |
-| `SERVER_PORT`        | Sets the port the server will listen on                              | `8080`       |
+| `PASSWORD`    | Password to access the server web interface                          | `"password"` |
+| `PORT`        | Sets the port the server will listen on                              | `8080`       |
 
 The YAML config file as be like that:
 ```YAML
@@ -95,8 +95,9 @@ Create a `.env` file with the following content:
 
 ```
 DEBUG=true
-SERVER_PASSWORD=SuperSecret
-SERVER_PORT=9090
+CONFIG_PATH=./config.yml
+PASSWORD=SuperSecret
+PORT=9090
 ```
 
 ### Running with Docker
@@ -107,9 +108,10 @@ docker compose up
 
 This configuration runs the server:
 
-- In debug mode.
+- In debug mode.S
 - With password `SuperSecret`.
 - On port `9090`.
+- Using the configuration file `./config.yml`.
 
 ---
 
