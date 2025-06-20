@@ -89,6 +89,7 @@
 - [ ] Comando da client per inviare le flag al checker @akiidjk
 - [ ] Compatibilità macos @Dabi
 - [ ] Aggiungere un display che misura ram e cpu del processo (cli - client, web - server)
+- [ ] Implement flagsId @suga
 - [ ] Aggiungere numero client attacanti realtime displayato sulla dashboard,
 - [ ] TTL per le flag senza condizione statistiche
 - [ ] Completed cli (create template, RealTime consumo di risorse di tutti i client e boh altre info, flag che sono state inviate al server)
