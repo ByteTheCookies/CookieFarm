@@ -20,7 +20,7 @@ type EventWSFlag struct {
 
 // Start initializes the submission loop to the cookiefarm server.
 func Start(flagsChan <-chan models.ClientData) error {
-	logger.Log.Info().Msg("Starting submission loop to the cookiefarm server...")
+	logger.Log.Info().Msg("Starting submission loop to the cookiefarm server with websockets (websockets) ...")
 	conn, err := GetConnection()
 	if err != nil {
 		logger.Log.Fatal().Err(err).Msg("Error connecting to WebSocket")

@@ -51,13 +51,3 @@ type ResponseError struct {
 	Error   string `json:"error"`   // Error message for the error response
 	Details string `json:"details"` // Details for the error response
 }
-
-// SubmitFlagRequest the struct for the requests from the client to server
-type SubmitFlagRequest struct {
-	Flag models.ClientData `json:"flag"` // Flag to submit
-}
-
-// SubmitFlagsRequest the struct for the requests from the client to server
-type SubmitFlagsRequest struct {
-	Flags []models.ClientData `json:"flags"` // Flags to submit
-}

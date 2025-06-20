@@ -62,6 +62,7 @@ func RegisterRoutes(app *fiber.App) {
 	privateAPI.Get("/health", HealthHandler)
 	privateAPI.Post("/submit-flags", HandlePostFlags)
 	privateAPI.Post("/submit-flag", HandlePostFlag)
+	privateAPI.Post("/submit-flags-standalone", HandlePostFlagsStandalone)
 	privateAPI.Delete("/delete-flag", HandleDeleteFlag)
 	privateAPI.Post("/config", HandlePostConfig)
 

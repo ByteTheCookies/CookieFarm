@@ -111,7 +111,7 @@ func HandleGetProtocols(c *fiber.Ctx) error {
 
 // HandlePostFlags processes a batch of flags submitted in the request.
 func HandlePostFlags(c *fiber.Ctx) error {
-	var payload SubmitFlagsRequest
+	var payload models.SubmitFlagsRequest
 	if err := c.BodyParser(&payload); err != nil {
 		logger.Log.Error().Err(err).Msg("Invalid SubmitFlags payload")
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(ResponseError{Error: err.Error()})
@@ -127,7 +127,7 @@ func HandlePostFlags(c *fiber.Ctx) error {
 
 // HandlePostFlag processes a single flag and optionally submits it to an external checker.
 func HandlePostFlag(c *fiber.Ctx) error {
-	var payload SubmitFlagRequest
+	var payload models.SubmitFlagRequest
 	if err := c.BodyParser(&payload); err != nil {
 		logger.Log.Error().Err(err).Msg("Invalid SubmitFlag payload")
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(ResponseError{Error: err.Error()})
@@ -146,6 +146,49 @@ func HandlePostFlag(c *fiber.Ctx) error {
 	}
 
 	flags := []string{payload.Flag.FlagCode}
+	response, err := config.Submit(config.SharedConfig.ConfigServer.HostFlagchecker, config.SharedConfig.ConfigServer.TeamToken, flags)
+	if err != nil {
+		logger.Log.Error().Err(err).Msg("Flagchecker submission failed")
+		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{
+			Error:   "Failed to submit flag",
+			Details: err.Error(),
+		})
+	}
+
+	core.UpdateFlags(response)
+
+	return c.JSON(ResponseSuccess{Message: "Flag submitted successfully"})
+}
+
+// HandlePostFlag processes a single flag and optionally submits it to an external checker.
+func HandlePostFlagsStandalone(c *fiber.Ctx) error {
+	var payload models.SubmitFlagsRequest
+	if err := c.BodyParser(&payload); err != nil {
+		logger.Log.Error().Err(err).Msg("Invalid SubmitFlag payload")
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(ResponseError{Error: err.Error()})
+	}
+
+	if err := sqlite.AddFlags(payload.Flags); err != nil {
+		logger.Log.Error().Err(err).Msg("Failed to insert single flag")
+		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{Error: err.Error()})
+	}
+
+	if config.SharedConfig.ConfigServer.HostFlagchecker == "" {
+		logger.Log.Warn().Msg("Flagchecker host not configured")
+		return c.Status(fiber.StatusServiceUnavailable).JSON(ResponseError{
+			Error: "Flagchecker host not configured",
+		})
+	}
+	flags := make([]string, len(payload.Flags))
+
+	for i, flag := range payload.Flags {
+		flags[i] = flag.FlagCode
+		if flag.FlagCode == "" {
+			logger.Log.Warn().Msg("Empty flag code found, skipping submission")
+			continue
+		}
+	}
+
 	response, err := config.Submit(config.SharedConfig.ConfigServer.HostFlagchecker, config.SharedConfig.ConfigServer.TeamToken, flags)
 	if err != nil {
 		logger.Log.Error().Err(err).Msg("Flagchecker submission failed")

@@ -57,3 +57,13 @@ type ClientData struct {
 	PortService  uint16 `json:"port_service"`  // Port of the vulnerable service
 	TeamID       uint16 `json:"team_id"`       // ID of the team the flag was captured from
 }
+
+// SubmitFlagsRequest the struct for the requests from the client to server
+type SubmitFlagsRequest struct {
+	Flags []ClientData `json:"flags"` // Flags to submit
+}
+
+// SubmitFlagRequest the struct for the requests from the client to server
+type SubmitFlagRequest struct {
+	Flag ClientData `json:"flag"` // Flag to submit
+}

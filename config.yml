@@ -1,7 +1,7 @@
 configured: true
 
 server:
-  host_flagchecker: "10.10.0.1:8080"
+  host_flagchecker: "localhost:5001"
   team_token: "c882674c6270b8293fff7f4fb5c4c249"
   submit_flag_checker_time: 120
   max_flag_batch_size: 1000
@@ -12,18 +12,14 @@ server:
 
 client:
   services:
-    - name: "ExCCel"
-      port: 8000
-    - name: "CookingNonna"
-      port: 2222
-    - name: "CCForms-backend"
-      port: 3001
-    - name: "CCForms-frontend"
-      port: 3000
-    - name: "CCalendar"
-      port: 80
-  range_ip_teams: 40
-  format_ip_teams: "10.60.{}.1"
-  my_team_id: 33
+    - name: "CookieService"
+      port: 8081
+    - name: "vulnify"
+      port: 1337
+    - name: "app-nc"
+      port: 1338
+  range_ip_teams: 29
+  format_ip_teams: "10.10.{}.1"
+  my_team_id: 1
   regex_flag: "[A-Z0-9]{31}="
   nop_team: 0

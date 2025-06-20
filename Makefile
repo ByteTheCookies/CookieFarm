@@ -90,9 +90,6 @@ server-build-prod:
 server-run: server-build server-build-plugins minify
 	@$(SERVER_BIN_DIR)/$(SERVER_BINARY_NAME) -c config.yml -d
 
-server-install: tailwindcss-build server-build-prod server-build-plugins-prod
-	@go install .
-
 server-clean:
 	@rm -rf $(SERVER_BIN_DIR)/* $(SERVER_LOGS_DIR)/*
 
@@ -153,6 +150,7 @@ client-run: client-build
 
 client-install: client-build
 	@sudo cp $(CLIENT_BIN_DIR)$(PATHSEP)$(CLIENT_BINARY_NAME) /usr/local/bin/$(CLIENT_BINARY_NAME)
+	@sudo cp /usr/local/bin/$(CLIENT_BINARY_NAME) ~/.venv/bin/$(CLIENT_BINARY_NAME)
 
 client-test:
 	@go test ./...

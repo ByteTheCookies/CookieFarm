@@ -49,7 +49,7 @@ func main() {
 			fmt.Printf("Error starting TUI: %v\nFalling back to CLI mode\n", err)
 			if cm.GetUseBanner() {
 				if !isCompletionCommand() {
-					fmt.Print(logger.GetBanner("client"))
+					fmt.Println(logger.GetBanner("client"))
 				}
 			}
 			cmd.Execute()
@@ -57,7 +57,7 @@ func main() {
 	} else {
 		if cm.GetUseBanner() {
 			if !isCompletionCommand() {
-				fmt.Print(logger.GetBanner("client"))
+				fmt.Println(logger.GetBanner("client"))
 			}
 		}
 		cmd.Execute()
