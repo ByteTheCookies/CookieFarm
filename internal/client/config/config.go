@@ -9,7 +9,7 @@ var DefaultConfigPath, _ = filesystem.ExpandTilde("~/.config/cookiefarm")
 var globalConfigManager = GetInstance()
 
 var ExploitTemplate = []byte(`#!/usr/bin/env python3
-from cookiefarm_exploiter import exploit_manager
+from cookiefarm import exploit_manager
 
 @exploit_manager
 def exploit(ip, port, name_service):
