@@ -137,7 +137,6 @@ func GetBanner(data string) string {
 		BorderStyle(lipgloss.RoundedBorder()).
 		BorderForeground(lipgloss.Color("#CDA157")).
 		Padding(1, 2).
-		MarginBottom(1).
 		MarginTop(1)
 	formattedBanner := strings.ReplaceAll(banner, "<type>", data)
 	return bannerStyle.Render(formattedBanner)

@@ -35,13 +35,13 @@ func AddFlagsWithContext(ctx context.Context, flags []models.ClientData) error {
 		parts := make([]string, len(batch))
 		args := make([]any, 0, len(batch)*perRow)
 		for j, f := range batch {
-			parts[j] = "(?, ?, ?, ?, ?, ?, ?)"
+			parts[j] = "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 			args = append(args,
 				f.FlagCode, f.ServiceName, f.PortService,
-				f.SubmitTime, f.ResponseTime, f.Status, f.TeamID,
+				f.SubmitTime, f.ResponseTime, f.Status, f.TeamID, f.Msg, f.Username, f.ExploitName,
 			)
 		}
-		query := "INSERT INTO flags(flag_code,service_name,port_service,submit_time,response_time,status,team_id) VALUES " +
+		query := "INSERT INTO flags(flag_code,service_name,port_service,submit_time,response_time,status, team_id, msg, username, exploit_name) VALUES " +
 			strings.Join(parts, ",") +
 			" ON CONFLICT(flag_code) DO NOTHING"
 
