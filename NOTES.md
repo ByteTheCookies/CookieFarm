@@ -72,10 +72,6 @@
 
 ## RELEASE 1.2
 
-
-- [x] Design con shadcnui @suga
-  - [ ] Tutorial nella dashboard @suga
-  - [ ] Possibilità di scaricare dal server il client @suga -> dependes on (Tutorial nella dashboard @suga)
 - [ ] Implement flagsId @suga
 - [ ] TTL per le flag senza condizione statistiche
 - [ ] Aggiungere numero client attacanti realtime displayato sulla dashboard,
@@ -116,6 +112,9 @@
 - [ ] Aggiungere un display che misura ram e cpu del processo (cli - client, web - server)
 - [ ] Compatibilità macos @Dabi
 - [ ] Exploit Manager che runna più di un exploit (by Matte)
+- [x] Design con shadcnui @suga
+  - [ ] Tutorial nella dashboard @suga
+  - [ ] Possibilità di scaricare dal server il client @suga -> dependes on (Tutorial nella dashboard @suga)
 
 
 
