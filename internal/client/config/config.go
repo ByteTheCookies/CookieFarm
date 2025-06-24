@@ -11,8 +11,13 @@ var globalConfigManager = GetInstance()
 var ExploitTemplate = []byte(`#!/usr/bin/env python3
 from cookiefarm import exploit_manager
 
+# "ip" are the IP address of the target team (example: 10.10.X.1)
+# "port" is the port of the target service (example: 1337)
+# "name_service" is the name of the service to exploit (example: "CookieService")
+# "flag_ids" is the flag IDs of the target team and target service (example: [{"username": "psQSDAasd", "password": "qweqweqwe"}, {"username": "sdafjhAS", "password": "HIUOasdb"}])
+
 @exploit_manager
-def exploit(ip, port, name_service):
+def exploit(ip, port, name_service, flag_ids: list):
     # Run your exploit here
     flag = ""
 

@@ -39,7 +39,7 @@ pip install -r "$REQUIREMENTS" > /dev/null
 # === FLAGCHECKER ===
 echo "🚩 Avvio Flagchecker..."
 chmod +x "$FLAGCHECKER_SCRIPT"
-kitty --title "flagchecker" bash -c "source $VENV_ACTIVATE && $FLAGCHECKER_SCRIPT; exec bash" &
+kitty --title "flagchecker" bash -c "source $VENV_ACTIVATE && $FLAGCHECKER_SCRIPT $1; exec bash" &
 echo "✅ Flagchecker lanciato in un terminale separato! 🎉"
 
 # === SERVER ===

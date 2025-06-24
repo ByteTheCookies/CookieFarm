@@ -47,8 +47,8 @@ The CookieFarm client has two interface modes:
 > [!NOTE]
 > If you add params at the end of the command, they will be parsed as CLI commands. For example:
 > ```bash
-> ckc config login -P SuperSecret
-> # This will run the `config login` command in CLI mode.
+> ckc config show
+> # This will run the `config show` command in CLI mode.
 > ```
 ## 🚀 Client Command Overview
 
@@ -81,11 +81,11 @@ The CookieFarm client has two interface modes:
    ```bash
    pip install cookiefarm
    ```
-   
+
 2. **Log in** to the server:
    ```bash
    # In CLI mode (with no environment variable setted):
-   ckc config login -P SuperSecret -h 192.168.1.10 -p 8000 -u CookieMonster
+   ckc config login -P SuperSecret -H 192.168.1.10 -p 8000 -u CookieMonster
 
    # In TUI mode:
    # Navigate to: Configuration → Login → Enter credentials
@@ -140,14 +140,14 @@ The TUI offers these main views:
 Authenticate with the server using a password:
 ```bash
 # In CLI mode (with no environment variable setted):
-ckc config login -P <password> -h <server_ip> -p <port> -u <username>
+ckc config login -P <password> -H <server_ip> -p <port> -u <username>
 
 # In TUI mode:
 # Navigate to: Configuration → Login → Enter password
 ```
 Parameters:
 - `-P <password>`: The password for the server. This is required for authentication.
-- `-h <server_ip>`: IP address of the server.
+- `-H <server_ip>`: IP address of the server.
 - `-p <port>`: Port of the server.
 - `-u <username>`: Username for the client. (default is `cookieguest`)
 
@@ -231,6 +231,10 @@ ckc exploit test -e <exploit_file> [-t <timeout>] [-T <threads>]
 # In TUI mode:
 # Navigate to: Exploits → Test Exploit → Fill the form
 ```
+Parameters:
+- `-e <exploit_file>`: Path to the exploit file (Python script).
+- `-t <timeout>`: Timeout for the exploit in seconds (default is 120).
+- `-T <threads>`: Number of threads to use (default is 10).
 
 
 ### Exploit Run Command

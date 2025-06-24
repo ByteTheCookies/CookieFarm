@@ -24,4 +24,4 @@ client:
   my_team_id: 1
   regex_flag: "[A-Z0-9]{31}="
   nop_team: 0
-  url_flag_ids: "http://localhost:5001/flag_ids"
+  url_flag_ids: "http://localhost:5001/flagIds"

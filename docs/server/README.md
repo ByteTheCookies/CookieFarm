@@ -52,6 +52,7 @@ server:
   tick_time: 120
   start_time: <start_time>
   end_time: <end_time>
+  flag_ttl: 5
 
 client:
   services:
@@ -62,6 +63,7 @@ client:
   range_ip_teams: 29
   my_team_id: 1
   nop_team: 0
+  url_flag_ids: "http://localhost:5001/flagIds"
 ```
 
 
