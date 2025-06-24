@@ -138,7 +138,7 @@ func HandlePostFlag(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{Error: err.Error()})
 	}
 
-	if config.SharedConfig.ConfigServer.HostFlagchecker == "" {
+	if config.SharedConfig.ConfigServer.URLFlagChecker == "" {
 		logger.Log.Warn().Msg("Flagchecker host not configured")
 		return c.Status(fiber.StatusServiceUnavailable).JSON(ResponseError{
 			Error: "Flagchecker host not configured",
@@ -146,7 +146,7 @@ func HandlePostFlag(c *fiber.Ctx) error {
 	}
 
 	flags := []string{payload.Flag.FlagCode}
-	response, err := config.Submit(config.SharedConfig.ConfigServer.HostFlagchecker, config.SharedConfig.ConfigServer.TeamToken, flags)
+	response, err := config.Submit(config.SharedConfig.ConfigServer.URLFlagChecker, config.SharedConfig.ConfigServer.TeamToken, flags)
 	if err != nil {
 		logger.Log.Error().Err(err).Msg("Flagchecker submission failed")
 		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{
@@ -173,7 +173,7 @@ func HandlePostFlagsStandalone(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{Error: err.Error()})
 	}
 
-	if config.SharedConfig.ConfigServer.HostFlagchecker == "" {
+	if config.SharedConfig.ConfigServer.URLFlagChecker == "" {
 		logger.Log.Warn().Msg("Flagchecker host not configured")
 		return c.Status(fiber.StatusServiceUnavailable).JSON(ResponseError{
 			Error: "Flagchecker host not configured",
@@ -189,7 +189,7 @@ func HandlePostFlagsStandalone(c *fiber.Ctx) error {
 		}
 	}
 
-	response, err := config.Submit(config.SharedConfig.ConfigServer.HostFlagchecker, config.SharedConfig.ConfigServer.TeamToken, flags)
+	response, err := config.Submit(config.SharedConfig.ConfigServer.URLFlagChecker, config.SharedConfig.ConfigServer.TeamToken, flags)
 	if err != nil {
 		logger.Log.Error().Err(err).Msg("Flagchecker submission failed")
 		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{
@@ -225,6 +225,7 @@ func HandlePostConfig(c *fiber.Ctx) error {
 	shutdownCancel = cancel
 
 	go core.StartFlagProcessingLoop(ctx)
+	go core.ValidateFlagTTL(ctx, config.SharedConfig.ConfigServer.FlagTTL, config.SharedConfig.ConfigServer.TickTime)
 
 	cfgJSON, err := json.Marshal(config.SharedConfig)
 	if err != nil {

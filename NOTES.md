@@ -56,7 +56,7 @@
 - [x] Fare il README.md
 - [x] Aggiungere un bottone sulla table per aggiornarla senza ricaricare la pagina
 
-## RELEASE 1.1
+## RELEASE 1.1.0
 - [x] Auto Reload @akiidjk
 - [x] api/button to delete/remove the flag queue @akiidjk
 - [x] api/button to send flags, instead of waiting the timer @akiidjk
@@ -70,11 +70,10 @@
 - [x] Comandi all'interno del client per generare il template, runnare gli exploit, ecc
 - [x] Installazione del client tramite `install.sh` per averlo globale
 
-## RELEASE 1.2
+## RELEASE 1.2.0
 
-- [ ] Implement flagsId @suga
-- [ ] TTL per le flag senza condizione statistiche
-- [ ] Aggiungere numero client attacanti realtime displayato sulla dashboard,
+- [x] Implement flagsId @suga
+- [x] TTL per le flag
 - [x] Install cookieclient (binary) with pip @suga
 - [x] Exploit test
 - [x] Update data structure:
@@ -115,6 +114,7 @@
 - [x] Design con shadcnui @suga
   - [ ] Tutorial nella dashboard @suga
   - [ ] Possibilità di scaricare dal server il client @suga -> dependes on (Tutorial nella dashboard @suga)
+- [ ] Aggiungere numero client attacanti realtime displayato sulla dashboard,
 
 
 

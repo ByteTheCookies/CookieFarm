@@ -51,7 +51,7 @@ func StartFlagProcessingLoop(ctx context.Context) {
 			logger.Log.Info().Int("count", len(flags)).Msg("Submitting flags to checker")
 
 			responses, err := config.Submit(
-				config.SharedConfig.ConfigServer.HostFlagchecker,
+				config.SharedConfig.ConfigServer.URLFlagChecker,
 				config.SharedConfig.ConfigServer.TeamToken,
 				flags,
 			)

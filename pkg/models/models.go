@@ -10,12 +10,13 @@ type Service struct {
 type ConfigServer struct {
 	SubmitFlagCheckerTime uint64 `json:"submit_flag_checker_time" yaml:"submit_flag_checker_time"` // Time interval (s) to check and submit flags
 	MaxFlagBatchSize      uint   `json:"max_flag_batch_size" yaml:"max_flag_batch_size"`           // Max number of flags to send in a single batch
-	HostFlagchecker       string `json:"host_flagchecker" yaml:"host_flagchecker"`                 // Address of the flagchecker server
+	URLFlagChecker        string `json:"url_flag_checker" yaml:"url_flag_checker"`                 // Address of the flagchecker server
 	TeamToken             string `json:"team_token" yaml:"team_token"`                             // Authentication token for team identity
 	Protocol              string `json:"protocol" yaml:"protocol"`                                 // Protocol used to communicate with the flagchecker server
 	TickTime              int    `json:"tick_time" yaml:"tick_time"`                               // Duration of one game tick in seconds
 	StartTime             string `json:"start_time" yaml:"start_time"`                             // CTF competition start time (HH:MM:SS format)
 	EndTime               string `json:"end_time" yaml:"end_time"`                                 // CTF competition end time (HH:MM:SS format)
+	FlagTTL               uint64 `json:"flag_ttl" yaml:"flag_ttl"`                                 // Time-to-live for flags in ticks
 }
 
 // ConfigClient contains all client-side configuration options.
@@ -26,6 +27,7 @@ type ConfigClient struct {
 	Services      []Service `json:"services" yaml:"services"`               // List of services to exploit
 	RangeIPTeams  uint8     `json:"range_ip_teams" yaml:"range_ip_teams"`   // Number of teams / IP range
 	NOPTeam       int       `json:"nop_team" yaml:"nop_team"`               // The id of the nop team in the ctf
+	URLFlagIds    string    `json:"url_flag_ids" yaml:"url_flag_ids"`       // URLFlagIds is the where the flagsId server is running
 }
 
 // ConfigShared aggregates both server and client configuration,
