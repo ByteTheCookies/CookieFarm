@@ -72,28 +72,26 @@
 
 ## RELEASE 1.2
 
+
+- [x] Design con shadcnui @suga
+  - [ ] Tutorial nella dashboard @suga
+  - [ ] Possibilità di scaricare dal server il client @suga -> dependes on (Tutorial nella dashboard @suga)
+- [ ] Implement flagsId @suga
+- [ ] TTL per le flag senza condizione statistiche
+- [ ] Aggiungere numero client attacanti realtime displayato sulla dashboard,
 - [x] Install cookieclient (binary) with pip @suga
 - [x] Exploit test
 - [x] Update data structure:
   - [x] Rename Flag struct to ClientData
-  - [ ] Add username, exploit name
+  - [x] Add username, exploit name
   - [x] Addare nella config del server: ticktime, ad_start
 - [x] Client update:
   - [x] Handle the stats that client sends to the server @akiidjk
   - [x] Add the Test command to the client (run the exploit only for the NOP team) @akiidjk
     - [x] Add in the Server Config (`config.yml`) the id of the NOP team @akiidjk
     - [x] Replace in the Server Config (`config.yml`) the 'my ip' with the id of the team NOT the ip address @akiidjk
-- [x] Design con shadcnui @suga
-  - [ ] Tutorial nella dashboard @suga
-  - [ ] Possibilità di scaricare dal server il client @suga -> dependes on (Tutorial nella dashboard @suga)
 - [x] Comando da client per inviare le flag al checker @akiidjk
-- [ ] Compatibilità macos @Dabi
-- [ ] Aggiungere un display che misura ram e cpu del processo (cli - client, web - server)
-- [ ] Implement flagsId @suga
-- [ ] Aggiungere numero client attacanti realtime displayato sulla dashboard,
-- [ ] TTL per le flag senza condizione statistiche
-- [ ] Completed cli (create template, RealTime consumo di risorse di tutti i client e boh altre info, flag che sono state inviate al server)
-- [ ] Exploit Manager che runna più di un exploit (by Matte)
+- [x] Completed cli (create template, RealTime consumo di risorse di tutti i client e boh altre info, flag che sono state inviate al server)
 - [x] Compatibilità windows @akiidjk
 - [x] Better handling of Local and Shared config (Singleton architecture for race condition, better handling of config file, etc)
 - [x] Migrazione da htmx a Next.js @akiidjk
@@ -115,6 +113,11 @@
 - [ ] Calcolatore della SLA
 - [ ] Simulatore dell'andamento della gara (active learning)
 - [ ] Auto Flag
+- [ ] Aggiungere un display che misura ram e cpu del processo (cli - client, web - server)
+- [ ] Compatibilità macos @Dabi
+- [ ] Exploit Manager che runna più di un exploit (by Matte)
+
+
 
 ## RELEASE BOH SI QUANDO ABBIAMO TEMPO
 - [ ] Sostituire le richieste in GO con `requests.h`
