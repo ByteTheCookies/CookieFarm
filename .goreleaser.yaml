@@ -78,7 +78,8 @@ report_sizes: true
 announce:
   discord:
     enabled: true
-    message_template: "New **CookieFarm** release {{.Tag}} is out! :cookie~1:"
+    message_template: "New **CookieFarm** release {{.Tag}} is out! :cookie~1:
+      **Full Changelog**: https://github.com/ByteTheCookies/CookieFarm/compare/{{.PreviousTag}}...{{.Tag}}"
     author: "ByteTheCookies"
     color: "13476184"
     icon_url: "https://bytethecookies.github.io/logo/logo.png"
