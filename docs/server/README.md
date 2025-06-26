@@ -67,9 +67,8 @@ client:
 ```
 
 
-> **⚠️ WARNING: Security Risk!**
->
-> You are **strongly encouraged** to change the default password (`"password"`) to a strong, unique password. Using the default password poses a significant security risk as it could allow unauthorized access to your flag management system!
+> [!WARNING]
+> Security Risk: You are **strongly encouraged** to change the default password (`"password"`) to a strong, unique password. Using the default password poses a significant security risk as it could allow unauthorized access to your flag management system!
 
 ---
 
@@ -80,6 +79,9 @@ The **web interface** is accessible at:
 ```
 http://<your_server_ip>:<port>
 ```
+
+> [!IMPORTANT]
+> The actual web interface written in htmx and JavaScript is not updated so some features may not work as expected. The server is still functional, but the UI may not reflect all the latest changes. The new UI is being developed and will be available soon in the v2.0.0.
 
 Through the UI you can:
 
