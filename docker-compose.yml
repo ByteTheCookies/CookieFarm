@@ -1,0 +1,40 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: prod
+    restart: unless-stopped
+    ports:
+      - ${PORT}:${PORT}
+    environment:
+      PASSWORD: ${PASSWORD}
+      CONFIG_FROM_FILE: ${CONFIG_FROM_FILE}
+      PORT: ${PORT}
+      DEBUG: ${DEBUG}
+    volumes:
+      - sqlite_bp:/app/database
+    networks:
+      - cookiefarm-network
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   restart: unless-stopped
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - NODE_ENV=production
+  #   depends_on:
+  #     - app
+  #   networks:
+  #     - cookiefarm-network
+
+volumes:
+  sqlite_bp:
+    driver: local
+
+networks:
+  cookiefarm-network:
+    driver: bridge
+    name: cookiefarm-network
