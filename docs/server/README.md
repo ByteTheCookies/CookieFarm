@@ -63,7 +63,7 @@ client:
   range_ip_teams: 29
   my_team_id: 1
   nop_team: 0
-  url_flag_ids: "http://localhost:5001/flagIds"
+  url_flag_ids: "<address_of_flagIds"   # Specific for CyberChallengAD
 ```
 
 
@@ -112,7 +112,7 @@ docker compose up
 
 This configuration runs the server:
 
-- In debug mode.S
+- In debug mode.
 - With password `SuperSecret`.
 - On port `9090`.
 - Using the configuration file `./config.yml`.

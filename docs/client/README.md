@@ -104,9 +104,6 @@ The CookieFarm client has two interface modes:
    ```bash
    # In CLI mode (with no environment variable setted):
    ckc exploit run -e my_exploit.py -p 1234 -t 120 -T 40
-
-   # In TUI mode:
-   # Navigate to: Exploits → Run Exploit → Complete the form
    ```
 
 ---
@@ -153,13 +150,13 @@ Parameters:
 Update the client configuration (all fields optional, at least one required):
 ```bash
 # In CLI mode (with no environment variable setted):
-ckc config update -h <server_ip> -p <port> -u <username> [-s]
+ckc config update -H <server_ip> -p <port> -u <username> [-s]
 
 # In TUI mode:
 # Navigate to: Configuration → Update Config → Fill the form
 ```
 Parameters:
-- `-h <server_ip>`: IP address of the server.
+- `-H <server_ip>`: IP address of the server.
 - `-p <port>`: Port of the server.
 - `-u <username>`: Username for the client. (default is `guest`)
 - `-s`: Use secure connection (HTTPS).
@@ -224,13 +221,11 @@ In this case, the exploit will be created in the current directory.
 Test an exploit against the NOP team:
 ```bash
 # In CLI mode (with no environment variable setted):
-ckc exploit test -e <exploit_file> [-t <timeout>] [-T <threads>]
-
-# In TUI mode:
-# Navigate to: Exploits → Test Exploit → Fill the form
+ckc exploit test -e <exploit_file> -p <service_port> [-t <timeout>] [-T <threads>]
 ```
 Parameters:
 - `-e <exploit_file>`: Path to the exploit file (Python script).
+- `-p <service_port`: Port of the target service
 - `-t <timeout>`: Timeout for the exploit in seconds (default is 120).
 - `-T <threads>`: Number of threads to use (default is 10).
 
@@ -239,29 +234,21 @@ Parameters:
 Run an exploit:
 ```bash
 # In CLI mode (with no environment variable setted):
-ckc exploit run -e <exploit_file> -p <port> [-t <timeout>] [-T <threads>] [-d]
+ckc exploit run -e <exploit_file> -p <port> [-t <timeout>] [-T <threads>] [-D]
 
-# In TUI mode:
-# Navigate to: Exploits → Run Exploit → Fill the form
 ```
 Parameters:
 - `-e <exploit_file>`: Path to the exploit file (Python script).
 - `-p <port>`: Port to run the exploit on.
 - `-t <timeout>`: Timeout for the exploit in seconds (default is 120).
 - `-T <threads>`: Number of threads to use (default is 10).
-- `-d`: Enable debug mode for more verbose output.
+- `-D`: Enable debug mode for more verbose output.
 
-> [!IMPORTANT]
-> When you run an exploit in TUI mode, it will run in the background, allowing you to continue using the client while monitoring the exploit's progress.
 *Example:*
 ```bash
 # In CLI mode (with no environment variable setted):
 ckc exploit run -e my_exploit.py -p 1234 -t 120 -T 40
 # This will return the PID of the running exploit.
-#
-# In TUI mode:
-# # Navigate to: Exploits → Run Exploit → Enter the exploit file, port, timeout, and threads
-# # The exploit will run in the background, and you can monitor its progress.
 ```
 
 ### Exploit List Command
