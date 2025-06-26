@@ -32,8 +32,8 @@ Make sure you have the following installed:
 
 | Directory       | Description |
 |------------------|-------------|
-| [`client/`](./client/) | Handles exploit creation and flag submission |
-| [`server/`](./server/) | Manages exploit distribution, flag collection, and monitoring |
+| [`client/`](./docs/client/README.md) | Handles exploit creation and flag submission |
+| [`server/`](./docs/server/README.md) | Manages exploit distribution, flag collection, and monitoring |
 
 ---
 
