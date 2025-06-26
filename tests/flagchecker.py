@@ -70,8 +70,7 @@ def get_flag_ids():
     Returns a list of flag IDs.
     """
     example_flag_ids = {
-        "cookie-service-1": {},
-        "cookie-service-2": {},
+        "CookieService": {},
     }
 
     for service_name, service_data in example_flag_ids.items():
@@ -80,12 +79,15 @@ def get_flag_ids():
                 f"{i}": {
                     "0": {
                         "username": generate_random_string(8),
+                        "password": generate_random_string(16)
                     },
                     "1": {
                         "username": generate_random_string(8),
+                        "password": generate_random_string(16)
                     },
                     "2": {
                         "username": generate_random_string(8),
+                        "password": generate_random_string(16)
                     }
                 }
             })
