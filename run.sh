@@ -13,7 +13,7 @@ if [ -n "$CONFIG_FROM_FILE" ]; then
 fi
 
 if [ "$DEBUG" = "true" ]; then
-    CMD="$CMD -d"
+    CMD="$CMD -D"
 fi
 
 eval exec $CMD

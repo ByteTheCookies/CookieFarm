@@ -52,7 +52,7 @@ server:
   tick_time: 120
   start_time: <start_time>
   end_time: <end_time>
-  flag_ttl: 5
+  flag_ttl: 5 # in ticks (if the ttl is 0, the flag will never expire)
 
 client:
   services:

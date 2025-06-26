@@ -17,7 +17,7 @@ FROM alpine:3.20.1 AS prod
 
 WORKDIR /app
 
-RUN apk add --no-cache libc6-compat dos2unix
+RUN apk add --no-cache libc6-compat
 
 COPY --from=build /app/bin/cks /app/bin/cks
 COPY --from=build /app/internal/server/public /app/internal/server/public
@@ -28,7 +28,7 @@ COPY --from=build /app/internal/server/ui/views /app/internal/server/ui/views
 RUN touch ./cookiefarm.db
 
 COPY run.sh run.sh
-RUN dos2unix run.sh && chmod +x run.sh
+RUN chmod +x run.sh
 
 EXPOSE ${PORT}
 

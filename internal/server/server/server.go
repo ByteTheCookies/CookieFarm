@@ -88,7 +88,7 @@ func PrepareStatic(app *fiber.App) error {
 // setting up static file routes, debug middleware, and template engine.
 func NewApp() (*fiber.App, error) {
 	staticPrefixes := []string{"/css", "/js", "/images", "/static"}
-	cfg := newConfig(*config.Debug)
+	cfg := newConfig(config.Debug)
 	app := fiber.New(cfg)
 
 	if err := PrepareStatic(app); err != nil {
@@ -104,7 +104,7 @@ func NewApp() (*fiber.App, error) {
 	app.Server().IdleTimeout = 60 * time.Second
 
 	// Log static file requests in debug mode
-	if *config.Debug {
+	if config.Debug {
 		app.Use(func(c *fiber.Ctx) error {
 			for _, prefix := range staticPrefixes {
 				if strings.HasPrefix(c.Path(), prefix) {
