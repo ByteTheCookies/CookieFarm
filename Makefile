@@ -62,6 +62,8 @@ help:
 	@echo -e "  $(CYAN)make client-clean$(RESET)           - Clean client build"
 	@echo -e "  $(CYAN)make client-build-linux$(RESET)     - Build client for Linux"
 	@echo -e "  $(CYAN)make client-build-windows$(RESET)   - Build client for Windows"
+	@echo -e "  $(CYAN)make client-build-linux-prod$(RESET) - Build client for Linux production"
+	@echo -e "  $(CYAN)make client-build-windows-prod$(RESET) - Build client for Windows production"
 	@echo -e "  $(CYAN)make client-build-prod$(RESET)      - Build client for production"
 
 	@echo -e "  $(CYAN)make lint$(RESET)            - Lint client code"
@@ -139,10 +141,22 @@ client-build-linux:
 	@GOOS=linux GOARCH=amd64 go build -o $(CLIENT_BIN_DIR)$(PATHSEP)$(CLIENT_BINARY_NAME) $(CLIENT_CMD_DIR)$(CLIENT_MAIN_FILE)
 	@$(ECHO_CMD) "$(GREEN)[+] Linux build complete!$(RESET)"
 
+client-build-linux-prod:
+	@$(ECHO_CMD) "$(CYAN)[*] Building client for Linux production...$(RESET)"
+	@$(MKDIR_CMD) $(CLIENT_BIN_DIR)
+	@GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o $(CLIENT_BIN_DIR)$(PATHSEP)$(CLIENT_BINARY_NAME) $(CLIENT_CMD_DIR)$(CLIENT_MAIN_FILE)
+	@$(ECHO_CMD) "$(GREEN)[+] Linux production build complete!$(RESET)"
+
+client-build-windows-prod:
+	@$(ECHO_CMD) "$(CYAN)[*] Building client for Windows production...$(RESET)"
+	@$(MKDIR_CMD) $(CLIENT_BIN_DIR)
+	@GOOS=windows GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o $(CLIENT_BIN_DIR)$(PATHSEP)$(CLIENT_BINARY_NAME) $(CLIENT_CMD_DIR)$(CLIENT_MAIN_FILE)
+	@$(ECHO_CMD) "$(GREEN)[+] Windows production build complete!$(RESET)"
+
 client-build-prod:
 	@$(ECHO_CMD) "$(CYAN)[*] Building client for production...$(RESET)"
-	@$(MAKE) client-build-linux
-	@$(MAKE) client-build-windows
+	@$(MAKE) client-build-linux-prod
+	@$(MAKE) client-build-windows-prod
 	@$(ECHO_CMD) "$(GREEN)[+] Production build complete!$(RESET)"
 
 client-run: client-build

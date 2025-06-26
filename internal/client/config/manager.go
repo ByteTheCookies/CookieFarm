@@ -182,7 +182,6 @@ func (cm *ConfigManager) LoadLocalConfigFromFile() error {
 		if _, err := os.Create(filepath.Join(DefaultConfigPath, "config.yml")); err != nil {
 			return fmt.Errorf("error creating default config file: %w", err)
 		}
-
 	}
 
 	configFileContent, err := os.ReadFile(filepath.Join(DefaultConfigPath, "config.yml"))
