@@ -39,9 +39,7 @@ The CookieFarm client has two interface modes:
 
 2. **Traditional CLI Mode**: For scripts, automation, or environments where TUI isn't supported
    ```bash
-   ckc --no-tui
-   # OR
-   COOKIECLIENT_NO_TUI=1 ckc
+   ckc --help
    ```
 
 > [!NOTE]
