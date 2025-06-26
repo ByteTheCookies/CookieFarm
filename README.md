@@ -28,14 +28,14 @@ Make sure you have the following installed:
 
 ---
 
-## 📁 Repository Structure
+<!-- ## 📁 Repository Structure
 
 | Directory       | Description |
 |------------------|-------------|
 | [`client/`](./docs/client/README.md) | Handles exploit creation and flag submission |
 | [`server/`](./docs/server/README.md) | Manages exploit distribution, flag collection, and monitoring |
 
----
+--- -->
 
 ## ⚙️ Architecture Overview
 
