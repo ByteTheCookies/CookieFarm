@@ -8,8 +8,8 @@ CMD="/app/bin/cks"
 CMD="$CMD -p \"$PASSWORD\""
 CMD="$CMD -P \"$PORT\""
 
-if [ -n "$CONFIG_FROM_FILE" ]; then
-    CMD="$CMD -c \"$CONFIG_FROM_FILE\""
+if [ -n "$CONFIG_FILE" ]; then
+    CMD="$CMD -c"
 fi
 
 if [ "$DEBUG" = "true" ]; then
