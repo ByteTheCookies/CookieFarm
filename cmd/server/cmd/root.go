@@ -62,7 +62,7 @@ func Execute() {
 
 func init() {
 	RootCmd.PersistentFlags().BoolVarP(&debug, "debug", "D", false, "Enable debug logging")
-	RootCmd.PersistentFlags().StringVarP(&config.ConfigPath, "config", "c", "", "Path to the configuration file")
+	RootCmd.PersistentFlags().BoolVarP(&config.ConfigFile, "config", "c", false, "Use configuration file instead of web config")
 	RootCmd.PersistentFlags().StringVarP(&config.Password, "password", "p", "password", "Password for authentication")
 	RootCmd.PersistentFlags().StringVarP(&config.ServerPort, "port", "P", "8080", "Port for server")
 
@@ -85,7 +85,7 @@ func Run(cmd *cobra.Command, args []string) {
 	logger.Setup(level, false)
 	defer logger.Close()
 
-	if config.ConfigPath != "" {
+	if config.ConfigFile {
 		logger.Log.Info().Msg("Using file config...")
 		err := core.LoadConfig(config.ConfigPath)
 		if err != nil {

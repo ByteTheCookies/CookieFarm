@@ -9,7 +9,7 @@ services:
       - ${PORT}:${PORT}
     environment:
       PASSWORD: ${PASSWORD}
-      CONFIG_FROM_FILE: ${CONFIG_FROM_FILE}
+      CONFIG_FILE: ${CONFIG_FILE}
       PORT: ${PORT}
       DEBUG: ${DEBUG}
     volumes:

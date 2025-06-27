@@ -10,7 +10,7 @@ var SharedConfig models.ConfigShared // Initialize the config struct
 
 var (
 	Debug      bool                                                                 // Global debug flag
-	ConfigPath string                                                               // Path to configuration file
+	ConfigFile bool                                                                 // Use configuration file instead of web config
 	Password   string                                                               // Password for authentication
 	ServerPort string                                                               // Port for server
 	Secret     = make([]byte, 32)                                                   // JWT secret key
@@ -19,6 +19,7 @@ var (
 )
 
 const (
-	DefaultLimit  int = 100 // Default maximum number of flags to retrieve in the view
-	DefaultOffset int = 0   // Default offset for pagination
+	ConfigPath    string = "config.yml" // Path to configuration file
+	DefaultLimit  int    = 100          // Default maximum number of flags to retrieve in the view
+	DefaultOffset int    = 0            // Default offset for pagination
 )
