@@ -64,7 +64,12 @@ require (
 	github.com/valyala/fasthttp v1.60.0 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	golang.org/x/arch v0.0.0-20210923205945-b76863e36670 // indirect
-	golang.org/x/sync v0.13.0 // indirect
+	golang.org/x/mod v0.25.0 // indirect
+	golang.org/x/sync v0.15.0 // indirect
+	golang.org/x/telemetry v0.0.0-20240521205824-bda55230c457 // indirect
 	golang.org/x/text v0.24.0 // indirect
+	golang.org/x/tools v0.34.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 )
+
+tool golang.org/x/tools/cmd/deadcode
