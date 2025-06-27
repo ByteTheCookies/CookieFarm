@@ -105,23 +105,35 @@
     - [x] Sort by submit_time
 
 ## RELEASE 2.0 (Cyberchallenge update)
+- [x] Design con shadcnui @suga @akiidjk
+  - [ ] Login page
+  - [ ] Remake all endpoints for the new design with tables
+  - [ ] Implement autoreload
+  - [ ] Implement real-time updates (idk)
+  - [ ] Implement search
+  - [ ] Implement filters
+  - [ ] Implement sorting
+  - [ ] Implement pagination
+  - [ ] Implement stats
+  - [ ] Implement team management
+  - [ ] Implement flag management (submit, remove)
+  - [ ] Implement `enter the flag` input
+  - [ ] Table with all the flags
+  - [ ] Tutorial nella dashboard
+- [ ] Extreame update and improvements to Server side part
+- [ ] Improvements docs for monitoring
+- [ ] Non mettere 5 threads di default ma mettere un numero adeguato in base al numero di team presi della config e mettere un upper-limit @suga
 - [ ] Calcolatore della SLA
 - [ ] Simulatore dell'andamento della gara (active learning)
 - [ ] Auto Flag
 - [ ] Aggiungere un display che misura ram e cpu del processo (cli - client, web - server)
-- [ ] Compatibilità macos @Dabi
 - [ ] Exploit Manager che runna più di un exploit (by Matte)
-- [x] Design con shadcnui @suga
-  - [ ] Tutorial nella dashboard @suga
-  - [ ] Possibilità di scaricare dal server il client @suga -> dependes on (Tutorial nella dashboard @suga)
 - [ ] Aggiungere numero client attacanti realtime displayato sulla dashboard,
-
+- [ ] Compatibilità macos @Dabi
 
 
 ## RELEASE BOH SI QUANDO ABBIAMO TEMPO
 - [ ] Sostituire le richieste in GO con `requests.h`
-- [ ] Non mettere 5 threads di default ma mettere un numero adeguato in base al numero di team presi della config e mettere un upper-limit @suga
-
 
 ## Final test
 
