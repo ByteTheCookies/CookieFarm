@@ -42,6 +42,10 @@ func InitDB() error {
 		return err
 	}
 
+	if err := sqlitex.Exec(conn, "PRAGMA journal_mode=WAL;", nil); err != nil {
+		return err
+	}
+
 	logger.Log.Info().Msg("Database schema initialized successfully")
 	return nil
 }
@@ -57,6 +61,7 @@ func New() *sqlitex.Pool {
 	if err != nil {
 		logger.Log.Fatal().Err(err).Str("path", dbPath).Msg("Failed to open database")
 	}
+
 	DBPool = db
 	if err := InitDB(); err != nil {
 		logger.Log.Fatal().Err(err).Msg("Database initialization failed")
