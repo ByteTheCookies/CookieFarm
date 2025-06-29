@@ -34,6 +34,7 @@ func UpdateFlagsStatus(responses []protocols.ResponseProtocol) error {
 	return nil
 }
 
+// updateFlagsBatch updates the status and message of flags in the database in batch.
 func updateFlagsBatch(batch []protocols.ResponseProtocol) error {
 	if len(batch) == 0 {
 		return nil
@@ -42,13 +43,19 @@ func updateFlagsBatch(batch []protocols.ResponseProtocol) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
+	conn := DBPool.Get(ctx)
+	if conn == nil {
+		return fmt.Errorf("no available SQLite connection")
+	}
+	defer DBPool.Put(conn)
+
 	placeholders := make([]string, 0, len(batch))
 	args := make([]any, 0, len(batch)*3)
 
 	now := uint64(time.Now().Unix())
 
-	for i, r := range batch {
-		placeholders = append(placeholders, fmt.Sprintf("($%d,$%d,$%d)", i*3+1, i*3+2, i*3+3))
+	for _, r := range batch {
+		placeholders = append(placeholders, "(?, ?, ?)")
 		args = append(args, r.Flag, r.Status, r.Msg)
 	}
 
@@ -58,29 +65,37 @@ func updateFlagsBatch(batch []protocols.ResponseProtocol) error {
 		)
 		UPDATE flags
 		SET
-			status = batch_values.status,
-			msg = batch_values.msg,
-			response_time = $%d
-		FROM batch_values
-		WHERE flags.flag_code = batch_values.flag_code`,
-		strings.Join(placeholders, ","),
-		len(args)+1,
-	)
+			status = (SELECT status FROM batch_values WHERE batch_values.flag_code = flags.flag_code),
+			msg = (SELECT msg FROM batch_values WHERE batch_values.flag_code = flags.flag_code),
+			response_time = ?
+		WHERE flag_code IN (SELECT flag_code FROM batch_values)
+	`, strings.Join(placeholders, ","))
 
 	args = append(args, now)
 
-	result, err := DB.ExecContext(ctx, query, args...)
+	stmt, err := conn.Prepare(query)
 	if err != nil {
-		logger.Log.Error().Err(err).
-			Int("count", len(batch)).
-			Msg("Failed to execute batch update of flags status")
-		return err
+		return fmt.Errorf("prepare updateFlagsBatch: %w", err)
+	}
+	defer stmt.Finalize()
+
+	stmt, err = BindParams(stmt, args...)
+	if err != nil {
+		return fmt.Errorf("bind params updateFlagsBatch: %w", err)
 	}
 
-	rowsAffected, _ := result.RowsAffected()
+	for {
+		hasRow, err := stmt.Step()
+		if err != nil {
+			return fmt.Errorf("step updateFlagsBatch: %w", err)
+		}
+		if !hasRow {
+			break
+		}
+	}
+
 	logger.Log.Debug().
 		Int("count", len(batch)).
-		Int64("rows_affected", rowsAffected).
 		Msg("Updated statuses for flag batch")
 
 	return nil

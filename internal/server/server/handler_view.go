@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/ByteTheCookies/CookieFarm/internal/server/config"
@@ -11,6 +12,7 @@ import (
 
 const windowSize = 5
 
+// MakePagination generates a list of page numbers for pagination.
 func MakePagination(current, totalPages int) []int {
 	pages := []int{}
 
@@ -116,7 +118,7 @@ func HandlePartialsFlags(c *fiber.Ctx) error {
 
 	flags, err := sqlite.GetPagedFlags(uint(limit), uint(offset))
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString("Error retrieving flags")
+		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("Error retrieving flags: %s", err.Error()))
 	}
 
 	logger.Log.Debug().Int("n_flags", len(flags)).Msg("Paginated flags response")

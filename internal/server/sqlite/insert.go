@@ -3,9 +3,9 @@ package sqlite
 import (
 	"context"
 	"fmt"
-	"strings"
 	"time"
 
+	"crawshaw.io/sqlite/sqlitex"
 	"github.com/ByteTheCookies/CookieFarm/pkg/models"
 )
 
@@ -16,41 +16,57 @@ func AddFlagsWithContext(ctx context.Context, flags []models.ClientData) error {
 		return nil
 	}
 
-	tx, err := DB.BeginTx(ctx, nil)
+	conn := DBPool.Get(ctx)
+	if conn == nil {
+		return fmt.Errorf("no available SQLite connection")
+	}
+	defer DBPool.Put(conn)
+
+	if err := sqlitex.Exec(conn, "SAVEPOINT addflags", nil); err != nil {
+		return fmt.Errorf("savepoint: %w", err)
+	}
+	defer func() {
+		_ = sqlitex.Exec(conn, "ROLLBACK TO addflags", nil)
+	}()
+
+	stmt, err := conn.Prepare(`
+		INSERT OR IGNORE INTO flags(
+			flag_code, service_name, port_service,
+			submit_time, response_time, status,
+			team_id, msg, username, exploit_name
+		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	`)
 	if err != nil {
-		return fmt.Errorf("begin transaction: %w", err)
+		return fmt.Errorf("prepare: %w", err)
 	}
-	defer tx.Rollback()
+	defer stmt.Finalize()
 
-	const maxParams = 50
-	perRow := 8
-	maxRows := maxParams / perRow
-	for i := 0; i < len(flags); i += maxRows {
-		end := i + maxRows
-		if end > len(flags) {
-			end = len(flags)
-		}
-		batch := flags[i:end]
+	for _, f := range flags {
+		stmt.Reset()
+		stmt.ClearBindings()
+		stmt.BindText(1, f.FlagCode)
+		stmt.BindText(2, f.ServiceName)
+		stmt.BindInt64(3, int64(f.PortService))
+		stmt.BindInt64(4, int64(f.SubmitTime))
+		stmt.BindInt64(5, int64(f.ResponseTime))
+		stmt.BindText(6, f.Status)
+		stmt.BindInt64(7, int64(f.TeamID))
+		stmt.BindText(8, f.Msg)
+		stmt.BindText(9, f.Username)
+		stmt.BindText(10, f.ExploitName)
 
-		parts := make([]string, len(batch))
-		args := make([]any, 0, len(batch)*perRow)
-		for j, f := range batch {
-			parts[j] = "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-			args = append(args,
-				f.FlagCode, f.ServiceName, f.PortService,
-				f.SubmitTime, f.ResponseTime, f.Status, f.TeamID, f.Msg, f.Username, f.ExploitName,
-			)
-		}
-		query := "INSERT INTO flags(flag_code,service_name,port_service,submit_time,response_time,status, team_id, msg, username, exploit_name) VALUES " +
-			strings.Join(parts, ",") +
-			" ON CONFLICT(flag_code) DO NOTHING"
-
-		if _, err := tx.ExecContext(ctx, query, args...); err != nil {
-			return fmt.Errorf("batch insert: %w", err)
+		if hasRow, err := stmt.Step(); err != nil {
+			return fmt.Errorf("insert step: %w", err)
+		} else if hasRow {
+			// should not return row
+			return fmt.Errorf("unexpected row returned during insert")
 		}
 	}
 
-	return tx.Commit()
+	if err := sqlitex.Exec(conn, "RELEASE addflags", nil); err != nil {
+		return fmt.Errorf("release: %w", err)
+	}
+	return nil
 }
 
 // AddFlags adds a batch of flags to the database with a default timeout.

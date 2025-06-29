@@ -263,7 +263,7 @@ func HandleDeleteFlag(c *fiber.Ctx) error {
 		})
 	}
 
-	if err := sqlite.DeleteFlag(flagID); err != nil {
+	if err := sqlite.DeleteFlag(c.Context(), flagID); err != nil {
 		logger.Log.Error().Err(err).Msg("Failed to delete flag")
 		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{
 			Error: "Failed to delete flag",

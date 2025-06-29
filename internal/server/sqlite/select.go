@@ -2,9 +2,8 @@ package sqlite
 
 import (
 	"context"
-	"time"
+	"fmt"
 
-	"github.com/ByteTheCookies/CookieFarm/pkg/logger"
 	"github.com/ByteTheCookies/CookieFarm/pkg/models"
 )
 
@@ -71,35 +70,47 @@ func GetPagedFlagCodeList(limit, offset uint) ([]string, error) {
 // queryFlags executes a query to retrieve flags from the database.
 // It prepares and executes a query with the provided arguments and returns a list of flags.
 func queryFlags(query string, args ...any) ([]models.ClientData, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
-	defer cancel()
-
-	stmt, err := DB.PrepareContext(ctx, query)
-	if err != nil {
-		logger.Log.Error().Err(err).Str("query", query).Msg("Failed to prepare queryFlags")
-		return nil, err
+	conn := DBPool.Get(context.Background())
+	if conn == nil {
+		return nil, fmt.Errorf("no available SQLite connection")
 	}
-	defer stmt.Close()
+	defer DBPool.Put(conn)
 
-	rows, err := stmt.QueryContext(ctx, args...)
+	stmt, err := conn.Prepare(query)
 	if err != nil {
-		logger.Log.Error().Err(err).Str("query", query).Msg("Failed to execute queryFlags")
-		return nil, err
+		return nil, fmt.Errorf("prepare queryFlags: %w", err)
 	}
-	defer rows.Close()
+	defer stmt.Finalize()
+
+	// Bind args (1-based index)
+	stmt, err = BindParams(stmt, args...)
+	if err != nil {
+		return nil, fmt.Errorf("bind params: %w", err)
+	}
 
 	var flags []models.ClientData
-	flagPtr := new(models.ClientData)
-	for rows.Next() {
-		if err := rows.Scan(
-			&flagPtr.FlagCode, &flagPtr.ServiceName, &flagPtr.PortService,
-			&flagPtr.SubmitTime, &flagPtr.ResponseTime, &flagPtr.Status,
-			&flagPtr.TeamID, &flagPtr.Msg, &flagPtr.Username, &flagPtr.ExploitName,
-		); err != nil {
-			logger.Log.Error().Err(err).Msg("Failed to scan row in queryFlags")
-			return nil, err
+	for {
+		hasRow, err := stmt.Step()
+		if err != nil {
+			return nil, fmt.Errorf("step: %w", err)
 		}
-		flags = append(flags, *flagPtr)
+		if !hasRow {
+			break
+		}
+
+		f := models.ClientData{
+			FlagCode:     stmt.ColumnText(0),
+			ServiceName:  stmt.ColumnText(1),
+			PortService:  uint16(stmt.ColumnInt64(2)),
+			SubmitTime:   uint64(stmt.ColumnInt64(3)),
+			ResponseTime: uint64(stmt.ColumnInt64(4)),
+			Status:       stmt.ColumnText(5),
+			TeamID:       uint16(stmt.ColumnInt(6)),
+			Msg:          stmt.ColumnText(7),
+			Username:     stmt.ColumnText(8),
+			ExploitName:  stmt.ColumnText(9),
+		}
+		flags = append(flags, f)
 	}
 
 	return flags, nil
@@ -108,31 +119,34 @@ func queryFlags(query string, args ...any) ([]models.ClientData, error) {
 // queryFlagCodes executes a query to retrieve flag codes from the database.
 // It prepares and executes a query with the provided arguments and returns a list of flag codes.
 func queryFlagCodes(query string, args ...any) ([]string, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
-	defer cancel()
-
-	stmt, err := DB.PrepareContext(ctx, query)
-	if err != nil {
-		logger.Log.Error().Err(err).Str("query", query).Msg("Failed to prepare queryFlagCodes")
-		return nil, err
+	conn := DBPool.Get(context.Background())
+	if conn == nil {
+		return nil, fmt.Errorf("no available SQLite connection")
 	}
-	defer stmt.Close()
+	defer DBPool.Put(conn)
 
-	rows, err := stmt.QueryContext(ctx, args...)
+	stmt, err := conn.Prepare(query)
 	if err != nil {
-		logger.Log.Error().Err(err).Str("query", query).Msg("Failed to execute queryFlagCodes")
-		return nil, err
+		return nil, fmt.Errorf("prepare queryFlagCodes: %w", err)
 	}
-	defer rows.Close()
+	defer stmt.Finalize()
+
+	// Bind args
+	stmt, err = BindParams(stmt, args...)
+	if err != nil {
+		return nil, fmt.Errorf("bind params: %w", err)
+	}
 
 	var codes []string
-	codePtr := new(string)
-	for rows.Next() {
-		if err := rows.Scan(codePtr); err != nil {
-			logger.Log.Error().Err(err).Msg("Failed to scan row in queryFlagCodes")
-			return nil, err
+	for {
+		hasRow, err := stmt.Step()
+		if err != nil {
+			return nil, fmt.Errorf("step: %w", err)
 		}
-		codes = append(codes, *codePtr)
+		if !hasRow {
+			break
+		}
+		codes = append(codes, stmt.ColumnText(0))
 	}
 
 	return codes, nil
