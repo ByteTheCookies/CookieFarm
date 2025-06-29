@@ -110,11 +110,7 @@ func Run(cmd *cobra.Command, args []string) {
 	config.Password = hashed
 	logger.Log.Debug().Str("hashed", config.Password).Msg("Password after hashing")
 
-	sqlite.DB = sqlite.New()
-	if err := sqlite.DB.Ping(); err != nil {
-		logger.Log.Fatal().Err(err).Msg("Failed to connect to the database")
-	}
-	logger.Log.Info().Msg("Database initialized")
+	sqlite.DBPool = sqlite.New()
 	defer sqlite.Close()
 
 	app, err := server.NewApp()
@@ -127,16 +123,13 @@ func Run(cmd *cobra.Command, args []string) {
 		TimeFormat: time.RFC3339,
 		TimeZone:   "Local",
 	}))
-
 	server.RegisterRoutes(app)
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	defer stop()
 
 	addr := ":" + config.ServerPort
-
 	errCh := make(chan error, 1)
-
 	go func() {
 		logger.Log.Info().Str("addr", addr).Msg("HTTP server starting")
 		err := app.Listen(addr)
@@ -148,7 +141,6 @@ func Run(cmd *cobra.Command, args []string) {
 	select {
 	case <-ctx.Done():
 		logger.Log.Warn().Msg("Shutdown signal received, terminating...")
-
 	case err := <-errCh:
 		if err != nil {
 			logger.Log.Fatal().Err(err).Msg("Server failed to start")
