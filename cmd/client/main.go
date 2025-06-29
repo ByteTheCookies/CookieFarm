@@ -4,22 +4,12 @@ import (
 	_ "embed"
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/ByteTheCookies/CookieFarm/cmd/client/cmd"
 	"github.com/ByteTheCookies/CookieFarm/internal/client/config"
 	"github.com/ByteTheCookies/CookieFarm/internal/client/tui"
 	"github.com/ByteTheCookies/CookieFarm/pkg/logger"
 )
-
-func isCompletionCommand() bool {
-	for _, arg := range os.Args {
-		if strings.Contains(arg, "__complete") || strings.Contains(arg, "completion") {
-			return true
-		}
-	}
-	return false
-}
 
 func main() {
 	cm := config.GetConfigManager()
@@ -48,7 +38,7 @@ func main() {
 		if err := tui.StartTUI(logger.GetBanner("client"), debug); err != nil {
 			fmt.Printf("Error starting TUI: %v\nFalling back to CLI mode\n", err)
 			if cm.GetUseBanner() {
-				if !isCompletionCommand() {
+				if !logger.IsCompletionCommand() {
 					fmt.Println(logger.GetBanner("client"))
 				}
 			}
@@ -56,7 +46,7 @@ func main() {
 		}
 	} else {
 		if cm.GetUseBanner() {
-			if !isCompletionCommand() {
+			if !logger.IsCompletionCommand() {
 				fmt.Println(logger.GetBanner("client"))
 			}
 		}

@@ -4,24 +4,13 @@ package main
 import (
 	_ "embed"
 	"fmt"
-	"os"
-	"strings"
 
 	"github.com/ByteTheCookies/CookieFarm/cmd/server/cmd"
 	"github.com/ByteTheCookies/CookieFarm/pkg/logger"
 )
 
-func isCompletionCommand() bool {
-	for _, arg := range os.Args {
-		if strings.Contains(arg, "__complete") || strings.Contains(arg, "completion") {
-			return true
-		}
-	}
-	return false
-}
-
 func main() {
-	if !isCompletionCommand() {
+	if !logger.IsCompletionCommand() {
 		fmt.Println(logger.GetBanner("server"))
 	}
 	cmd.Execute()
