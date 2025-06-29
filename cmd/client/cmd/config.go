@@ -41,7 +41,7 @@ var resetConfigCmd = &cobra.Command{
 var editConfigCmd = &cobra.Command{
 	Use:   "update",
 	Short: "Update client configuration",
-	Long:  `This command allows you to edit the client configuration interactively. It opens the configuration file in your default text editor, enabling you to make changes to settings such as server host, port, and other parameters.`,
+	Long:  `This command allows you to edit the client configuration interactively. It opens the configuration file in your default text editor, enabling you to make changes to settings such as server host, port, and other parameters.`, //nolint:revive
 	Run:   update,
 }
 
@@ -49,7 +49,7 @@ var editConfigCmd = &cobra.Command{
 var loginConfigCmd = &cobra.Command{
 	Use:   "login",
 	Short: "Login to the client",
-	Long:  `This command allows you to log in to the client, providing your credentials to access protected resources. It will prompt for your username and password, and store the session information securely.`,
+	Long:  `This command allows you to log in to the client, providing your credentials to access protected resources. It will prompt for your username and password, and store the session information securely.`, //nolint:revive
 	Run:   login,
 }
 
@@ -57,7 +57,7 @@ var loginConfigCmd = &cobra.Command{
 var logoutConfigCmd = &cobra.Command{
 	Use:   "logout",
 	Short: "Remove client session",
-	Long:  `This command removes the current client session, effectively logging you out of the client. It clears any stored session information, ensuring that subsequent requests will require re-authentication.`,
+	Long:  `This command removes the current client session, effectively logging you out of the client. It clears any stored session information, ensuring that subsequent requests will require re-authentication.`, //nolint:revive
 	Run:   logout,
 }
 

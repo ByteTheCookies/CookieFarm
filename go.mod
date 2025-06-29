@@ -3,6 +3,7 @@ module github.com/ByteTheCookies/CookieFarm
 go 1.24.4
 
 require (
+	crawshaw.io/sqlite v0.3.2
 	github.com/bytedance/sonic v1.13.2
 	github.com/charmbracelet/bubbles v0.21.0
 	github.com/charmbracelet/bubbletea v1.3.4
@@ -14,7 +15,6 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.5.2
 	github.com/gorilla/websocket v1.5.3
 	github.com/joho/godotenv v1.5.1
-	github.com/mattn/go-sqlite3 v1.14.27
 	github.com/rs/zerolog v1.34.0
 	github.com/spf13/cobra v1.9.1
 	golang.org/x/crypto v0.37.0

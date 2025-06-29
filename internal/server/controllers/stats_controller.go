@@ -29,7 +29,7 @@ func (*StatsController) GetFlagStats(ctx *fiber.Ctx) error {
 		"failed_flushes":        stats.FailedFlushes,
 		"last_flush_time":       stats.LastFlushTime,
 		"last_successful_flush": stats.LastSuccessfulFlush,
-		"efficiency_ratio":      float64(stats.TotalFlagsFlushed) / float64(stats.TotalFlushes+1), // +1 per evitare divisione per zero
+		"efficiency_ratio":      float64(stats.TotalFlagsFlushed) / float64(stats.TotalFlushes+1), // +1 for division by zero
 		"status": map[string]any{
 			"is_running": collector.IsRunning(),
 		},
