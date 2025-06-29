@@ -18,18 +18,12 @@ builds:
     binary: "ckc"
     env:
       - CGO_ENABLED=0
-    goos:
-      - linux
-      - windows
-      - darwin
-    goarch:
-      - amd64
-      - arm64
-  - main: ./cmd/server/
-    id: "server"
-    binary: "cks"
-    env:
-      - CGO_ENABLED=0
+      - GO111MODULE=on
+      - GOFLAGS=-trimpath
+      - GODEBUG=asyncpreemptoff=1
+      - VERSION={{.Tag}}
+    ldflags:
+      - "-s -w -X main.Version=${VERSION}"
     goos:
       - linux
       - windows
