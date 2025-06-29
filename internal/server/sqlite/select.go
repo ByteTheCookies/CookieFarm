@@ -2,6 +2,7 @@ package sqlite
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/ByteTheCookies/CookieFarm/pkg/models"
@@ -72,7 +73,7 @@ func GetPagedFlagCodeList(limit, offset uint) ([]string, error) {
 func queryFlags(query string, args ...any) ([]models.ClientData, error) {
 	conn := DBPool.Get(context.Background())
 	if conn == nil {
-		return nil, fmt.Errorf("no available SQLite connection")
+		return nil, errors.New("no available SQLite connection")
 	}
 	defer DBPool.Put(conn)
 
@@ -121,7 +122,7 @@ func queryFlags(query string, args ...any) ([]models.ClientData, error) {
 func queryFlagCodes(query string, args ...any) ([]string, error) {
 	conn := DBPool.Get(context.Background())
 	if conn == nil {
-		return nil, fmt.Errorf("no available SQLite connection")
+		return nil, errors.New("no available SQLite connection")
 	}
 	defer DBPool.Put(conn)
 

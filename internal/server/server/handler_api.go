@@ -77,6 +77,7 @@ func HandleGetPaginatedFlags(c *fiber.Ctx) error {
 	})
 }
 
+// HandleGetFlag retrieves a single flag by its ID.
 func HandleGetProtocols(c *fiber.Ctx) error {
 	searchPaths := []string{
 		"pkg/protocols",
@@ -255,6 +256,7 @@ func HandlePostConfig(c *fiber.Ctx) error {
 	return c.JSON(ResponseSuccess{Message: "Configuration updated successfully"})
 }
 
+// HandleDeleteFlag deletes a flag by its ID.
 func HandleDeleteFlag(c *fiber.Ctx) error {
 	flagID := c.Query("flag")
 	if flagID == "" {

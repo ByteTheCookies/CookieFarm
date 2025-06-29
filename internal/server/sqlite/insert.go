@@ -2,6 +2,7 @@ package sqlite
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -18,7 +19,7 @@ func AddFlagsWithContext(ctx context.Context, flags []models.ClientData) error {
 
 	conn := DBPool.Get(ctx)
 	if conn == nil {
-		return fmt.Errorf("no available SQLite connection")
+		return errors.New("no available SQLite connection")
 	}
 	defer DBPool.Put(conn)
 
@@ -58,8 +59,7 @@ func AddFlagsWithContext(ctx context.Context, flags []models.ClientData) error {
 		if hasRow, err := stmt.Step(); err != nil {
 			return fmt.Errorf("insert step: %w", err)
 		} else if hasRow {
-			// should not return row
-			return fmt.Errorf("unexpected row returned during insert")
+			return errors.New("unexpected row returned during insert")
 		}
 	}
 

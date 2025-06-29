@@ -2,6 +2,7 @@ package sqlite
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -45,7 +46,7 @@ func updateFlagsBatch(batch []protocols.ResponseProtocol) error {
 
 	conn := DBPool.Get(ctx)
 	if conn == nil {
-		return fmt.Errorf("no available SQLite connection")
+		return errors.New("no available SQLite connection")
 	}
 	defer DBPool.Put(conn)
 

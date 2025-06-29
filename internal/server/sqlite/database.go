@@ -24,7 +24,7 @@ var (
 	DBPool *sqlitex.Pool
 )
 
-const POOL_SIZE = 20
+const PoolSize = 20
 
 // InitDB initializes the database schema using the SQL schema embedded in the code.
 // It runs the SQL schema to set up tables and structures in the database.
@@ -53,7 +53,7 @@ func New() *sqlitex.Pool {
 	uri := fmt.Sprintf("file:%s?_busy_timeout=5000&_foreign_keys=on", dbPath)
 	flags := sqlite.SQLITE_OPEN_READWRITE | sqlite.SQLITE_OPEN_CREATE | sqlite.SQLITE_OPEN_URI
 
-	db, err := sqlitex.Open(uri, flags, POOL_SIZE)
+	db, err := sqlitex.Open(uri, flags, PoolSize)
 	if err != nil {
 		logger.Log.Fatal().Err(err).Str("path", dbPath).Msg("Failed to open database")
 	}

@@ -18,10 +18,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	debug     bool
-	useBanner bool
-)
+var debug bool
 
 const VERSION = "v1.2.0"
 
