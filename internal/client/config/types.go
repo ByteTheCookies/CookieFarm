@@ -1,5 +1,11 @@
 package config
 
+import (
+	"sync"
+
+	"github.com/ByteTheCookies/CookieFarm/pkg/models"
+)
+
 // ArgsAttack represents the command-line arguments or configuration
 // values passed at runtime to control the exploit manager behavior.
 type ArgsAttack struct {
@@ -21,4 +27,17 @@ type ConfigLocal struct {
 	HTTPS    bool      `json:"protocol"` // Protocol used to connect to the server (e.g., http, https)
 	Username string    `json:"username"` // Username of the client
 	Exploits []Exploit `json:"exploits"` // List of exploits available in the client
+}
+
+// ConfigManager manages all configuration state in a thread-safe manner
+type ConfigManager struct {
+	mu                 sync.RWMutex
+	token              string
+	argsAttackInstance ArgsAttack
+	localConfig        ConfigLocal
+	sharedConfig       models.ConfigShared
+	useTUI             bool
+	pid                int
+	exploitName        string
+	useBanner          bool
 }
