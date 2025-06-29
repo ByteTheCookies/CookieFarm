@@ -8,6 +8,7 @@ import (
 	json "github.com/bytedance/sonic"
 
 	"github.com/ByteTheCookies/CookieFarm/internal/server/config"
+	"github.com/ByteTheCookies/CookieFarm/internal/server/controllers"
 	"github.com/ByteTheCookies/CookieFarm/internal/server/core"
 	"github.com/ByteTheCookies/CookieFarm/internal/server/sqlite"
 	"github.com/ByteTheCookies/CookieFarm/internal/server/websockets"
@@ -43,12 +44,8 @@ func HandleGetAllFlags(c *fiber.Ctx) error {
 // HandleGetStats returns statistics about the server state.
 // Currently returns placeholders for flags and users.
 func HandleGetStats(c *fiber.Ctx) error {
-	return c.JSON(fiber.Map{
-		"stats": map[string]any{
-			"total_flags": 0,
-			"total_users": 0,
-		},
-	})
+	n := controllers.NewStatsController()
+	return n.GetFlagStats(c)
 }
 
 func HandleGetPaginatedFlags(c *fiber.Ctx) error {
