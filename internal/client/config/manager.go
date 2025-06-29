@@ -11,19 +11,6 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// ConfigManager manages all configuration state in a thread-safe manner
-type ConfigManager struct {
-	mu                 sync.RWMutex
-	token              string
-	argsAttackInstance ArgsAttack
-	localConfig        ConfigLocal
-	sharedConfig       models.ConfigShared
-	useTUI             bool
-	pid                int
-	exploitName        string
-	useBanner          bool
-}
-
 var (
 	instance *ConfigManager
 	once     sync.Once
@@ -139,19 +126,6 @@ func (cm *ConfigManager) SetPID(pid int) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 	cm.pid = pid
-}
-
-// ExploitName methods
-func (cm *ConfigManager) GetExploitName() string {
-	cm.mu.RLock()
-	defer cm.mu.RUnlock()
-	return cm.exploitName
-}
-
-func (cm *ConfigManager) SetExploitName(name string) {
-	cm.mu.Lock()
-	defer cm.mu.Unlock()
-	cm.exploitName = name
 }
 
 // Banner methods
@@ -356,33 +330,4 @@ func (cm *ConfigManager) MapPortToService(port uint16) string {
 		}
 	}
 	return ""
-}
-
-// GetAllConfig returns a snapshot of all configuration data (useful for debugging)
-func (cm *ConfigManager) GetAllConfig() ConfigSnapshot {
-	cm.mu.RLock()
-	defer cm.mu.RUnlock()
-
-	return ConfigSnapshot{
-		Token:              cm.token,
-		ArgsAttackInstance: cm.argsAttackInstance,
-		LocalConfig:        cm.localConfig,
-		SharedConfig:       cm.sharedConfig,
-		UseTUI:             cm.useTUI,
-		PID:                cm.pid,
-		ExploitName:        cm.exploitName,
-		UseBanner:          cm.useBanner,
-	}
-}
-
-// ConfigSnapshot represents a point-in-time snapshot of all configuration
-type ConfigSnapshot struct {
-	Token              string
-	ArgsAttackInstance ArgsAttack
-	LocalConfig        ConfigLocal
-	SharedConfig       models.ConfigShared
-	UseTUI             bool
-	PID                int
-	ExploitName        string
-	UseBanner          bool
 }

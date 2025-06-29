@@ -141,3 +141,12 @@ func GetBanner(data string) string {
 	formattedBanner := strings.ReplaceAll(banner, "<type>", data)
 	return bannerStyle.Render(formattedBanner)
 }
+
+func IsCompletionCommand() bool {
+	for _, arg := range os.Args {
+		if strings.Contains(arg, "__complete") || strings.Contains(arg, "completion") {
+			return true
+		}
+	}
+	return false
+}

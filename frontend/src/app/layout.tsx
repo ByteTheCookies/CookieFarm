@@ -1,21 +1,20 @@
-"use client"
-import type React from "react"
-import { Inter } from "next/font/google"
-import "./globals.css"
-import { SidebarProvider } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/app-sidebar"
-import { usePathname } from "next/navigation"
+'use client';
+import type React from 'react';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import { SidebarProvider } from '@/components/ui/sidebar';
+import { AppSidebar } from '@/components/app-sidebar';
+import { usePathname } from 'next/navigation';
 
-const inter = Inter({ subsets: ["latin"] })
-
+const inter = Inter({ subsets: ['latin'] });
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  const pathname = usePathname()
-  const isLoginPage = pathname === "/login"
+  const pathname = usePathname();
+  const isLoginPage = pathname === '/login';
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -32,5 +31,5 @@ export default function RootLayout({
         )}
       </body>
     </html>
-  )
+  );
 }

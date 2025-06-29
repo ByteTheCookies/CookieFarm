@@ -90,7 +90,7 @@ server-build-prod:
 	@echo -e "$(GREEN)[+] Production build complete!$(RESET)"
 
 server-run: server-build server-build-plugins minify
-	@$(SERVER_BIN_DIR)/$(SERVER_BINARY_NAME) -c config.yml -D
+	@$(SERVER_BIN_DIR)/$(SERVER_BINARY_NAME) -c -D
 
 server-clean:
 	@rm -rf $(SERVER_BIN_DIR)/* $(SERVER_LOGS_DIR)/*

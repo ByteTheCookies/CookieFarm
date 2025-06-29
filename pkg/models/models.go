@@ -43,6 +43,8 @@ const (
 	StatusAccepted    = "ACCEPTED"    // Status for accepted flags
 	StatusDenied      = "DENIED"      // Status for denied flags
 	StatusError       = "ERROR"       // Status for error flags
+
+	VERSION = "v1.2.0"
 )
 
 // ClientData represents a single flag captured during a CTF round.

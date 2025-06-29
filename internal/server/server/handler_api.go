@@ -8,6 +8,7 @@ import (
 	json "github.com/bytedance/sonic"
 
 	"github.com/ByteTheCookies/CookieFarm/internal/server/config"
+	"github.com/ByteTheCookies/CookieFarm/internal/server/controllers"
 	"github.com/ByteTheCookies/CookieFarm/internal/server/core"
 	"github.com/ByteTheCookies/CookieFarm/internal/server/sqlite"
 	"github.com/ByteTheCookies/CookieFarm/internal/server/websockets"
@@ -43,12 +44,8 @@ func HandleGetAllFlags(c *fiber.Ctx) error {
 // HandleGetStats returns statistics about the server state.
 // Currently returns placeholders for flags and users.
 func HandleGetStats(c *fiber.Ctx) error {
-	return c.JSON(fiber.Map{
-		"stats": map[string]any{
-			"total_flags": 0,
-			"total_users": 0,
-		},
-	})
+	n := controllers.NewStatsController()
+	return n.GetFlagStats(c)
 }
 
 func HandleGetPaginatedFlags(c *fiber.Ctx) error {
@@ -77,6 +74,7 @@ func HandleGetPaginatedFlags(c *fiber.Ctx) error {
 	})
 }
 
+// HandleGetFlag retrieves a single flag by its ID.
 func HandleGetProtocols(c *fiber.Ctx) error {
 	searchPaths := []string{
 		"pkg/protocols",
@@ -255,6 +253,7 @@ func HandlePostConfig(c *fiber.Ctx) error {
 	return c.JSON(ResponseSuccess{Message: "Configuration updated successfully"})
 }
 
+// HandleDeleteFlag deletes a flag by its ID.
 func HandleDeleteFlag(c *fiber.Ctx) error {
 	flagID := c.Query("flag")
 	if flagID == "" {
@@ -263,7 +262,7 @@ func HandleDeleteFlag(c *fiber.Ctx) error {
 		})
 	}
 
-	if err := sqlite.DeleteFlag(flagID); err != nil {
+	if err := sqlite.DeleteFlag(c.Context(), flagID); err != nil {
 		logger.Log.Error().Err(err).Msg("Failed to delete flag")
 		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{
 			Error: "Failed to delete flag",

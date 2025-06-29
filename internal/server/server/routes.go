@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/ByteTheCookies/CookieFarm/internal/server/config"
-	"github.com/ByteTheCookies/CookieFarm/internal/server/sqlite"
 	"github.com/ByteTheCookies/CookieFarm/internal/server/websockets"
 	"github.com/ByteTheCookies/CookieFarm/pkg/logger"
 	"github.com/gofiber/fiber/v2"
@@ -59,7 +58,6 @@ func RegisterRoutes(app *fiber.App) {
 	privateAPI.Get("/flags", HandleGetAllFlags)
 	privateAPI.Get("/flags/:limit", HandleGetPaginatedFlags)
 	privateAPI.Get("/config", HandleGetConfig)
-	privateAPI.Get("/health", HealthHandler)
 	privateAPI.Post("/submit-flags", HandlePostFlags)
 	privateAPI.Post("/submit-flag", HandlePostFlag)
 	privateAPI.Post("/submit-flags-standalone", HandlePostFlagsStandalone)
@@ -78,9 +76,4 @@ func GetStatus(c *fiber.Ctx) error {
 		"time":    time.Now().Format(time.RFC3339),
 	}
 	return c.JSON(resp)
-}
-
-// HealthHandler returns a basic health check result from the database layer.
-func HealthHandler(c *fiber.Ctx) error {
-	return c.JSON(sqlite.Health())
 }

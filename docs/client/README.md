@@ -229,7 +229,6 @@ Parameters:
 - `-t <timeout>`: Timeout for the exploit in seconds (default is 120).
 - `-T <threads>`: Number of threads to use (default is 10).
 
-
 ### Exploit Run Command
 Run an exploit:
 ```bash
@@ -250,6 +249,9 @@ Parameters:
 ckc exploit run -e my_exploit.py -p 1234 -t 120 -T 40
 # This will return the PID of the running exploit.
 ```
+
+> [!IMPORTANT]
+> With the command `ckc exploit test` you can see all the print statements from the exploit script, which is useful for debugging and understanding how the exploit works, in the `ckc exploit run` command no.
 
 ### Exploit List Command
 List all running exploits:
