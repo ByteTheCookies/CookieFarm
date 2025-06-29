@@ -13,14 +13,13 @@ import (
 	"github.com/ByteTheCookies/CookieFarm/internal/server/server"
 	"github.com/ByteTheCookies/CookieFarm/internal/server/sqlite"
 	"github.com/ByteTheCookies/CookieFarm/pkg/logger"
+	"github.com/ByteTheCookies/CookieFarm/pkg/models"
 	"github.com/charmbracelet/fang"
 	flogger "github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/spf13/cobra"
 )
 
 var debug bool
-
-const VERSION = "v1.2.0"
 
 // RootCmd represents the base command when called without any subcommands
 // Exported for TUI usage
@@ -29,7 +28,7 @@ var RootCmd = &cobra.Command{
 	Short: "The server for CookieFarm A/D tool",
 	Long: `CookieFarm is a exploiter writed by the team ByteTheCookies for CyberChallenge
 competition. This is the server side for the CookieFarm server for attack the teams with exploits.`,
-	Version: VERSION,
+	Version: models.VERSION,
 	Run:     Run,
 }
 
@@ -52,7 +51,7 @@ func Execute() {
 		ErrorHeader:    [2]color.Color{color.RGBA{0xED, 0xED, 0xED, 0xff}, color.RGBA{0xE7, 0x4C, 0x3C, 0xff}},
 		ErrorDetails:   color.RGBA{0xE7, 0x4C, 0x3C, 0xff},
 	}
-	if err := fang.Execute(context.TODO(), RootCmd, fang.WithVersion(VERSION), fang.WithTheme(theme)); err != nil {
+	if err := fang.Execute(context.TODO(), RootCmd, fang.WithVersion(models.VERSION), fang.WithTheme(theme)); err != nil {
 		os.Exit(1)
 	}
 }

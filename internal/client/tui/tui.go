@@ -458,18 +458,14 @@ func (m Model) SetupExploitTableCmd() tea.Cmd {
 }
 
 // StartTUI launches the TUI application
-func StartTUI(banner string, debug bool) error {
+func StartTUI(banner string) error {
 	cm := config.GetConfigManager()
 	err := cm.LoadLocalConfigFromFile()
 	if err != nil {
 		return err
 	}
 
-	if debug {
-		logger.Setup("debug", true)
-	} else {
-		logger.Setup("info", true)
-	}
+	logger.Setup("info", true)
 
 	p := tea.NewProgram(
 		New(banner),

@@ -128,19 +128,6 @@ func (cm *ConfigManager) SetPID(pid int) {
 	cm.pid = pid
 }
 
-// ExploitName methods
-func (cm *ConfigManager) GetExploitName() string {
-	cm.mu.RLock()
-	defer cm.mu.RUnlock()
-	return cm.exploitName
-}
-
-func (cm *ConfigManager) SetExploitName(name string) {
-	cm.mu.Lock()
-	defer cm.mu.Unlock()
-	cm.exploitName = name
-}
-
 // Banner methods
 func (cm *ConfigManager) GetUseBanner() bool {
 	cm.mu.RLock()

@@ -13,29 +13,21 @@ import (
 
 func main() {
 	cm := config.GetConfigManager()
-	debug := false
-	cm.SetUseTUI(true)
-	logger.SetTUI(true)
 
-	if len(os.Args) == 1 {
-		cm.SetUseTUI(true)
-		cm.SetUseBanner(true)
-	} else {
+	if len(os.Args) != 1 {
 		cm.SetUseTUI(false)
 		logger.SetTUI(false)
 	}
 
 	for _, arg := range os.Args {
 		switch arg {
-		case "-D", "--debug":
-			debug = true
 		case "--no-banner", "-B":
 			cm.SetUseBanner(false)
 		}
 	}
 
 	if cm.GetUseTUI() {
-		if err := tui.StartTUI(logger.GetBanner("client"), debug); err != nil {
+		if err := tui.StartTUI(logger.GetBanner("client")); err != nil {
 			fmt.Printf("Error starting TUI: %v\nFalling back to CLI mode\n", err)
 			if cm.GetUseBanner() {
 				if !logger.IsCompletionCommand() {
