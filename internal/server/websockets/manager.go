@@ -14,21 +14,21 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var GlobalManager *Manager // WebSocket manager
-
 var (
 	ErrEventNotSupported = errors.New("this event type is not supported")
 	ErrConnectionTimeout = errors.New("connection timeout exceeded")
+
+	websocketUpgrader = websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+	}
+
+	GlobalManager *Manager // WebSocket manager
 )
 
 const (
 	ConnectionLifetime = 24 * time.Hour // Lifetime of the connection
 )
-
-var websocketUpgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-}
 
 func NewManager() *Manager {
 	m := &Manager{
