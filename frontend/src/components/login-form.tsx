@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import axios from "axios";
-import { cn } from "@/lib/utils";
-import Image from "next/image";
-import { useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import axios from 'axios';
+import { cn } from '@/lib/utils';
+import Image from 'next/image';
+import { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -19,11 +19,11 @@ import {
   FormItem,
   FormLabel,
   FormMessage as OriginalFormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 
 const loginSchema = z.object({
-  password: z.string().min(1, "Password is required"),
+  password: z.string().min(1, 'Password is required'),
 });
 
 function FormMessage(props: React.ComponentProps<typeof OriginalFormMessage>) {
@@ -32,39 +32,37 @@ function FormMessage(props: React.ComponentProps<typeof OriginalFormMessage>) {
   return (
     <OriginalFormMessage
       {...rest}
-      className={cn("text-red-500 text-sm font-medium", props.className)}
+      className={cn('text-sm font-medium text-red-500', props.className)}
     >
       {children}
     </OriginalFormMessage>
   );
 }
 
-
 export function LoginForm({
   className,
   ...props
-}: React.ComponentProps<"div">) {
+}: React.ComponentProps<'div'>) {
   const form = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      password: "",
+      password: '',
     },
   });
 
   function onSubmit(values: z.infer<typeof loginSchema>) {
     const formData = new FormData();
-    formData.append("password", values.password);
+    formData.append('password', values.password);
 
     axios
-      .post("/api/login", formData)
-      .then((response) => {
-        console.log("Login successful:", response.data);
+      .post('/api/login', formData)
+      .then(response => {
+        console.log('Login successful:', response.data);
       })
-      .catch((error) => {
-        console.error("Login failed:", error);
+      .catch(error => {
+        console.error('Login failed:', error);
       });
   }
-
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -81,10 +79,10 @@ export function LoginForm({
       </div>
 
       {/* Login form container */}
-      <div className="relative z-10 min-h-[90vh] flex items-center justify-center p-4">
+      <div className="relative z-10 flex min-h-[90vh] items-center justify-center p-4">
         <div
           className={cn(
-            "flex flex-col gap-6 p-9 rounded-xl shadow-2xl bg-black/30 backdrop-blur-xl border border-gray-800/50",
+            'flex flex-col gap-6 rounded-xl border border-gray-800/50 bg-black/30 p-9 shadow-2xl backdrop-blur-xl',
 
             className,
           )}
@@ -93,7 +91,7 @@ export function LoginForm({
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <div className="flex flex-col gap-6">
-                <div className="flex flex-col items-center gap-2 mb-7">
+                <div className="mb-7 flex flex-col items-center gap-2">
                   <a
                     href="#"
                     className="flex flex-col items-center gap-2 font-medium text-white"
@@ -108,10 +106,9 @@ export function LoginForm({
                     </div>
                     <span className="sr-only">CookieFarm</span>
                   </a>
-                  <h1 className="text-3xl text-nowrap font-bold text-white">
+                  <h1 className="text-3xl font-bold text-nowrap text-white">
                     Welcome to CookieFarm
                   </h1>
-
                 </div>
 
                 <FormField
@@ -120,7 +117,7 @@ export function LoginForm({
                   render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel
-                        className={fieldState.error ? "!text-red-500" : ""}
+                        className={fieldState.error ? '!text-red-500' : ''}
                       >
                         Password
                       </FormLabel>
@@ -129,14 +126,14 @@ export function LoginForm({
                         <div className="relative">
                           <Input
                             placeholder="3spositOne"
-                            type={showPassword ? "text" : "password"}
+                            type={showPassword ? 'text' : 'password'}
                             {...field}
                           />
                           <Button
                             type="button"
                             variant="ghost"
                             size="sm"
-                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-white"
+                            className="absolute top-0 right-0 h-full px-3 py-2 text-white hover:bg-transparent"
                             onClick={() => setShowPassword(!showPassword)}
                           >
                             {showPassword ? (
