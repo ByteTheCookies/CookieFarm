@@ -185,3 +185,18 @@ lint:
 
 fmt:
 	@if command -v gofumpt > /dev/null; then gofumpt -w -d .; else go list -f {{.Dir}} ./... | xargs gofmt -w -s -d; fi
+
+snapshot-cpu:
+	@echo -e "$(CYAN)[*] Taking CPU snapshot...$(RESET)"
+	go tool pprof -http=:6061 http://localhost:6060/debug/pprof/profile?seconds=30
+	@echo -e "$(GREEN)[+] CPU snapshot complete!$(RESET)"
+
+snapshot-ram:
+	@echo -e "$(CYAN)[*] Taking CPU snapshot...$(RESET)"
+	go tool pprof -http=:6062 http://localhost:6060/debug/pprof/heap?seconds=30
+	@echo -e "$(GREEN)[+] CPU snapshot complete!$(RESET)"
+
+snapshot-goroutine:
+	@echo -e "$(CYAN)[*] Taking Goroutine snapshot...$(RESET)"
+	go tool pprof -http=:6063 http://localhost:6060/debug/pprof/goroutine?debug=1
+	@echo -e "$(GREEN)[+] Goroutine snapshot complete!$(RESET)"
