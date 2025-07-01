@@ -38,6 +38,5 @@ type ConfigManager struct {
 	sharedConfig       models.ConfigShared
 	useTUI             bool
 	pid                int
-	exploitName        string
 	useBanner          bool
 }
