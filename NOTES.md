@@ -107,7 +107,7 @@
 ## RELEASE 2.0 (Cyberchallenge update)
 - [x] Design con shadcnui @suga @akiidjk
   - [x] Login page
-  - [ ] Login system with middleware etc... @akiidjk
+  - [x] Login system with middleware etc... @akiidjk
   - [ ] Remake all endpoints for the new design with tables @akiidjk
   - [ ] All configuration related to the new design
   - [ ] Implement autoreload
