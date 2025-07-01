@@ -13,6 +13,7 @@ import (
 	"crawshaw.io/sqlite/sqlitex"
 	"github.com/ByteTheCookies/CookieFarm/internal/server/config"
 	"github.com/ByteTheCookies/CookieFarm/pkg/logger"
+	"github.com/ByteTheCookies/CookieFarm/pkg/system"
 	_ "github.com/joho/godotenv/autoload"
 )
 
@@ -20,7 +21,7 @@ import (
 var sqlSchema string
 
 var (
-	dbPath = config.GetEnv("DB_URL", filepath.Join(config.GetExecutableDir(), "cookiefarm.db"))
+	dbPath = config.GetEnv("DB_URL", filepath.Join(system.GetExecutableDir(), "cookiefarm.db"))
 	DBPool *sqlitex.Pool
 )
 

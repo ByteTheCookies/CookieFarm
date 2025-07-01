@@ -1,9 +1,9 @@
 // Package config provides functions to manage the CookieFarm client configuration globally.
 package config
 
-import "github.com/ByteTheCookies/CookieFarm/internal/client/filesystem"
+import "github.com/ByteTheCookies/CookieFarm/pkg/system"
 
-var DefaultConfigPath, _ = filesystem.ExpandTilde("~/.config/cookiefarm")
+var DefaultConfigPath, _ = system.ExpandTilde("~/.config/cookiefarm")
 
 // Global instance for backward compatibility
 var globalConfigManager = GetInstance()

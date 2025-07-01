@@ -2,10 +2,10 @@ package config
 
 import (
 	"os"
-	"path/filepath"
 	"strconv"
 )
 
+// GetEnv retrieves the value of the environment variable named by key.
 func GetEnv(key, defaultValue string) string {
 	if value := os.Getenv(key); value != "" {
 		return value
@@ -13,6 +13,7 @@ func GetEnv(key, defaultValue string) string {
 	return defaultValue
 }
 
+// GetEnvAsInt retrieves the value of the environment variable named by key and converts it to a int.
 func GetEnvAsInt(key string, defaultValue int) int {
 	if value := os.Getenv(key); value != "" {
 		if intValue, err := strconv.Atoi(value); err == nil {
@@ -20,12 +21,4 @@ func GetEnvAsInt(key string, defaultValue int) int {
 		}
 	}
 	return defaultValue
-}
-
-func GetExecutableDir() string {
-	exePath, err := os.Executable()
-	if err != nil {
-		panic("impossible to determine the binary path: " + err.Error())
-	}
-	return filepath.Dir(exePath)
 }

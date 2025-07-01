@@ -130,6 +130,7 @@ func Close() {
 	}
 }
 
+// GetBanner returns a formatted banner string with the specified data.
 func GetBanner(data string) string {
 	bannerStyle := lipgloss.NewStyle().
 		Foreground(lipgloss.Color("#CDA157")).
@@ -142,6 +143,7 @@ func GetBanner(data string) string {
 	return bannerStyle.Render(formattedBanner)
 }
 
+// IsCompletionCommand checks if the command line arguments indicate a completion command.
 func IsCompletionCommand() bool {
 	for _, arg := range os.Args {
 		if strings.Contains(arg, "__complete") || strings.Contains(arg, "completion") {

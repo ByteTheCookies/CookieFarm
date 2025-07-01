@@ -79,14 +79,14 @@ build: server-build client-build
 server-build:
 	@echo -e "$(CYAN)[*] Building server...$(RESET)"
 	@mkdir -p $(SERVER_BIN_DIR)
-	@go build -race -gcflags='github.com/ByteTheCookies/cookieserver/...="-m"' -o $(SERVER_BIN_DIR)/$(SERVER_BINARY_NAME) $(SERVER_CMD_DIR)/$(SERVER_MAIN_FILE)
+	@go build -o $(SERVER_BIN_DIR)/$(SERVER_BINARY_NAME) $(SERVER_CMD_DIR)/$(SERVER_MAIN_FILE)
 	@echo -e "$(GREEN)[+] Server build complete!$(RESET)"
 
 server-build-prod:
 	@echo -e "$(CYAN)[*] Building server for production...$(RESET)"
 	@mkdir -p $(SERVER_BIN_DIR)
-	GOOS=$(GOOS) GOARCH=$(GOARCH) \
-		go build -trimpath -ldflags="-s -w" -o $(SERVER_BIN_DIR)/$(SERVER_BINARY_NAME) $(SERVER_CMD_DIR)/$(SERVER_MAIN_FILE)
+	@GOOS=$(GOOS) GOARCH=$(GOARCH) \Add commentMore actions
+			go build -race -trimpath -gcflags="-m" -ldflags="-s -w" -o $(SERVER_BIN_DIR)/$(SERVER_BINARY_NAME) $(SERVER_CMD_DIR)/$(SERVER_MAIN_FILE)
 	@echo -e "$(GREEN)[+] Production build complete!$(RESET)"
 
 server-run: server-build server-build-plugins minify
@@ -126,7 +126,7 @@ server-watch:
 client-build:
 	@$(ECHO_CMD) "$(CYAN)[*] Building client...$(RESET)"
 	@$(MKDIR_CMD) $(CLIENT_BIN_DIR)
-	@go build -o $(CLIENT_BIN_DIR)$(PATHSEP)$(CLIENT_BINARY_NAME) $(CLIENT_CMD_DIR)$(CLIENT_MAIN_FILE)
+	@go build  -o $(CLIENT_BIN_DIR)$(PATHSEP)$(CLIENT_BINARY_NAME) $(CLIENT_CMD_DIR)$(CLIENT_MAIN_FILE)
 	@$(ECHO_CMD) "$(GREEN)[+] Client build complete!$(RESET)"
 
 client-build-windows:
@@ -144,13 +144,13 @@ client-build-linux:
 client-build-linux-prod:
 	@$(ECHO_CMD) "$(CYAN)[*] Building client for Linux production...$(RESET)"
 	@$(MKDIR_CMD) $(CLIENT_BIN_DIR)
-	@GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o $(CLIENT_BIN_DIR)$(PATHSEP)$(CLIENT_BINARY_NAME) $(CLIENT_CMD_DIR)$(CLIENT_MAIN_FILE)
+	@GOOS=linux GOARCH=amd64 go build -race -trimpath -gcflags="-m" -ldflags="-s -w" -o $(CLIENT_BIN_DIR)$(PATHSEP)$(CLIENT_BINARY_NAME) $(CLIENT_CMD_DIR)$(CLIENT_MAIN_FILE)
 	@$(ECHO_CMD) "$(GREEN)[+] Linux production build complete!$(RESET)"
 
 client-build-windows-prod:
 	@$(ECHO_CMD) "$(CYAN)[*] Building client for Windows production...$(RESET)"
 	@$(MKDIR_CMD) $(CLIENT_BIN_DIR)
-	@GOOS=windows GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o $(CLIENT_BIN_DIR)$(PATHSEP)$(CLIENT_BINARY_NAME) $(CLIENT_CMD_DIR)$(CLIENT_MAIN_FILE)
+	@GOOS=windows GOARCH=amd64 go build -race -trimpath -gcflags="-m" -ldflags="-s -w" -o $(CLIENT_BIN_DIR)$(PATHSEP)$(CLIENT_BINARY_NAME) $(CLIENT_CMD_DIR)$(CLIENT_MAIN_FILE)
 	@$(ECHO_CMD) "$(GREEN)[+] Windows production build complete!$(RESET)"
 
 client-build-prod:

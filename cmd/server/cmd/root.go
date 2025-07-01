@@ -3,6 +3,8 @@ package cmd
 import (
 	"context"
 	"image/color"
+	"net/http"
+	"net/http/pprof"
 	"os"
 	"os/signal"
 	"syscall"
@@ -19,7 +21,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var debug bool
+var (
+	debug       bool
+	enablePprof bool // Enable pprof for profiling
+)
 
 // RootCmd represents the base command when called without any subcommands
 // Exported for TUI usage
@@ -61,12 +66,27 @@ func init() {
 	RootCmd.PersistentFlags().BoolVarP(&config.ConfigFile, "config", "c", false, "Use configuration file instead of web config")
 	RootCmd.PersistentFlags().StringVarP(&config.Password, "password", "p", "password", "Password for authentication")
 	RootCmd.PersistentFlags().StringVarP(&config.ServerPort, "port", "P", "8080", "Port for server")
+	RootCmd.PersistentFlags().BoolVarP(&enablePprof, "pprof", "b", false, "Enable pprof for profiling")
 
 	RootCmd.PersistentPreRun = func(cmd *cobra.Command, args []string) {
 		if debug {
 			logger.Setup("debug", true)
 		} else {
 			logger.Setup("info", true)
+		}
+
+		if enablePprof {
+			mux := http.NewServeMux()
+			mux.HandleFunc("/debug/pprof/", pprof.Index)
+			mux.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
+			mux.HandleFunc("/debug/pprof/profile", pprof.Profile)
+			mux.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
+			mux.HandleFunc("/debug/pprof/trace", pprof.Trace)
+
+			go func() {
+				logger.Log.Info().Msg("pprof attivo su :6060")
+				logger.Log.Info().Msgf("%s", http.ListenAndServe("localhost:6060", mux))
+			}()
 		}
 	}
 }

@@ -7,6 +7,7 @@ import (
 
 	"github.com/ByteTheCookies/CookieFarm/cmd/server/cmd"
 	"github.com/ByteTheCookies/CookieFarm/pkg/logger"
+	_ "go.uber.org/automaxprocs"
 )
 
 func main() {

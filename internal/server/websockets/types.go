@@ -2,12 +2,9 @@ package websockets
 
 import (
 	"encoding/json"
-	"fmt"
 	"sync"
 	"time"
 
-	"github.com/ByteTheCookies/CookieFarm/internal/server/config"
-	"github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/websocket"
 )
 
@@ -44,15 +41,4 @@ type Manager struct {
 	Clients  ClientList
 	Handlers map[string]EventHandler
 	sync.RWMutex
-}
-
-// VerifyToken verifies the JWT token using the secret key
-func VerifyToken(token string) error {
-	_, err := jwt.Parse(token, func(t *jwt.Token) (any, error) {
-		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
-		}
-		return config.Secret, nil
-	})
-	return err
 }

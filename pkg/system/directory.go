@@ -1,11 +1,25 @@
-package filesystem
+package system
 
 import (
 	"os"
 	"os/user"
 	"path"
+	"path/filepath"
+	"regexp"
 	"strings"
 )
+
+// GetExecutableDir returns the directory of the currently running executable.
+func GetExecutableDir() string {
+	exePath, err := os.Executable()
+	if err != nil {
+		panic("impossible to determine the binary path: " + err.Error())
+	}
+	return filepath.Dir(exePath)
+}
+
+// pathRegex is a regular expression to match paths starting with ~.
+var pathRegex = regexp.MustCompile(`(~)([^/]*)(/?.*)`)
 
 // IsPath checks if the provided string is a path exploit.
 func IsPath(pathExploit string) bool {
