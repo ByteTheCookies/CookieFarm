@@ -68,6 +68,9 @@ help:
 
 	@echo -e "  $(CYAN)make lint$(RESET)            - Lint client code"
 	@echo -e "  $(CYAN)make fmt$(RESET)             - Format client code"
+	@echo -e "  $(CYAN)make snapshot-cpu$(RESET)    - Take CPU snapshot"
+	@echo -e "  $(CYAN)make snapshot-ram$(RESET)    - Take RAM snapshot"
+	@echo -e "  $(CYAN)make snapshot-goroutine$(RESET) - Take Goroutine snapshot"
 
 # === COMMON TARGETS ===
 
