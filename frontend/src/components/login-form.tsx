@@ -21,6 +21,7 @@ import {
   FormMessage as OriginalFormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { useRouter } from 'next/navigation';
 
 const loginSchema = z.object({
   password: z.string().min(1, 'Password is required'),
@@ -50,6 +51,8 @@ export function LoginForm({
     },
   });
 
+  const router = useRouter();
+
   function onSubmit(values: z.infer<typeof loginSchema>) {
     const formData = new FormData();
     formData.append('password', values.password);
@@ -58,6 +61,7 @@ export function LoginForm({
       .post('/api/login', formData)
       .then(response => {
         console.log('Login successful:', response.data);
+        router.push('/');
       })
       .catch(error => {
         console.error('Login failed:', error);
