@@ -85,8 +85,8 @@ server-build:
 server-build-prod:
 	@echo -e "$(CYAN)[*] Building server for production...$(RESET)"
 	@mkdir -p $(SERVER_BIN_DIR)
-	@GOOS=$(GOOS) GOARCH=$(GOARCH) \Add commentMore actions
-			go build -race -trimpath -gcflags="-m" -ldflags="-s -w" -o $(SERVER_BIN_DIR)/$(SERVER_BINARY_NAME) $(SERVER_CMD_DIR)/$(SERVER_MAIN_FILE)
+	@GOOS=$(GOOS) GOARCH=$(GOARCH) \
+			go build -race -trimpath -gcflags="github.com/ByteTheCookies/CookieFarm/...=-m" -ldflags="-s -w" -o $(SERVER_BIN_DIR)/$(SERVER_BINARY_NAME) $(SERVER_CMD_DIR)/$(SERVER_MAIN_FILE)
 	@echo -e "$(GREEN)[+] Production build complete!$(RESET)"
 
 server-run: server-build server-build-plugins minify
@@ -100,7 +100,7 @@ server-build-plugins:
 		if grep -q '^package main' "$$file"; then \
 			filename=$$(basename $$file); \
 			pluginname=$${filename%.go}; \
-			go build -race -gcflags="all=-m" -buildmode=plugin -o "./pkg/protocols/$$pluginname.so" "$$file"; \
+			go build -buildmode=plugin -o "./pkg/protocols/$$pluginname.so" "$$file"; \
 		else \
 			echo "Skipping $$file: not a main package"; \
 		fi; \
@@ -111,7 +111,7 @@ server-build-plugins-prod:
 		if grep -q '^package main' "$$file"; then \
 			filename=$$(basename $$file); \
 			pluginname=$${filename%.go}; \
-			GOOS=$(GOOS) GOARCH=$(GOARCH) go build -trimpath -buildmode=plugin -ldflags="-s -w" -o "./pkg/protocols/$$pluginname.so" "$$file"; \
+			GOOS=$(GOOS) GOARCH=$(GOARCH) go build -race -trimpath -gcflags="all=-m" -ldflags="-s -w" -buildmode=plugin -o "./pkg/protocols/$$pluginname.so" "$$file"; \
 		else \
 			echo "Skipping $$file: not a main package"; \
 		fi; \
