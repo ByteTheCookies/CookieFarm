@@ -128,6 +128,23 @@ func HandleLogin(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{})
 }
 
+func HandleVerify(c *fiber.Ctx) error {
+	token := c.Cookies("token")
+	if token == "" {
+		logger.Log.Warn().Msg("JWT cookie missing")
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "JWT token is required",
+		})
+	}
+	if err := VerifyToken(token); err != nil {
+		logger.Log.Warn().Err(err).Msg("JWT verification failed")
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Invalid or expired JWT token",
+		})
+	}
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{})
+}
+
 // CookieAuthMiddleware checks if the user has a valid JWT token in their cookies.
 func CookieAuthMiddleware(c *fiber.Ctx) error {
 	token := c.Cookies("token")
