@@ -1,17 +1,17 @@
-import { NextRequest, NextResponse } from 'next/server'
-import isAuthenticated from '@/lib/auth'
+import { NextRequest, NextResponse } from 'next/server';
+import isAuthenticated from '@/lib/auth';
 
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl
-  const isAuth = await isAuthenticated(request)
+  const { pathname } = request.nextUrl;
+  const isAuth = await isAuthenticated(request);
   if (pathname != '/login' && !isAuth) {
-    console.log('User is not authenticated, redirecting to /login')
-    return NextResponse.redirect(new URL('/login', request.url))
+    console.log('User is not authenticated, redirecting to /login');
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  const response = NextResponse.next()
+  const response = NextResponse.next();
 
-  return response
+  return response;
 }
 
 export const config = {
@@ -24,4 +24,4 @@ export const config = {
      */
     '/((?!_next/static|api|_next/image|images|favicon.ico|sitemap.xml|robots.txt).*)',
   ],
-}
+};

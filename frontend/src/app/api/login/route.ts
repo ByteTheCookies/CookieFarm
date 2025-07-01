@@ -17,11 +17,15 @@ export async function POST(req: NextRequest) {
   params.append('password', password as string);
 
   try {
-    const response = await axios.post(BACKEND_URL + '/api/v1/auth/login', params, {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
-    });
+    const response = await axios.post(
+      BACKEND_URL + '/api/v1/auth/login',
+      params,
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      },
+    );
 
     if (response.status !== 200) {
       return NextResponse.json(
@@ -29,7 +33,10 @@ export async function POST(req: NextRequest) {
         { status: response.status },
       );
     }
-    if (!response.headers['set-cookie'] || response.headers['set-cookie'].length === 0) {
+    if (
+      !response.headers['set-cookie'] ||
+      response.headers['set-cookie'].length === 0
+    ) {
       return NextResponse.json(
         { error: 'No session cookie received' },
         { status: 500 },
@@ -37,7 +44,10 @@ export async function POST(req: NextRequest) {
     }
 
     const nextResponse = NextResponse.json({ result: 'Login succefully' });
-    nextResponse.headers.set('Set-Cookie', response.headers['set-cookie'].join('; '));
+    nextResponse.headers.set(
+      'Set-Cookie',
+      response.headers['set-cookie'].join('; '),
+    );
     return nextResponse;
   } catch (error) {
     console.error('Error calling external API:', error);
