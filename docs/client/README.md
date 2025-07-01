@@ -14,7 +14,7 @@ Before you begin, make sure you have:
 To install the CookieFarm client, run the following command:
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/ByteTheCookies/CookieFarm/refs/heads/main/install.sh)
+pip install cookiefarm
 ```
 
 After installation, the `ckc` command will be globally available in your terminal. By default, it will launch in interactive TUI (Text User Interface) mode.
@@ -22,7 +22,7 @@ After installation, the `ckc` command will be globally available in your termina
 To uninstall the client:
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/ByteTheCookies/CookieFarm/refs/heads/main/uninstall.sh)
+pip uninstall cookiefarm
 ```
 
 ---
@@ -39,16 +39,14 @@ The CookieFarm client has two interface modes:
 
 2. **Traditional CLI Mode**: For scripts, automation, or environments where TUI isn't supported
    ```bash
-   ckc --no-tui
-   # OR
-   COOKIECLIENT_NO_TUI=1 ckc
+   ckc --help
    ```
 
 > [!NOTE]
 > If you add params at the end of the command, they will be parsed as CLI commands. For example:
 > ```bash
-> ckc config login -P SuperSecret
-> # This will run the `config login` command in CLI mode.
+> ckc config show
+> # This will run the `config show` command in CLI mode.
 > ```
 ## 🚀 Client Command Overview
 
@@ -77,21 +75,19 @@ The CookieFarm client has two interface modes:
 
 ## 🧪 Exploitation Workflow
 
-1. **Log in** to the server:
+1. **Install the client** using pip:
+   ```bash
+   pip install cookiefarm
+   ```
+
+2. **Log in** to the server:
    ```bash
    # In CLI mode (with no environment variable setted):
-   ckc config login -P SuperSecret -h 192.168.1.10 -p 8000 -u CookieMonster
+   ckc config login -P SuperSecret -H 192.168.1.10 -p 8000 -u CookieMonster
 
    # In TUI mode:
    # Navigate to: Configuration → Login → Enter credentials
    ```
-
-
-2. **Install the helper Python module**:
-   ```bash
-   pip install cookiefarm-exploiter
-   ```
-  > For more information about the helper module, check the [cookiefarm-exploiter documentation](https://github.com/ByteTheCookies/CookieFarmExploiter)
 
 3. **Create a new exploit template**:
    ```bash
@@ -108,9 +104,6 @@ The CookieFarm client has two interface modes:
    ```bash
    # In CLI mode (with no environment variable setted):
    ckc exploit run -e my_exploit.py -p 1234 -t 120 -T 40
-
-   # In TUI mode:
-   # Navigate to: Exploits → Run Exploit → Complete the form
    ```
 
 ---
@@ -142,14 +135,14 @@ The TUI offers these main views:
 Authenticate with the server using a password:
 ```bash
 # In CLI mode (with no environment variable setted):
-ckc config login -P <password> -h <server_ip> -p <port> -u <username>
+ckc config login -P <password> -H <server_ip> -p <port> -u <username>
 
 # In TUI mode:
 # Navigate to: Configuration → Login → Enter password
 ```
 Parameters:
 - `-P <password>`: The password for the server. This is required for authentication.
-- `-h <server_ip>`: IP address of the server.
+- `-H <server_ip>`: IP address of the server.
 - `-p <port>`: Port of the server.
 - `-u <username>`: Username for the client. (default is `cookieguest`)
 
@@ -157,13 +150,13 @@ Parameters:
 Update the client configuration (all fields optional, at least one required):
 ```bash
 # In CLI mode (with no environment variable setted):
-ckc config update -h <server_ip> -p <port> -u <username> [-s]
+ckc config update -H <server_ip> -p <port> -u <username> [-s]
 
 # In TUI mode:
 # Navigate to: Configuration → Update Config → Fill the form
 ```
 Parameters:
-- `-h <server_ip>`: IP address of the server.
+- `-H <server_ip>`: IP address of the server.
 - `-p <port>`: Port of the server.
 - `-u <username>`: Username for the client. (default is `guest`)
 - `-s`: Use secure connection (HTTPS).
@@ -228,41 +221,37 @@ In this case, the exploit will be created in the current directory.
 Test an exploit against the NOP team:
 ```bash
 # In CLI mode (with no environment variable setted):
-ckc exploit test -e <exploit_file> [-t <timeout>] [-T <threads>]
-
-# In TUI mode:
-# Navigate to: Exploits → Test Exploit → Fill the form
+ckc exploit test -e <exploit_file> -p <service_port> [-t <timeout>] [-T <threads>]
 ```
-
+Parameters:
+- `-e <exploit_file>`: Path to the exploit file (Python script).
+- `-p <service_port`: Port of the target service
+- `-t <timeout>`: Timeout for the exploit in seconds (default is 120).
+- `-T <threads>`: Number of threads to use (default is 10).
 
 ### Exploit Run Command
 Run an exploit:
 ```bash
 # In CLI mode (with no environment variable setted):
-ckc exploit run -e <exploit_file> -p <port> [-t <timeout>] [-T <threads>] [-d]
+ckc exploit run -e <exploit_file> -p <port> [-t <timeout>] [-T <threads>] [-D]
 
-# In TUI mode:
-# Navigate to: Exploits → Run Exploit → Fill the form
 ```
 Parameters:
 - `-e <exploit_file>`: Path to the exploit file (Python script).
 - `-p <port>`: Port to run the exploit on.
 - `-t <timeout>`: Timeout for the exploit in seconds (default is 120).
 - `-T <threads>`: Number of threads to use (default is 10).
-- `-d`: Enable debug mode for more verbose output.
+- `-D`: Enable debug mode for more verbose output.
 
-> [!IMPORTANT]
-> When you run an exploit in TUI mode, it will run in the background, allowing you to continue using the client while monitoring the exploit's progress.
 *Example:*
 ```bash
 # In CLI mode (with no environment variable setted):
 ckc exploit run -e my_exploit.py -p 1234 -t 120 -T 40
 # This will return the PID of the running exploit.
-#
-# In TUI mode:
-# # Navigate to: Exploits → Run Exploit → Enter the exploit file, port, timeout, and threads
-# # The exploit will run in the background, and you can monitor its progress.
 ```
+
+> [!IMPORTANT]
+> With the command `ckc exploit test` you can see all the print statements from the exploit script, which is useful for debugging and understanding how the exploit works, in the `ckc exploit run` command no.
 
 ### Exploit List Command
 List all running exploits:

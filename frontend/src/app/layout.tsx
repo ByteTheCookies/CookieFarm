@@ -17,6 +17,7 @@ export default function RootLayout({
   const isLoginPage = pathname === "/login";
   const isConfigPage = pathname === "/config";
 
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>

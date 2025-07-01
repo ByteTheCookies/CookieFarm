@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path"
-	"path/filepath"
 	"plugin"
 
 	"github.com/ByteTheCookies/CookieFarm/pkg/logger"
@@ -14,12 +13,13 @@ import (
 type SubmitFunc = func(string, string, []string) ([]ResponseProtocol, error)
 
 func LoadProtocol(protocolName string) (SubmitFunc, error) {
-	exePath, err := os.Executable()
+	dir, err := os.Getwd()
 	if err != nil {
 		logger.Log.Error().Err(err).Msg("Failed to get executable path")
 		return nil, fmt.Errorf("failed to get executable path: %w", err)
 	}
-	pluginPath := path.Join(filepath.Dir(exePath), "..", "protocols", protocolName+".so")
+
+	pluginPath := path.Join(dir, "pkg", "protocols", protocolName+".so")
 
 	logger.Log.Debug().Str("plugin", pluginPath).Msg("Loading protocol plugin")
 

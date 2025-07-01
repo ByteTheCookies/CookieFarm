@@ -6,8 +6,8 @@ import (
 
 // ResponseFlags represents the response for the flags api
 type ResponseFlags struct {
-	Nflags int                 `json:"n_flags"`
 	Flags  []models.ClientData `json:"flags"`
+	Nflags int                 `json:"n_flags"`
 }
 
 // SigninRequest from the client to the server
@@ -18,10 +18,10 @@ type SigninRequest struct {
 
 // Pagination structure for manage data in the view
 type Pagination struct {
-	Limit    int   // Maximum number of items per page
-	Pages    int   // Total number of pages
-	Current  int   // Current page number (offset / limit)
 	PageList []int // List of page numbers to display in the pagination
+	Pages    int   // Total number of pages
+	Limit    int   // Maximum number of items per page
+	Current  int   // Current page number (offset / limit)
 	HasPrev  bool  // Indicates if there is a previous page
 	HasNext  bool  // Indicates if there is a next page
 }
@@ -50,14 +50,4 @@ type ResponseSuccess struct {
 type ResponseError struct {
 	Error   string `json:"error"`   // Error message for the error response
 	Details string `json:"details"` // Details for the error response
-}
-
-// SubmitFlagRequest the struct for the requests from the client to server
-type SubmitFlagRequest struct {
-	Flag models.ClientData `json:"flag"` // Flag to submit
-}
-
-// SubmitFlagsRequest the struct for the requests from the client to server
-type SubmitFlagsRequest struct {
-	Flags []models.ClientData `json:"flags"` // Flags to submit
 }

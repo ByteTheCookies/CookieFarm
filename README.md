@@ -3,8 +3,8 @@
 </div>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/relase-1.2.0-red?style=flat-square" alt="Version">
-  <img alt="GitHub go.mod Go version" src="https://img.shields.io/github/go-mod/go-version/ByteTheCookies/CookieFarm?filename=.%2Fclient%2Fgo.mod&style=flat-square">
+  <img src="https://img.shields.io/badge/relase-1.2.1-red?style=flat-square" alt="Version">
+  <img alt="GitHub go.mod Go version" src="https://img.shields.io/github/go-mod/go-version/ByteTheCookies/CookieFarm?filename=go.mod&style=flat-square">
   <img alt="GitHub code size in bytes" src="https://img.shields.io/github/languages/code-size/ByteTheCookies/CookieFarm?color=7289DA&style=flat-square">
   <img alt="GitHub License" src="https://img.shields.io/github/license/ByteTheCookies/CookieFarm?color=orange&style=flat-square">
 </p>
@@ -28,14 +28,14 @@ Make sure you have the following installed:
 
 ---
 
-## 📁 Repository Structure
+<!-- ## 📁 Repository Structure
 
 | Directory       | Description |
 |------------------|-------------|
-| [`client/`](./client/) | Handles exploit creation and flag submission |
-| [`server/`](./server/) | Manages exploit distribution, flag collection, and monitoring |
+| [`client/`](./docs/client/README.md) | Handles exploit creation and flag submission |
+| [`server/`](./docs/server/README.md) | Manages exploit distribution, flag collection, and monitoring |
 
----
+--- -->
 
 ## ⚙️ Architecture Overview
 
@@ -49,24 +49,19 @@ Make sure you have the following installed:
 
 ### 🖥️ Starting the Server
 
-1. Move into the `server/` directory:
-   ```bash
-   cd server/
-   ```
-
-2. Create an `.env` file in the server directory to configure the environment settings:
+1. Create an `.env` file in the server directory to configure the environment settings:
 
     ```bash
       # Server configuration
       DEBUG=false                   # Enable debug mode for verbose logging
       PASSWORD=SuperSecret  # Set a strong password for authentication
-      CONFIG_FROM_FILE=config.yml  # Set if the server takes the config from config.yml in the filesystem; otherwise, do not set the variable
+      CONFIG_FILE=true  # Set if the server takes the config from config.yml in the filesystem; otherwise, do not set the variable
       PORT=8080            # Define the port the server will listen on
     ```
 
   > ⚠️ For production environments, set `DEBUG=false` and use a strong, unique password
 
-3. Start the server with Docker Compose:
+2. Start the server with Docker Compose:
    ```bash
    docker compose up --build
    ```
@@ -77,30 +72,28 @@ Make sure you have the following installed:
 
 ### 💻 Using the Client & Running Exploits
 
-1. Run the installation script:
-   ```bash
-   bash <(curl -fsSL https://raw.githubusercontent.com/ByteTheCookies/CookieFarm/refs/heads/main/install.sh)
-   ```
+1. Run the installation :
+  ```bash
+  pip install cookiefarm
+  ```
 
-   > After installation, the `ckc` command is globally accessible.
+  > After installation, the `ckc` command is available globally in your terminal (or in your virtual environment if you are using one).
 
 2. Log in and configure the client:
    ```bash
-   ckc config login -P SuperSecret
-   ckc config update -h 192.168.1.10 -p 8000 -u your_username
+   ckc config login -P SuperSecret -h 192.168.1.10 -p 8000 -u your_username
    ```
 
 3. Install the Python helper module and create a new exploit template:
    ```bash
-   pip install cookiefarm-exploiter
-   ckc create -n your_exploit_name
+   ckc exploit create -n your_exploit_name
    ```
 
    This will generate `your_exploit_name.py` in `~/.cookiefarm/exploits/`.
 
 4. Run your exploit:
    ```bash
-   ckc attack -e your_exploit_name.py -p 1234 -t 120 -T 40
+   ckc exploit run -e your_exploit_name.py -p 1234 -t 120 -T 40
    ```
 
 📘 For more usage examples, check out the [client documentation](./docs/client/README.md).

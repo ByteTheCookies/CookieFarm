@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+
 import {
   Card,
   CardContent,
@@ -11,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
 import {
   Select,
   SelectContent,
@@ -18,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
 import {
   Tooltip,
   TooltipContent,
@@ -26,6 +29,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+
 import {
   Info,
   Plus,
@@ -35,6 +39,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { z } from "zod";
+
 
 interface Service {
   id: string;
@@ -67,24 +72,24 @@ interface ConfigData {
 
 const initialConfig: ConfigData = {
   flagChecker: {
-    ipAddress: "",
-    port: "",
-    teamToken: "",
-    submitTime: "30",
-    batchSize: "100",
-    protocol: "",
+    ipAddress: '',
+    port: '',
+    teamToken: '',
+    submitTime: '30',
+    batchSize: '100',
+    protocol: '',
   },
   rounds: {
-    duration: "120",
-    startTime: "",
-    endTime: "",
+    duration: '120',
+    startTime: '',
+    endTime: '',
   },
   services: [],
   teams: {
-    numberOfTeams: "",
-    nopTeamId: "",
-    ownTeamId: "",
-    ipFormat: "10.10.{}.1",
+    numberOfTeams: '',
+    nopTeamId: '',
+    ownTeamId: '',
+    ipFormat: '10.10.{}.1',
   },
 };
 
@@ -94,6 +99,7 @@ const protocols = [
   { value: "defcon_http", label: "DEFCON HTTP" },
   { value: "custom_tcp", label: "Custom TCP" },
   { value: "custom_udp", label: "Custom UDP" },
+
 ];
 
 const steps = [
@@ -177,12 +183,14 @@ const configSchema = z.object({
   teams: teamsSchema,
 });
 
+
 export function ServerConfigStepper() {
   const [currentStep, setCurrentStep] = useState(1);
   const [config, setConfig] = useState<ConfigData>(initialConfig);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [globalError, setGlobalError] = useState<string | null>(null);
   const [completed, setCompleted] = useState(false);
+
 
   const updateConfig = (
     section: keyof ConfigData,
@@ -212,10 +220,10 @@ export function ServerConfigStepper() {
       services: [...prev.services, newService],
     }));
     setGlobalError(null);
-  };
 
+  };
   const removeService = (id: string) => {
-    setConfig((prev) => ({
+    setConfig(prev => ({
       ...prev,
       services: prev.services.filter((service) => service.id !== id),
     }));
@@ -223,7 +231,7 @@ export function ServerConfigStepper() {
   };
 
   const updateService = (id: string, field: keyof Service, value: string) => {
-    setConfig((prev) => ({
+    setConfig(prev => ({
       ...prev,
       services: prev.services.map((service) =>
         service.id === id ? { ...service, [field]: value } : service,
@@ -245,7 +253,7 @@ export function ServerConfigStepper() {
 
     return Math.floor((end - start) / durationMs);
   };
-
+  
   // Validation per step
   const validateStep = (): boolean => {
     const stepErrors: Record<string, string> = {};
@@ -297,6 +305,7 @@ export function ServerConfigStepper() {
       if (currentStep < steps.length) {
         setCurrentStep(currentStep + 1);
       }
+
     }
   };
 
@@ -345,13 +354,14 @@ export function ServerConfigStepper() {
     // Print config to console
     // eslint-disable-next-line no-console
     console.log("Final ConfigData:", config);
+
   };
 
   const InfoTooltip = ({ content }: { content: string }) => (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Info className="h-4 w-4 text-muted-foreground cursor-help ml-2" />
+          <Info className="text-muted-foreground ml-2 h-4 w-4 cursor-help" />
         </TooltipTrigger>
         <TooltipContent className="max-w-xs">
           <p>{content}</p>
@@ -484,7 +494,7 @@ export function ServerConfigStepper() {
                   <SelectValue placeholder="Select protocol" />
                 </SelectTrigger>
                 <SelectContent>
-                  {protocols.map((protocol) => (
+                  {protocols.map(protocol => (
                     <SelectItem key={protocol.value} value={protocol.value}>
                       {protocol.label}
                     </SelectItem>
@@ -600,13 +610,13 @@ export function ServerConfigStepper() {
                 </p>
               </div>
               <Button onClick={addService} size="sm">
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="mr-2 h-4 w-4" />
                 Add Service
               </Button>
             </div>
 
             {config.services.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
+              <div className="text-muted-foreground py-8 text-center">
                 <p>No services configured yet.</p>
                 <p className="text-sm">
                   Click &quot; Add Service&quot; to get started.
@@ -777,12 +787,12 @@ export function ServerConfigStepper() {
               )}
             </div>
 
-            <div className="mt-6 p-4 bg-muted rounded-lg">
-              <h4 className="font-semibold mb-2">Example Team IPs:</h4>
-              <div className="space-y-1 text-sm text-muted-foreground">
-                <p>Team 1: {config.teams.ipFormat.replace("{}", "1")}</p>
-                <p>Team 2: {config.teams.ipFormat.replace("{}", "2")}</p>
-                <p>Team 3: {config.teams.ipFormat.replace("{}", "3")}</p>
+            <div className="bg-muted mt-6 rounded-lg p-4">
+              <h4 className="mb-2 font-semibold">Example Team IPs:</h4>
+              <div className="text-muted-foreground space-y-1 text-sm">
+                <p>Team 1: {config.teams.ipFormat.replace('{}', '1')}</p>
+                <p>Team 2: {config.teams.ipFormat.replace('{}', '2')}</p>
+                <p>Team 3: {config.teams.ipFormat.replace('{}', '3')}</p>
               </div>
             </div>
             {globalError && (
@@ -863,7 +873,7 @@ export function ServerConfigStepper() {
         </Button>
 
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">
+          <span className="text-muted-foreground text-sm">
             Step {currentStep} of {steps.length}
           </span>
         </div>
@@ -879,7 +889,7 @@ export function ServerConfigStepper() {
         ) : (
           <Button onClick={nextStep}>
             Next
-            <ChevronRight className="h-4 w-4 ml-2" />
+            <ChevronRight className="ml-2 h-4 w-4" />
           </Button>
         )}
       </div>
@@ -895,8 +905,8 @@ export function ServerConfigStepper() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <h4 className="font-semibold mb-2">Flag Checker</h4>
-              <div className="text-sm text-muted-foreground space-y-1">
+              <h4 className="mb-2 font-semibold">Flag Checker</h4>
+              <div className="text-muted-foreground space-y-1 text-sm">
                 <p>
                   Server: {config.flagChecker.ipAddress}:
                   {config.flagChecker.port}
@@ -910,8 +920,8 @@ export function ServerConfigStepper() {
             </div>
             <Separator />
             <div>
-              <h4 className="font-semibold mb-2">Match Info</h4>
-              <div className="text-sm text-muted-foreground space-y-1">
+              <h4 className="mb-2 font-semibold">Match Info</h4>
+              <div className="text-muted-foreground space-y-1 text-sm">
                 <p>Round Duration: {config.rounds.duration}s</p>
                 <p>Total Ticks: {calculateTotalTicks()}</p>
               </div>
@@ -931,11 +941,12 @@ export function ServerConfigStepper() {
             </div>
             <Separator />
             <div>
-              <h4 className="font-semibold mb-2">Teams</h4>
-              <div className="text-sm text-muted-foreground space-y-1">
+              <h4 className="mb-2 font-semibold">Teams</h4>
+              <div className="text-muted-foreground space-y-1 text-sm">
                 <p>Total Teams: {config.teams.numberOfTeams}</p>
                 <p>
                   Your Team: {config.teams.ownTeamId}, NOP Team:{" "}
+
                   {config.teams.nopTeamId}
                 </p>
                 <p>IP Format: {config.teams.ipFormat}</p>

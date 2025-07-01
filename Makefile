@@ -62,10 +62,15 @@ help:
 	@echo -e "  $(CYAN)make client-clean$(RESET)           - Clean client build"
 	@echo -e "  $(CYAN)make client-build-linux$(RESET)     - Build client for Linux"
 	@echo -e "  $(CYAN)make client-build-windows$(RESET)   - Build client for Windows"
+	@echo -e "  $(CYAN)make client-build-linux-prod$(RESET) - Build client for Linux production"
+	@echo -e "  $(CYAN)make client-build-windows-prod$(RESET) - Build client for Windows production"
 	@echo -e "  $(CYAN)make client-build-prod$(RESET)      - Build client for production"
 
 	@echo -e "  $(CYAN)make lint$(RESET)            - Lint client code"
 	@echo -e "  $(CYAN)make fmt$(RESET)             - Format client code"
+	@echo -e "  $(CYAN)make snapshot-cpu$(RESET)    - Take CPU snapshot"
+	@echo -e "  $(CYAN)make snapshot-ram$(RESET)    - Take RAM snapshot"
+	@echo -e "  $(CYAN)make snapshot-goroutine$(RESET) - Take Goroutine snapshot"
 
 # === COMMON TARGETS ===
 
@@ -77,21 +82,18 @@ build: server-build client-build
 server-build:
 	@echo -e "$(CYAN)[*] Building server...$(RESET)"
 	@mkdir -p $(SERVER_BIN_DIR)
-	@go build -race -gcflags='github.com/ByteTheCookies/cookieserver/...="-m"' -o $(SERVER_BIN_DIR)/$(SERVER_BINARY_NAME) $(SERVER_CMD_DIR)/$(SERVER_MAIN_FILE)
+	@go build -o $(SERVER_BIN_DIR)/$(SERVER_BINARY_NAME) $(SERVER_CMD_DIR)/$(SERVER_MAIN_FILE)
 	@echo -e "$(GREEN)[+] Server build complete!$(RESET)"
 
 server-build-prod:
 	@echo -e "$(CYAN)[*] Building server for production...$(RESET)"
 	@mkdir -p $(SERVER_BIN_DIR)
-	GOOS=$(GOOS) GOARCH=$(GOARCH) \
-		go build -trimpath -ldflags="-s -w" -o $(SERVER_BIN_DIR)/$(SERVER_BINARY_NAME) $(SERVER_CMD_DIR)/$(SERVER_MAIN_FILE)
+	@GOOS=$(GOOS) GOARCH=$(GOARCH) \
+			go build -race -trimpath -gcflags="github.com/ByteTheCookies/CookieFarm/...=-m" -ldflags="-s -w" -o $(SERVER_BIN_DIR)/$(SERVER_BINARY_NAME) $(SERVER_CMD_DIR)/$(SERVER_MAIN_FILE)
 	@echo -e "$(GREEN)[+] Production build complete!$(RESET)"
 
 server-run: server-build server-build-plugins minify
-	@$(SERVER_BIN_DIR)/$(SERVER_BINARY_NAME) -c config.yml -d
-
-server-install: tailwindcss-build server-build-prod server-build-plugins-prod
-	@go install .
+	@$(SERVER_BIN_DIR)/$(SERVER_BINARY_NAME) -c -D
 
 server-clean:
 	@rm -rf $(SERVER_BIN_DIR)/* $(SERVER_LOGS_DIR)/*
@@ -101,7 +103,7 @@ server-build-plugins:
 		if grep -q '^package main' "$$file"; then \
 			filename=$$(basename $$file); \
 			pluginname=$${filename%.go}; \
-			go build -race -gcflags="all=-m" -buildmode=plugin -o "./pkg/protocols/$$pluginname.so" "$$file"; \
+			go build -buildmode=plugin -o "./pkg/protocols/$$pluginname.so" "$$file"; \
 		else \
 			echo "Skipping $$file: not a main package"; \
 		fi; \
@@ -112,7 +114,7 @@ server-build-plugins-prod:
 		if grep -q '^package main' "$$file"; then \
 			filename=$$(basename $$file); \
 			pluginname=$${filename%.go}; \
-			GOOS=$(GOOS) GOARCH=$(GOARCH) go build -trimpath -buildmode=plugin -ldflags="-s -w" -o "./pkg/protocols/$$pluginname.so" "$$file"; \
+			GOOS=$(GOOS) GOARCH=$(GOARCH) go build -race -trimpath -gcflags="all=-m" -ldflags="-s -w" -buildmode=plugin -o "./pkg/protocols/$$pluginname.so" "$$file"; \
 		else \
 			echo "Skipping $$file: not a main package"; \
 		fi; \
@@ -127,7 +129,7 @@ server-watch:
 client-build:
 	@$(ECHO_CMD) "$(CYAN)[*] Building client...$(RESET)"
 	@$(MKDIR_CMD) $(CLIENT_BIN_DIR)
-	@go build -o $(CLIENT_BIN_DIR)$(PATHSEP)$(CLIENT_BINARY_NAME) $(CLIENT_CMD_DIR)$(CLIENT_MAIN_FILE)
+	@go build  -o $(CLIENT_BIN_DIR)$(PATHSEP)$(CLIENT_BINARY_NAME) $(CLIENT_CMD_DIR)$(CLIENT_MAIN_FILE)
 	@$(ECHO_CMD) "$(GREEN)[+] Client build complete!$(RESET)"
 
 client-build-windows:
@@ -142,10 +144,22 @@ client-build-linux:
 	@GOOS=linux GOARCH=amd64 go build -o $(CLIENT_BIN_DIR)$(PATHSEP)$(CLIENT_BINARY_NAME) $(CLIENT_CMD_DIR)$(CLIENT_MAIN_FILE)
 	@$(ECHO_CMD) "$(GREEN)[+] Linux build complete!$(RESET)"
 
+client-build-linux-prod:
+	@$(ECHO_CMD) "$(CYAN)[*] Building client for Linux production...$(RESET)"
+	@$(MKDIR_CMD) $(CLIENT_BIN_DIR)
+	@GOOS=linux GOARCH=amd64 go build -race -trimpath -gcflags="-m" -ldflags="-s -w" -o $(CLIENT_BIN_DIR)$(PATHSEP)$(CLIENT_BINARY_NAME) $(CLIENT_CMD_DIR)$(CLIENT_MAIN_FILE)
+	@$(ECHO_CMD) "$(GREEN)[+] Linux production build complete!$(RESET)"
+
+client-build-windows-prod:
+	@$(ECHO_CMD) "$(CYAN)[*] Building client for Windows production...$(RESET)"
+	@$(MKDIR_CMD) $(CLIENT_BIN_DIR)
+	@GOOS=windows GOARCH=amd64 go build -race -trimpath -gcflags="-m" -ldflags="-s -w" -o $(CLIENT_BIN_DIR)$(PATHSEP)$(CLIENT_BINARY_NAME) $(CLIENT_CMD_DIR)$(CLIENT_MAIN_FILE)
+	@$(ECHO_CMD) "$(GREEN)[+] Windows production build complete!$(RESET)"
+
 client-build-prod:
 	@$(ECHO_CMD) "$(CYAN)[*] Building client for production...$(RESET)"
-	@$(MAKE) client-build-linux
-	@$(MAKE) client-build-windows
+	@$(MAKE) client-build-linux-prod
+	@$(MAKE) client-build-windows-prod
 	@$(ECHO_CMD) "$(GREEN)[+] Production build complete!$(RESET)"
 
 client-run: client-build
@@ -153,6 +167,7 @@ client-run: client-build
 
 client-install: client-build
 	@sudo cp $(CLIENT_BIN_DIR)$(PATHSEP)$(CLIENT_BINARY_NAME) /usr/local/bin/$(CLIENT_BINARY_NAME)
+	@sudo cp /usr/local/bin/$(CLIENT_BINARY_NAME) ~/.venv/bin/$(CLIENT_BINARY_NAME)
 
 client-test:
 	@go test ./...
@@ -173,3 +188,18 @@ lint:
 
 fmt:
 	@if command -v gofumpt > /dev/null; then gofumpt -w -d .; else go list -f {{.Dir}} ./... | xargs gofmt -w -s -d; fi
+
+snapshot-cpu:
+	@echo -e "$(CYAN)[*] Taking CPU snapshot...$(RESET)"
+	go tool pprof -http=:6061 http://localhost:6060/debug/pprof/profile?seconds=30
+	@echo -e "$(GREEN)[+] CPU snapshot complete!$(RESET)"
+
+snapshot-ram:
+	@echo -e "$(CYAN)[*] Taking CPU snapshot...$(RESET)"
+	go tool pprof -http=:6062 http://localhost:6060/debug/pprof/heap?seconds=30
+	@echo -e "$(GREEN)[+] CPU snapshot complete!$(RESET)"
+
+snapshot-goroutine:
+	@echo -e "$(CYAN)[*] Taking Goroutine snapshot...$(RESET)"
+	go tool pprof -http=:6063 http://localhost:6060/debug/pprof/goroutine?debug=1
+	@echo -e "$(GREEN)[+] Goroutine snapshot complete!$(RESET)"

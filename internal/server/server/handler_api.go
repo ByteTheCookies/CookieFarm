@@ -2,10 +2,13 @@ package server
 
 import (
 	"context"
+	"os"
+	"path/filepath"
 
 	json "github.com/bytedance/sonic"
 
 	"github.com/ByteTheCookies/CookieFarm/internal/server/config"
+	"github.com/ByteTheCookies/CookieFarm/internal/server/controllers"
 	"github.com/ByteTheCookies/CookieFarm/internal/server/core"
 	"github.com/ByteTheCookies/CookieFarm/internal/server/sqlite"
 	"github.com/ByteTheCookies/CookieFarm/internal/server/websockets"
@@ -41,12 +44,8 @@ func HandleGetAllFlags(c *fiber.Ctx) error {
 // HandleGetStats returns statistics about the server state.
 // Currently returns placeholders for flags and users.
 func HandleGetStats(c *fiber.Ctx) error {
-	return c.JSON(fiber.Map{
-		"stats": map[string]any{
-			"total_flags": 0,
-			"total_users": 0,
-		},
-	})
+	n := controllers.NewStatsController()
+	return n.GetFlagStats(c)
 }
 
 func HandleGetPaginatedFlags(c *fiber.Ctx) error {
@@ -75,11 +74,42 @@ func HandleGetPaginatedFlags(c *fiber.Ctx) error {
 	})
 }
 
+// HandleGetFlag retrieves a single flag by its ID.
+func HandleGetProtocols(c *fiber.Ctx) error {
+	searchPaths := []string{
+		"pkg/protocols",
+		"protocols",
+	}
+
+	var protocolNames []string
+	for _, path := range searchPaths {
+		if protocols, err := os.ReadDir(path); err == nil {
+			for _, entry := range protocols {
+				if entry.IsDir() {
+					protocolNames = append(protocolNames, entry.Name())
+				} else if matched, _ := filepath.Match("*.so", entry.Name()); matched {
+					protocolNames = append(protocolNames, entry.Name())
+				}
+			}
+			break
+		}
+	}
+
+	if len(protocolNames) == 0 {
+		logger.Log.Error().Msg("Failed to read protocols directory")
+		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{Error: "No protocols found"})
+	}
+
+	return c.JSON(fiber.Map{
+		"protocols": protocolNames,
+	})
+}
+
 // ---------- POST ----------------
 
 // HandlePostFlags processes a batch of flags submitted in the request.
 func HandlePostFlags(c *fiber.Ctx) error {
-	var payload SubmitFlagsRequest
+	var payload models.SubmitFlagsRequest
 	if err := c.BodyParser(&payload); err != nil {
 		logger.Log.Error().Err(err).Msg("Invalid SubmitFlags payload")
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(ResponseError{Error: err.Error()})
@@ -95,7 +125,7 @@ func HandlePostFlags(c *fiber.Ctx) error {
 
 // HandlePostFlag processes a single flag and optionally submits it to an external checker.
 func HandlePostFlag(c *fiber.Ctx) error {
-	var payload SubmitFlagRequest
+	var payload models.SubmitFlagRequest
 	if err := c.BodyParser(&payload); err != nil {
 		logger.Log.Error().Err(err).Msg("Invalid SubmitFlag payload")
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(ResponseError{Error: err.Error()})
@@ -106,7 +136,7 @@ func HandlePostFlag(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{Error: err.Error()})
 	}
 
-	if config.SharedConfig.ConfigServer.HostFlagchecker == "" {
+	if config.SharedConfig.ConfigServer.URLFlagChecker == "" {
 		logger.Log.Warn().Msg("Flagchecker host not configured")
 		return c.Status(fiber.StatusServiceUnavailable).JSON(ResponseError{
 			Error: "Flagchecker host not configured",
@@ -114,7 +144,50 @@ func HandlePostFlag(c *fiber.Ctx) error {
 	}
 
 	flags := []string{payload.Flag.FlagCode}
-	response, err := config.Submit(config.SharedConfig.ConfigServer.HostFlagchecker, config.SharedConfig.ConfigServer.TeamToken, flags)
+	response, err := config.Submit(config.SharedConfig.ConfigServer.URLFlagChecker, config.SharedConfig.ConfigServer.TeamToken, flags)
+	if err != nil {
+		logger.Log.Error().Err(err).Msg("Flagchecker submission failed")
+		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{
+			Error:   "Failed to submit flag",
+			Details: err.Error(),
+		})
+	}
+
+	core.UpdateFlags(response)
+
+	return c.JSON(ResponseSuccess{Message: "Flag submitted successfully"})
+}
+
+// HandlePostFlag processes a single flag and optionally submits it to an external checker.
+func HandlePostFlagsStandalone(c *fiber.Ctx) error {
+	var payload models.SubmitFlagsRequest
+	if err := c.BodyParser(&payload); err != nil {
+		logger.Log.Error().Err(err).Msg("Invalid SubmitFlag payload")
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(ResponseError{Error: err.Error()})
+	}
+
+	if err := sqlite.AddFlags(payload.Flags); err != nil {
+		logger.Log.Error().Err(err).Msg("Failed to insert single flag")
+		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{Error: err.Error()})
+	}
+
+	if config.SharedConfig.ConfigServer.URLFlagChecker == "" {
+		logger.Log.Warn().Msg("Flagchecker host not configured")
+		return c.Status(fiber.StatusServiceUnavailable).JSON(ResponseError{
+			Error: "Flagchecker host not configured",
+		})
+	}
+	flags := make([]string, len(payload.Flags))
+
+	for i, flag := range payload.Flags {
+		flags[i] = flag.FlagCode
+		if flag.FlagCode == "" {
+			logger.Log.Warn().Msg("Empty flag code found, skipping submission")
+			continue
+		}
+	}
+
+	response, err := config.Submit(config.SharedConfig.ConfigServer.URLFlagChecker, config.SharedConfig.ConfigServer.TeamToken, flags)
 	if err != nil {
 		logger.Log.Error().Err(err).Msg("Flagchecker submission failed")
 		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{
@@ -150,6 +223,7 @@ func HandlePostConfig(c *fiber.Ctx) error {
 	shutdownCancel = cancel
 
 	go core.StartFlagProcessingLoop(ctx)
+	go core.ValidateFlagTTL(ctx, config.SharedConfig.ConfigServer.FlagTTL, config.SharedConfig.ConfigServer.TickTime)
 
 	cfgJSON, err := json.Marshal(config.SharedConfig)
 	if err != nil {
@@ -179,6 +253,7 @@ func HandlePostConfig(c *fiber.Ctx) error {
 	return c.JSON(ResponseSuccess{Message: "Configuration updated successfully"})
 }
 
+// HandleDeleteFlag deletes a flag by its ID.
 func HandleDeleteFlag(c *fiber.Ctx) error {
 	flagID := c.Query("flag")
 	if flagID == "" {
@@ -187,7 +262,7 @@ func HandleDeleteFlag(c *fiber.Ctx) error {
 		})
 	}
 
-	if err := sqlite.DeleteFlag(flagID); err != nil {
+	if err := sqlite.DeleteFlag(c.Context(), flagID); err != nil {
 		logger.Log.Error().Err(err).Msg("Failed to delete flag")
 		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{
 			Error: "Failed to delete flag",

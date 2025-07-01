@@ -39,6 +39,7 @@ function FormMessage(props: React.ComponentProps<typeof OriginalFormMessage>) {
   );
 }
 
+
 export function LoginForm({
   className,
   ...props
@@ -64,6 +65,7 @@ export function LoginForm({
       });
   }
 
+
   const [showPassword, setShowPassword] = useState(false);
 
   return (
@@ -83,6 +85,7 @@ export function LoginForm({
         <div
           className={cn(
             "flex flex-col gap-6 p-9 rounded-xl shadow-2xl bg-black/30 backdrop-blur-xl border border-gray-800/50",
+
             className,
           )}
           {...props}
@@ -108,6 +111,7 @@ export function LoginForm({
                   <h1 className="text-3xl text-nowrap font-bold text-white">
                     Welcome to CookieFarm
                   </h1>
+
                 </div>
 
                 <FormField

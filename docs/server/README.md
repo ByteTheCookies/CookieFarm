@@ -36,8 +36,8 @@ To configure the server, you need to create a `.env` file with the following par
 |----------------------|----------------------------------------------------------------------|--------------|
 | `DEBUG`              | Enables debug mode when set to `true`                                | `false`      |
 | `CONFIG_PATH`        | Path to a YAML config file (instead of using the web form)           | N/A          |
-| `SERVER_PASSWORD`    | Password to access the server web interface                          | `"password"` |
-| `SERVER_PORT`        | Sets the port the server will listen on                              | `8080`       |
+| `PASSWORD`    | Password to access the server web interface                          | `"password"` |
+| `PORT`        | Sets the port the server will listen on                              | `8080`       |
 
 The YAML config file as be like that:
 ```YAML
@@ -52,22 +52,23 @@ server:
   tick_time: 120
   start_time: <start_time>
   end_time: <end_time>
+  flag_ttl: 5 # in ticks (if the ttl is 0, the flag will never expire)
 
 client:
   services:
     - name: "CookieService"
       port: 8081
-  range_ip_teams: 29
   format_ip_teams: "10.10.{}.1"
-  my_team_id: 1
   regex_flag: "[A-Z0-9]{31}="
+  range_ip_teams: 29
+  my_team_id: 1
   nop_team: 0
+  url_flag_ids: "<address_of_flagIds"   # Specific for CyberChallengAD
 ```
 
 
-> **⚠️ WARNING: Security Risk!**
->
-> You are **strongly encouraged** to change the default password (`"password"`) to a strong, unique password. Using the default password poses a significant security risk as it could allow unauthorized access to your flag management system!
+> [!WARNING]
+> Security Risk: You are **strongly encouraged** to change the default password (`"password"`) to a strong, unique password. Using the default password poses a significant security risk as it could allow unauthorized access to your flag management system!
 
 ---
 
@@ -78,6 +79,9 @@ The **web interface** is accessible at:
 ```
 http://<your_server_ip>:<port>
 ```
+
+> [!IMPORTANT]
+> The actual web interface written in htmx and JavaScript is not updated so some features may not work as expected. The server is still functional, but the UI may not reflect all the latest changes. The new UI is being developed and will be available soon in the v2.0.0.
 
 Through the UI you can:
 
@@ -95,8 +99,9 @@ Create a `.env` file with the following content:
 
 ```
 DEBUG=true
-SERVER_PASSWORD=SuperSecret
-SERVER_PORT=9090
+CONFIG_PATH=./config.yml
+PASSWORD=SuperSecret
+PORT=9090
 ```
 
 ### Running with Docker
@@ -110,6 +115,7 @@ This configuration runs the server:
 - In debug mode.
 - With password `SuperSecret`.
 - On port `9090`.
+- Using the configuration file `./config.yml`.
 
 ---
 

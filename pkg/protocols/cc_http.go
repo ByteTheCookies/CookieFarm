@@ -13,13 +13,12 @@ import (
 	"github.com/ByteTheCookies/CookieFarm/pkg/protocols"
 )
 
-func Submit(host string, team_token string, flags []string) ([]protocols.ResponseProtocol, error) {
+func Submit(url string, team_token string, flags []string) ([]protocols.ResponseProtocol, error) {
 	jsonData, err := json.Marshal(flags)
 	if err != nil {
 		return nil, fmt.Errorf("error during marshalling: %w", err)
 	}
 
-	url := "http://" + host + "/flags"
 	req, err := http.NewRequest(http.MethodPut, url, bytes.NewBuffer(jsonData))
 	if err != nil {
 		return nil, fmt.Errorf("error during request creation: %w", err)

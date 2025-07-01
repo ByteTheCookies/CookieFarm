@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Run before running this script: `git flow start release/<version>`
+
 type=$1       # release o hotfix
 version=$2    # es. 1.2.0 o 1.2.1-hotfix
 

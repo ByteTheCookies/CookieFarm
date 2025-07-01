@@ -2,6 +2,7 @@
 package logger
 
 import (
+	_ "embed"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -9,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/charmbracelet/lipgloss"
 	"github.com/rs/zerolog"
 )
 
@@ -30,6 +32,9 @@ var (
 	LogFile  *os.File       // logFile represents the log file for the CookieFarm client.
 	useTUI   bool           // NoTUI indicates whether to disable the TUI mode for logging
 )
+
+//go:embed banner.txt
+var banner string
 
 const defaultLogPath = "/tmp/cookielogs"
 
@@ -123,4 +128,27 @@ func Close() {
 	if LogFile != nil {
 		_ = LogFile.Close()
 	}
+}
+
+// GetBanner returns a formatted banner string with the specified data.
+func GetBanner(data string) string {
+	bannerStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("#CDA157")).
+		Bold(true).
+		BorderStyle(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color("#CDA157")).
+		Padding(1, 2).
+		MarginTop(1)
+	formattedBanner := strings.ReplaceAll(banner, "<type>", data)
+	return bannerStyle.Render(formattedBanner)
+}
+
+// IsCompletionCommand checks if the command line arguments indicate a completion command.
+func IsCompletionCommand() bool {
+	for _, arg := range os.Args {
+		if strings.Contains(arg, "__complete") || strings.Contains(arg, "completion") {
+			return true
+		}
+	}
+	return false
 }

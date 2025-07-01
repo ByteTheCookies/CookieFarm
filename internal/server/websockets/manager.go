@@ -2,30 +2,33 @@ package websockets
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
+	"github.com/ByteTheCookies/CookieFarm/internal/server/config"
 	"github.com/ByteTheCookies/CookieFarm/pkg/logger"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/adaptor"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/websocket"
 )
-
-var GlobalManager *Manager // WebSocket manager
 
 var (
 	ErrEventNotSupported = errors.New("this event type is not supported")
 	ErrConnectionTimeout = errors.New("connection timeout exceeded")
+
+	websocketUpgrader = websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+	}
+
+	GlobalManager *Manager // WebSocket manager
 )
 
 const (
 	ConnectionLifetime = 24 * time.Hour // Lifetime of the connection
 )
-
-var websocketUpgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-}
 
 func NewManager() *Manager {
 	m := &Manager{
@@ -57,6 +60,17 @@ func (m *Manager) RouteEvent(event Event, c *Client) error {
 	} else {
 		return ErrEventNotSupported
 	}
+}
+
+// VerifyToken verifies the JWT token using the secret key
+func VerifyToken(token string) error {
+	_, err := jwt.Parse(token, func(t *jwt.Token) (any, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
+		}
+		return config.Secret, nil
+	})
+	return err
 }
 
 func CookieAuthMiddleware(c *fiber.Ctx) error {

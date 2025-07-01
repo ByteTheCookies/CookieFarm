@@ -22,7 +22,7 @@ var (
 // When in debug mode, rate limiting is disabled to ease development.
 // In production, it limits to 5 requests per minute per IP to prevent abuse (e.g., brute-force on login).
 func NewLimiter() fiber.Handler {
-	if *config.Debug {
+	if config.Debug {
 		return func(c *fiber.Ctx) error {
 			return c.Next()
 		}

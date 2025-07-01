@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 
 from flask import Flask, request
+
+import sys
 import time
 import random
+from string import ascii_letters
 
 app = Flask(__name__)
 
@@ -20,6 +23,14 @@ status = {
 }
 
 flag_store = set()
+num_team = sys.argv[1] if len(sys.argv) > 1 else 10
+
+def generate_random_string(length=16):
+    """
+    Generates a random string of fixed length.
+    """
+    return ''.join(random.choice(ascii_letters) for _ in range(length))
+
 
 @app.route("/flags", methods=['PUT'])
 def check_flags():
@@ -51,6 +62,38 @@ def check_flags():
                     "status": s
                 })
     return responses
+
+
+@app.route("/flagIds", methods=['GET'])
+def get_flag_ids():
+    """
+    Returns a list of flag IDs.
+    """
+    example_flag_ids = {
+        "CookieService": {},
+    }
+
+    for service_name, service_data in example_flag_ids.items():
+        for i in range(int(num_team)):
+            example_flag_ids[service_name].update({
+                f"{i}": {
+                    "0": {
+                        "username": generate_random_string(8),
+                        "password": generate_random_string(16)
+                    },
+                    "1": {
+                        "username": generate_random_string(8),
+                        "password": generate_random_string(16)
+                    },
+                    "2": {
+                        "username": generate_random_string(8),
+                        "password": generate_random_string(16)
+                    }
+                }
+            })
+
+    return example_flag_ids
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5001)

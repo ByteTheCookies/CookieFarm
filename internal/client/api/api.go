@@ -14,18 +14,26 @@ import (
 	"github.com/ByteTheCookies/CookieFarm/pkg/logger"
 	"github.com/ByteTheCookies/CookieFarm/pkg/models"
 	json "github.com/bytedance/sonic"
-	"github.com/rs/zerolog/log"
 )
+
+func parseURL(host, port, endpoint string) (string, error) {
+	URL := "http://" + host + ":" + port + endpoint
+	_, err := url.Parse(URL)
+	if err != nil {
+		return "", err
+	}
+	return URL, nil
+}
 
 // GetConfig retrieves the configuration from the CookieFarm server API.
 func GetConfig() (models.ConfigShared, error) {
 	cm := config.GetConfigManager()
-	serverURL := "http://" + cm.GetLocalConfig().Host + ":" + strconv.Itoa(int(cm.GetLocalConfig().Port)) + "/api/v1/config"
+	localConfig := cm.GetLocalConfig()
 	client := &http.Client{}
 
-	_, err := url.Parse(serverURL)
+	serverURL, err := parseURL(localConfig.Host, strconv.Itoa(int(localConfig.Port)), "/api/v1/config")
 	if err != nil {
-		log.Fatal().Msg("Invalid base URL in config")
+		logger.Log.Error().Err(err).Msg("Invalid base URL in config")
 	}
 
 	req, err := http.NewRequest(http.MethodGet, serverURL, nil)
@@ -39,6 +47,12 @@ func GetConfig() (models.ConfigShared, error) {
 		return models.ConfigShared{}, fmt.Errorf("error sending config request: %w", err)
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		logger.Log.Error().Msgf("Error fetching config: %s", body)
+		return models.ConfigShared{}, fmt.Errorf("error fetching config: %s", body)
+	}
 
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -58,11 +72,11 @@ func GetConfig() (models.ConfigShared, error) {
 // Login sends a login request to the CookieFarm server API.
 func Login(password string) (string, error) {
 	cm := config.GetConfigManager()
-	serverURL := "http://" + cm.GetLocalConfig().Host + ":" + strconv.Itoa(int(cm.GetLocalConfig().Port)) + "/api/v1/auth/login"
+	localConfig := cm.GetLocalConfig()
 
-	_, err := url.Parse(serverURL)
+	serverURL, err := parseURL(localConfig.Host, strconv.Itoa(int(localConfig.Port)), "/api/v1/auth/login")
 	if err != nil {
-		log.Fatal().Msg("Invalid base URL in config")
+		logger.Log.Error().Err(err).Msg("Invalid base URL in config")
 	}
 
 	logger.Log.Debug().Str("url", serverURL).Msg("Login attempt")
@@ -89,4 +103,108 @@ func Login(password string) (string, error) {
 
 	logger.Log.Warn().Msg("Token not found in Set-Cookie")
 	return "", errors.New("token not found in Set-Cookie")
+}
+
+// SubmitBatchDirect sends a batch of flags directly to the CookieFarm server API.
+//
+// @IMPORTANT: I do not raccomend using this function, use websockets instead.
+func SubmitBatchDirect(flags []models.ClientData) (string, error) {
+	cm := config.GetConfigManager()
+	localConfig := cm.GetLocalConfig()
+	client := &http.Client{}
+
+	serverURL, err := parseURL(localConfig.Host, strconv.Itoa(int(localConfig.Port)), "/api/v1/submit-flags-standalone")
+	if err != nil {
+		logger.Log.Error().Err(err).Msg("Invalid base URL in config")
+	}
+	logger.Log.Debug().Str("url", serverURL).Msg("Login attempt")
+
+	flagMarshalled, err := json.Marshal(models.SubmitFlagsRequest{Flags: flags})
+	if err != nil {
+		logger.Log.Error().Err(err).Msg("error marshalling flags")
+		return "", err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, serverURL, nil)
+	if err != nil {
+		return "", fmt.Errorf("error creating config request: %w", err)
+	}
+	req.Header.Set("Cookie", "token="+cm.GetToken())
+	req.Header.Set("Content-Type", "application/json")
+	req.Body = io.NopCloser(bytes.NewReader(flagMarshalled))
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("error sending config request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		logger.Log.Error().Msgf("Error submitting flags: %s", body)
+		return "", fmt.Errorf("error submitting flags: %s", body)
+	}
+
+	if resp.StatusCode == http.StatusOK {
+		logger.Log.Info().Msg("Flags submitted successfully")
+		return "Flags submitted successfully", nil
+	} else {
+		body, _ := io.ReadAll(resp.Body)
+		logger.Log.Error().Msgf("Unexpected response status: %d, body: %s", resp.StatusCode, body)
+		return "", fmt.Errorf("unexpected response status: %d, body: %s", resp.StatusCode, body)
+	}
+}
+
+// SubmitDirect sends a single flag directly to the CookieFarm server API.
+func SubmitDirect(flag models.ClientData) (string, error) {
+	cm := config.GetConfigManager()
+	localConfig := cm.GetLocalConfig()
+	client := &http.Client{}
+
+	serverURL, err := parseURL(localConfig.Host, strconv.Itoa(int(localConfig.Port)), "/api/v1/submit-flag")
+	if err != nil {
+		logger.Log.Error().Err(err).Msg("Invalid base URL in config")
+	}
+	logger.Log.Debug().Str("url", serverURL).Msg("Login attempt")
+
+	flagMarshalled, err := json.Marshal(models.SubmitFlagRequest{Flag: flag})
+	if err != nil {
+		logger.Log.Error().Err(err).Msg("error marshalling flags")
+		return "", err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, serverURL, nil)
+	if err != nil {
+		return "", fmt.Errorf("error creating config request: %w", err)
+	}
+	req.Header.Set("Cookie", "token="+cm.GetToken())
+	req.Header.Set("Content-Type", "application/json")
+	req.Body = io.NopCloser(bytes.NewReader(flagMarshalled))
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("error sending config request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		logger.Log.Error().Msgf("Error submitting flags: %s", body)
+		return "", fmt.Errorf("error submitting flags: %s", body)
+	}
+
+	logger.Log.Debug().Msgf("Response status code: %d", resp.StatusCode)
+	logger.Log.Debug().Msgf("Response headers: %v", resp.Header)
+	logger.Log.Debug().Msgf("Response body: %s", func() string {
+		body, _ := io.ReadAll(resp.Body)
+		return string(body)
+	}())
+
+	if resp.StatusCode == http.StatusOK {
+		return "Flags submitted successfully", nil
+	} else {
+		body, _ := io.ReadAll(resp.Body)
+		logger.Log.Error().Msgf("Unexpected response status: %d, body: %s", resp.StatusCode, body)
+		return "", fmt.Errorf("unexpected response status: %d, body: %s", resp.StatusCode, body)
+	}
 }

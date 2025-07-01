@@ -40,5 +40,7 @@ func LoadConfig(path string) error {
 
 	go StartFlagProcessingLoop(ctx)
 
+	go ValidateFlagTTL(ctx, config.SharedConfig.ConfigServer.FlagTTL, config.SharedConfig.ConfigServer.TickTime)
+
 	return nil
 }
