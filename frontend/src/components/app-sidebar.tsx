@@ -48,13 +48,13 @@ export function AppSidebar() {
   return (
     <Sidebar className="border-border/40 border-r">
       <SidebarHeader className="border-border/40 border-b p-6">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg">
+        <div className="flex items-center justify-around gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg">
             <Image alt="logo" src={'images/logo.png'} width={50} height={20} />
           </div>
-          <div>
-            <h1 className="text-foreground text-xl font-bold">CookieFarm</h1>
-            <p className="text-muted-foreground text-[0.8rem] leading-3.5">
+          <div className="text-center">
+            <h1 className="text-foreground text-2xl font-bold">CookieFarm</h1>
+            <p className="text-muted-foreground text-[0.7rem] leading-3.5">
               Zero distraction <br /> Only exploiting
             </p>
           </div>
