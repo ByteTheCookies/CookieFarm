@@ -21,7 +21,7 @@ func RegisterRoutes(app *fiber.App) {
 	// Enable CORS with dynamic origins from environment variable.
 	// Useful for allowing access from web dashboards or dev clients.
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     config.GetEnv("ALLOW_ORIGINS", "http://localhost:8080"),
+		AllowOrigins:     config.GetEnv("ALLOW_ORIGINS", "http://localhost:8080,http://localhost:3000"),
 		AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS,PATCH",
 		AllowHeaders:     "Accept,Authorization,Content-Type",
 		AllowCredentials: true,

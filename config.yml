@@ -7,7 +7,7 @@ server:
   max_flag_batch_size: 1000
   protocol: "cc_http"
   tick_time: 120
-  flag_ttl: 5 # in ticks
+  flag_ttl: 0 # in ticks
   start_time: "2023-10-01T00:00:00Z"
   end_time: "2023-10-31T23:59:59Z"
 

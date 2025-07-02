@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@tanstack/react-table": "^8.21.3",
     "tailwindcss-animate": "^1.0.7"
   }
 }
