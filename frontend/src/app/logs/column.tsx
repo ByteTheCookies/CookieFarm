@@ -10,10 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-<<<<<<< HEAD
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
-=======
 
 import {
   Tooltip,
@@ -34,8 +31,6 @@ import {
   ArrowUp,
   ArrowDown,
 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
->>>>>>> feature/suga-fe_flag_table
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
