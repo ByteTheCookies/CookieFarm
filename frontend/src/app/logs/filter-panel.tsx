@@ -1,24 +1,24 @@
-"use client"
+'use client';
 
-import { useState } from 'react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from '@/components/ui/select';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from '@/components/ui/card';
 // Removed Collapsible import for compatibility
-import { Badge } from "@/components/ui/badge"
+import { Badge } from '@/components/ui/badge';
 import {
   Search,
   Filter,
@@ -27,41 +27,41 @@ import {
   ChevronUp,
   SortAsc,
   SortDesc,
-  ArrowUpDown
-} from "lucide-react"
-import { SortingState, ColumnFiltersState } from '@tanstack/react-table'
+  ArrowUpDown,
+} from 'lucide-react';
+import { SortingState, ColumnFiltersState } from '@tanstack/react-table';
 
 interface FilterPanelProps {
   // Search
-  globalFilter: string
-  onGlobalFilterChange: (value: string) => void
-  searchField: string
-  onSearchFieldChange: (field: string) => void
+  globalFilter: string;
+  onGlobalFilterChange: (value: string) => void;
+  searchField: string;
+  onSearchFieldChange: (field: string) => void;
 
   // Sorting
-  sorting: SortingState
-  onSortingChange: (sorting: SortingState) => void
-  sortField: string
-  onSortFieldChange: (field: string) => void
-  sortDirection: 'asc' | 'desc'
-  onSortDirectionChange: (direction: 'asc' | 'desc') => void
+  sorting: SortingState;
+  onSortingChange: (sorting: SortingState) => void;
+  sortField: string;
+  onSortFieldChange: (field: string) => void;
+  sortDirection: 'asc' | 'desc';
+  onSortDirectionChange: (direction: 'asc' | 'desc') => void;
 
   // Filters
-  columnFilters: ColumnFiltersState
-  onColumnFiltersChange: (filters: ColumnFiltersState) => void
-  statusFilter: string
-  onStatusFilterChange: (status: string) => void
-  serviceFilter: string
-  onServiceFilterChange: (service: string) => void
-  teamFilter: string
-  onTeamFilterChange: (team: string) => void
+  columnFilters: ColumnFiltersState;
+  onColumnFiltersChange: (filters: ColumnFiltersState) => void;
+  statusFilter: string;
+  onStatusFilterChange: (status: string) => void;
+  serviceFilter: string;
+  onServiceFilterChange: (service: string) => void;
+  teamFilter: string;
+  onTeamFilterChange: (team: string) => void;
 
   // Stats
-  totalCount: number
-  filteredCount: number
+  totalCount: number;
+  filteredCount: number;
 
   // Actions
-  onClearAll: () => void
+  onClearAll: () => void;
 }
 
 const searchableFields = [
@@ -71,8 +71,8 @@ const searchableFields = [
   { value: 'port_service', label: 'Service Port' },
   { value: 'exploit_name', label: 'Exploit Name' },
   { value: 'msg', label: 'Message' },
-  { value: 'username', label: 'Username' }
-]
+  { value: 'username', label: 'Username' },
+];
 
 const sortableFields = [
   { value: 'submit_time', label: 'Submit Time' },
@@ -82,7 +82,7 @@ const sortableFields = [
   { value: 'service_name', label: 'Service Name' },
   { value: 'team_id', label: 'Team ID' },
   { value: 'port_service', label: 'Port' },
-]
+];
 
 const statusOptions = [
   { value: 'all', label: 'All Statuses' },
@@ -90,7 +90,7 @@ const statusOptions = [
   { value: 'DENIED', label: 'Denied' },
   { value: 'RESUBMIT', label: 'Resubmit' },
   { value: 'ERROR', label: 'Error' },
-]
+];
 
 export function FilterPanel({
   globalFilter,
@@ -115,21 +115,22 @@ export function FilterPanel({
   filteredCount,
   onClearAll,
 }: FilterPanelProps) {
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(false);
 
-  const hasActiveFilters = globalFilter ||
+  const hasActiveFilters =
+    globalFilter ||
     statusFilter !== 'all' ||
     serviceFilter ||
     teamFilter ||
-    columnFilters.length > 0
+    columnFilters.length > 0;
 
   const activeFiltersCount = [
     globalFilter,
     statusFilter !== 'all' ? statusFilter : null,
     serviceFilter,
     teamFilter,
-    ...columnFilters.map(f => f.value)
-  ].filter(Boolean).length
+    ...columnFilters.map(f => f.value),
+  ].filter(Boolean).length;
 
   return (
     <Card className="w-full">
@@ -157,7 +158,7 @@ export function FilterPanel({
                 onClick={onClearAll}
                 className="h-8"
               >
-                <X className="h-4 w-4 mr-1" />
+                <X className="mr-1 h-4 w-4" />
                 Clear All
               </Button>
             )}
@@ -179,15 +180,15 @@ export function FilterPanel({
 
       <CardContent className="space-y-4">
         {/* Quick Search Row - Always Visible */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-12">
           {/* Search Field Selector */}
-          <div className="md:col-span-3 flex gap-2">
+          <div className="flex gap-2 md:col-span-3">
             <Select value={searchField} onValueChange={onSearchFieldChange}>
               <SelectTrigger className="h-10">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {searchableFields.map((field) => (
+                {searchableFields.map(field => (
                   <SelectItem key={field.value} value={field.value}>
                     {field.label}
                   </SelectItem>
@@ -201,7 +202,7 @@ export function FilterPanel({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {statusOptions.map((option) => (
+                {statusOptions.map(option => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
                   </SelectItem>
@@ -210,29 +211,26 @@ export function FilterPanel({
             </Select>
           </div>
 
-
           {/* Search Input */}
-          <div className="md:col-span-6 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <div className="relative md:col-span-6">
+            <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
             <Input
               placeholder={`Search ${searchableFields.find(f => f.value === searchField)?.label.toLowerCase() || 'all fields'}...`}
               value={globalFilter}
-              onChange={(e) => onGlobalFilterChange(e.target.value)}
-              className="pl-10 h-10"
+              onChange={e => onGlobalFilterChange(e.target.value)}
+              className="h-10 pl-10"
             />
             {globalFilter && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => onGlobalFilterChange('')}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
+                className="absolute top-1/2 right-2 h-6 w-6 -translate-y-1/2 transform p-0"
               >
                 <X className="h-3 w-3" />
               </Button>
             )}
           </div>
-
-
         </div>
 
         {/* Expanded Filters */}
@@ -240,17 +238,17 @@ export function FilterPanel({
           <div className="space-y-4 border-t pt-4">
             {/* Sort Controls */}
             <div className="space-y-2">
-              <h4 className="text-sm font-medium flex items-center gap-2">
+              <h4 className="flex items-center gap-2 text-sm font-medium">
                 <ArrowUpDown className="h-4 w-4" />
                 Sort By
               </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <Select value={sortField} onValueChange={onSortFieldChange}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select field to sort by" />
                   </SelectTrigger>
                   <SelectContent>
-                    {sortableFields.map((field) => (
+                    {sortableFields.map(field => (
                       <SelectItem key={field.value} value={field.value}>
                         {field.label}
                       </SelectItem>
@@ -258,7 +256,10 @@ export function FilterPanel({
                   </SelectContent>
                 </Select>
 
-                <Select value={sortDirection} onValueChange={onSortDirectionChange}>
+                <Select
+                  value={sortDirection}
+                  onValueChange={onSortDirectionChange}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -281,7 +282,7 @@ export function FilterPanel({
             </div>
 
             {/* Active Filters Display */}
-            {(hasActiveFilters) && (
+            {hasActiveFilters && (
               <div className="space-y-2">
                 <h4 className="text-sm font-medium">Active Filters</h4>
                 <div className="flex flex-wrap gap-2">
@@ -301,7 +302,8 @@ export function FilterPanel({
 
                   {statusFilter !== 'all' && (
                     <Badge variant="secondary" className="text-xs">
-                      Status: {statusOptions.find(s => s.value === statusFilter)?.label}
+                      Status:{' '}
+                      {statusOptions.find(s => s.value === statusFilter)?.label}
                       <Button
                         variant="ghost"
                         size="sm"
@@ -343,7 +345,9 @@ export function FilterPanel({
 
                   {sorting.length > 0 && (
                     <Badge variant="outline" className="text-xs">
-                      Sort: {sortableFields.find(f => f.value === sortField)?.label} ({sortDirection})
+                      Sort:{' '}
+                      {sortableFields.find(f => f.value === sortField)?.label} (
+                      {sortDirection})
                     </Badge>
                   )}
                 </div>
@@ -353,5 +357,5 @@ export function FilterPanel({
         )}
       </CardContent>
     </Card>
-  )
+  );
 }

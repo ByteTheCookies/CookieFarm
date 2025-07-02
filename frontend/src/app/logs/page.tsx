@@ -14,7 +14,6 @@ import { FilterPanel } from './filter-panel';
 import Loading from './loading';
 import { usePaginatedFlags } from '@/hooks/usePaginatedFlags';
 
-
 export default function FlagLogs() {
   const {
     data: filteredData,
@@ -40,18 +39,19 @@ export default function FlagLogs() {
     onClearAll,
   } = usePaginatedFlags();
 
-
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex min-h-screen items-center justify-center">
         <div className="flex flex-col items-center space-y-4">
-          <div className="text-red-500 text-lg font-semibold">Error loading flags</div>
-          <p className="text-sm text-muted-foreground">
+          <div className="text-lg font-semibold text-red-500">
+            Error loading flags
+          </div>
+          <p className="text-muted-foreground text-sm">
             {error.message || 'Failed to fetch flag data. Please try again.'}
           </p>
           <button
             onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
           >
             Retry
           </button>
@@ -61,21 +61,24 @@ export default function FlagLogs() {
   }
 
   return (
-    <div className="container mx-auto p-4 space-y-6">
+    <div className="container mx-auto space-y-6 p-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Flag Logs</h1>
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+            Flag Logs
+          </h1>
           <p className="text-muted-foreground text-sm sm:text-base">
             Advanced server-side filtering, searching, sorting and pagination
           </p>
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex flex-wrap items-center gap-2">
           <Badge variant="outline" className="text-xs sm:text-sm">
             {filteredData.length} results
           </Badge>
           <Badge variant="secondary" className="text-xs sm:text-sm">
-            Page {pagination.pageIndex + 1} of {Math.ceil(totalCount / pagination.pageSize)}
+            Page {pagination.pageIndex + 1} of{' '}
+            {Math.ceil(totalCount / pagination.pageSize)}
           </Badge>
           <Badge variant="default" className="text-xs sm:text-sm">
             {totalCount} filtered
@@ -112,9 +115,7 @@ export default function FlagLogs() {
       <Card>
         <CardHeader className="pb-4">
           <CardTitle className="text-lg sm:text-xl">Flag Submissions</CardTitle>
-          <CardDescription className="text-sm">
-
-          </CardDescription>
+          <CardDescription className="text-sm"></CardDescription>
         </CardHeader>
         <CardContent className="p-0 sm:p-6">
           <DataTable

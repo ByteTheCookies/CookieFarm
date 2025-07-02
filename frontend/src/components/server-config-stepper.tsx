@@ -158,7 +158,9 @@ const flagCheckerSchema = z.object({
     .min(1, 'url_flag_checker is required')
     .url('Must be a valid URL'),
   team_token: z.string().min(1, 'Team token is required'),
-  submit_flag_checker_time: z.number().min(1, 'Submit time must be greater than 0'),
+  submit_flag_checker_time: z
+    .number()
+    .min(1, 'Submit time must be greater than 0'),
   max_flag_batch_size: z.number().min(1, 'Batch size must be greater than 0'),
 });
 
@@ -213,10 +215,16 @@ export function ServerConfigStepper() {
     if (section === 'general' && ['tick_time', 'flag_ttl'].includes(field)) {
       processedValue = value === '' ? 0 : parseInt(value) || 0;
     }
-    if (section === 'flagChecker' && ['submit_flag_checker_time', 'max_flag_batch_size'].includes(field)) {
+    if (
+      section === 'flagChecker' &&
+      ['submit_flag_checker_time', 'max_flag_batch_size'].includes(field)
+    ) {
       processedValue = value === '' ? 0 : parseInt(value) || 0;
     }
-    if (section === 'teams' && ['range_ip_teams', 'nop_team', 'my_team_id'].includes(field)) {
+    if (
+      section === 'teams' &&
+      ['range_ip_teams', 'nop_team', 'my_team_id'].includes(field)
+    ) {
       processedValue = value === '' ? 0 : parseInt(value) || 0;
     }
 
@@ -256,12 +264,21 @@ export function ServerConfigStepper() {
     setGlobalError(null);
   };
 
-  const updateService = (id: string, field: keyof Service, value: string | number) => {
+  const updateService = (
+    id: string,
+    field: keyof Service,
+    value: string | number,
+  ) => {
     let processedValue = value;
 
     // Convert string to number for port field
     if (field === 'port') {
-      processedValue = typeof value === 'string' ? (value === '' ? 0 : parseInt(value) || 0) : value;
+      processedValue =
+        typeof value === 'string'
+          ? value === ''
+            ? 0
+            : parseInt(value) || 0
+          : value;
     }
 
     setConfig(prev => ({
@@ -410,7 +427,7 @@ export function ServerConfigStepper() {
           ...config.teams,
           ...config.flagInfo,
         },
-      }
+      },
     };
 
     console.log('Final Config:', JSON.stringify(configFormatted, null, 2));
@@ -975,12 +992,13 @@ export function ServerConfigStepper() {
           <div key={step.id} className="flex items-center">
             <div className="flex items-center">
               <div
-                className={`flex h-10 w-10 items-center justify-center rounded-full border-2 ${currentStep === step.id
-                  ? 'border-primary bg-primary text-primary-foreground'
-                  : currentStep > step.id
-                    ? 'border-green-500 bg-green-500 text-white'
-                    : 'border-muted-foreground bg-background text-muted-foreground'
-                  }`}
+                className={`flex h-10 w-10 items-center justify-center rounded-full border-2 ${
+                  currentStep === step.id
+                    ? 'border-primary bg-primary text-primary-foreground'
+                    : currentStep > step.id
+                      ? 'border-green-500 bg-green-500 text-white'
+                      : 'border-muted-foreground bg-background text-muted-foreground'
+                }`}
               >
                 {currentStep > step.id ? (
                   <Check className="h-5 w-5" />
@@ -990,10 +1008,11 @@ export function ServerConfigStepper() {
               </div>
               <div className="ml-3 hidden sm:block">
                 <p
-                  className={`text-sm font-medium ${currentStep === step.id
-                    ? 'text-primary'
-                    : 'text-muted-foreground'
-                    }`}
+                  className={`text-sm font-medium ${
+                    currentStep === step.id
+                      ? 'text-primary'
+                      : 'text-muted-foreground'
+                  }`}
                 >
                   {step.title}
                 </p>

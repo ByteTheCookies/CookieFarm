@@ -96,7 +96,10 @@ export function usePaginatedFlags(): UsePaginatedFlagsReturn {
     const baseUrl = `${BACKEND_URL}/api/v1/flags/${pagination.pageSize}`;
     const params = new URLSearchParams();
 
-    params.set('offset', (pagination.pageIndex * pagination.pageSize).toString());
+    params.set(
+      'offset',
+      (pagination.pageIndex * pagination.pageSize).toString(),
+    );
 
     // Status filter
     if (filters.statusFilter !== 'all') {
@@ -129,11 +132,15 @@ export function usePaginatedFlags(): UsePaginatedFlagsReturn {
   };
 
   const paginatedUrl = buildUrl();
-  const { data: rawData, error, isLoading } = useSWR<ApiResponse>(paginatedUrl, fetcher, {
+  const {
+    data: rawData,
+    error,
+    isLoading,
+  } = useSWR<ApiResponse>(paginatedUrl, fetcher, {
     revalidateOnFocus: false,
     revalidateOnReconnect: true,
     dedupingInterval: 0,
-    keepPreviousData: true
+    keepPreviousData: true,
   });
 
   const filteredData = useMemo(() => {
@@ -195,7 +202,15 @@ export function usePaginatedFlags(): UsePaginatedFlagsReturn {
   // Reset to first page when filtering changes
   useEffect(() => {
     setPagination(prev => ({ ...prev, pageIndex: 0 }));
-  }, [filters.searchTerm, filters.statusFilter, filters.serviceFilter, filters.teamFilter, filters.sortField, filters.sortDirection, filters.searchField]);
+  }, [
+    filters.searchTerm,
+    filters.statusFilter,
+    filters.serviceFilter,
+    filters.teamFilter,
+    filters.sortField,
+    filters.sortDirection,
+    filters.searchField,
+  ]);
 
   return {
     data: filteredData,

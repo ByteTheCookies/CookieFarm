@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from 'axios';
 
 export const fetcher = async (url: string) => {
   try {
@@ -14,4 +14,4 @@ export const fetcher = async (url: string) => {
     console.error('Error fetching flags:', error);
     return false;
   }
-}
+};
