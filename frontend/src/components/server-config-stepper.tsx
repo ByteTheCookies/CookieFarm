@@ -2,6 +2,9 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import useSWR from 'swr';
+import axios from 'axios';
+import { BACKEND_URL } from '@/lib/constants';
 
 import {
   Card,
@@ -47,72 +50,91 @@ interface Service {
 }
 
 interface ConfigData {
-  flagChecker: {
-    ipAddress: string;
-    port: string;
-    teamToken: string;
-    submitTime: string;
-    batchSize: string;
+  general: {
     protocol: string;
+    tick_time: string;
+    flag_ttl: string;
+    start_time: string;
+    end_time: string;
   };
-  rounds: {
-    duration: string;
-    startTime: string;
-    endTime: string;
+  flagChecker: {
+    url_flag_checker: string;
+    team_token: string;
+    submit_flag_checker_time: string;
+    max_flag_batch_size: string;
+  };
+  flagInfo: {
+    regex_flag: string;
+    url_flag_ids: string;
   };
   services: Service[];
   teams: {
-    numberOfTeams: string;
-    nopTeamId: string;
-    ownTeamId: string;
-    ipFormat: string;
+    range_ip_teams: string;
+    nop_team: string;
+    my_team_id: string;
+    format_ip_teams: string;
   };
 }
 
+interface Protocol {
+  value: string;
+  label: string;
+}
+
 const initialConfig: ConfigData = {
-  flagChecker: {
-    ipAddress: '',
-    port: '',
-    teamToken: '',
-    submitTime: '30',
-    batchSize: '100',
+  general: {
     protocol: '',
+    tick_time: '120',
+    flag_ttl: '5',
+    start_time: '2025-07-02T10:00',
+    end_time: '2025-07-02T18:00',
   },
-  rounds: {
-    duration: '120',
-    startTime: '',
-    endTime: '',
+  flagChecker: {
+    url_flag_checker: 'http://10.10.0.1:8080/flags',
+    team_token: '',
+    submit_flag_checker_time: '120',
+    max_flag_batch_size: '1000',
+  },
+  flagInfo: {
+    regex_flag: '[A-Z0-9]{31}=',
+    url_flag_ids: 'http://10.10.0.1:8081/flagIds',
   },
   services: [],
   teams: {
-    numberOfTeams: '',
-    nopTeamId: '',
-    ownTeamId: '',
-    ipFormat: '10.10.{}.1',
+    range_ip_teams: '',
+    nop_team: '0',
+    my_team_id: '',
+    format_ip_teams: '10.60.{}.1',
   },
 };
 
-const protocols = [
-  { value: 'cc_http', label: 'CC HTTP' },
-  { value: 'cc_grpc', label: 'CC gRPC' },
-  { value: 'defcon_http', label: 'DEFCON HTTP' },
-  { value: 'custom_tcp', label: 'Custom TCP' },
-  { value: 'custom_udp', label: 'Custom UDP' },
-];
+const fetcher = async (url: string) => {
+  const response = await axios.get(url);
+  console.log(`Fetching data from ${url}:`, response.data);
+  return response.data;
+};
 
 const steps = [
   {
     id: 1,
-    title: 'Flag Checker Setup',
-    description: 'Configure flag submission settings',
+    title: 'General Settings',
   },
   {
     id: 2,
-    title: 'Rounds Info',
-    description: 'Set up match timing and rounds',
+    title: 'Flag Checker Setup',
   },
-  { id: 3, title: 'Services', description: 'Define services to monitor' },
-  { id: 4, title: 'Teams Info', description: 'Configure team settings' },
+  {
+    id: 3,
+    title: 'Flag Information',
+  },
+  {
+    id: 4,
+    title: 'Services',
+  },
+  {
+    id: 5,
+    title: 'Teams Info',
+  },
 ];
 
 // Zod schemas for validation
@@ -125,58 +147,67 @@ const serviceSchema = z.object({
     .regex(/^\d+$/, 'Port must be a number'),
 });
 
+const generalSchema = z.object({
+  protocol: z.string().min(1, 'Protocol is required'),
+  tick_time: z
+    .string()
+    .min(1, 'Tick time is required')
+    .regex(/^\d+$/, 'Must be a number'),
+  flag_ttl: z
+    .string()
+    .min(1, 'Flag time to live is required')
+    .regex(/^\d+$/, 'Must be a number'),
+  start_time: z.string().min(1, 'Start time is required'),
+  end_time: z.string().min(1, 'End time is required'),
+});
+
 const flagCheckerSchema = z.object({
-  ipAddress: z
+  url_flag_checker: z
     .string()
-    .min(1, 'IP Address is required')
-    .regex(/^([0-9]{1,3}\.){3}[0-9]{1,3}$/, 'Invalid IP address'),
-  port: z
-    .string()
-    .min(1, 'Port is required')
-    .regex(/^\d+$/, 'Port must be a number'),
-  teamToken: z.string().min(1, 'Team token is required'),
-  submitTime: z
+    .min(1, 'url_flag_checker is required')
+    .url('Must be a valid URL'),
+  team_token: z.string().min(1, 'Team token is required'),
+  submit_flag_checker_time: z
     .string()
     .min(1, 'Submit time is required')
     .regex(/^\d+$/, 'Must be a number'),
-  batchSize: z
+  max_flag_batch_size: z
     .string()
     .min(1, 'Batch size is required')
     .regex(/^\d+$/, 'Must be a number'),
-  protocol: z.string().min(1, 'Protocol is required'),
 });
 
-const roundsSchema = z.object({
-  duration: z
+const flagInfoSchema = z.object({
+  regex_flag: z.string().min(1, 'Flag format is required'),
+  url_flag_ids: z
     .string()
-    .min(1, 'Duration is required')
-    .regex(/^\d+$/, 'Must be a number'),
-  startTime: z.string().min(1, 'Start time is required'),
-  endTime: z.string().min(1, 'End time is required'),
+    .min(1, 'Flag IDs address is required')
+    .url('Must be a valid URL'),
 });
 
 const teamsSchema = z.object({
-  numberOfTeams: z
+  range_ip_teams: z
     .string()
     .min(1, 'Number of teams is required')
     .regex(/^\d+$/, 'Must be a number'),
-  nopTeamId: z
+  nop_team: z
     .string()
     .min(1, 'NOP Team ID is required')
     .regex(/^\d+$/, 'Must be a number'),
-  ownTeamId: z
+  my_team_id: z
     .string()
     .min(1, 'Own Team ID is required')
     .regex(/^\d+$/, 'Must be a number'),
-  ipFormat: z
+  format_ip_teams: z
     .string()
     .min(1, 'IP Format is required')
     .regex(/\{\}/, 'IP Format must contain {}'),
 });
 
 const configSchema = z.object({
+  general: generalSchema,
   flagChecker: flagCheckerSchema,
-  rounds: roundsSchema,
+  flagInfo: flagInfoSchema,
   services: z.array(serviceSchema).min(1, 'At least one service is required'),
   teams: teamsSchema,
 });
@@ -187,6 +218,12 @@ export function ServerConfigStepper() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [globalError, setGlobalError] = useState<string | null>(null);
   const [completed, setCompleted] = useState(false);
+
+  const {
+    data: protocols = [],
+    error: protocolsError,
+    isLoading: loadingProtocols,
+  } = useSWR<Protocol[]>(`/api/protocols`, fetcher);
 
   const updateConfig = (
     section: keyof ConfigData,
@@ -201,7 +238,11 @@ export function ServerConfigStepper() {
         [field]: value,
       },
     }));
-    setErrors(prev => ({ ...prev, [`${section}.${field}`]: undefined }));
+    setErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors[`${section}.${field}`];
+      return newErrors;
+    });
     setGlobalError(null);
   };
 
@@ -217,6 +258,7 @@ export function ServerConfigStepper() {
     }));
     setGlobalError(null);
   };
+
   const removeService = (id: string) => {
     setConfig(prev => ({
       ...prev,
@@ -232,21 +274,25 @@ export function ServerConfigStepper() {
         service.id === id ? { ...service, [field]: value } : service,
       ),
     }));
-    setErrors(prev => ({ ...prev, [`services.${id}.${field}`]: undefined }));
+    setErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors[`services.${id}.${field}`];
+      return newErrors;
+    });
     setGlobalError(null);
   };
 
   const calculateTotalTicks = () => {
-    const { startTime, endTime, duration } = config.rounds;
-    if (!startTime || !endTime || !duration) return 0;
+    const { start_time, end_time, tick_time } = config.general;
+    if (!start_time || !end_time || !tick_time) return 0;
 
-    const start = new Date(startTime).getTime();
-    const end = new Date(endTime).getTime();
-    const durationMs = Number.parseInt(duration) * 1000;
+    const start = new Date(start_time).getTime();
+    const end = new Date(end_time).getTime();
+    const tickMs = Number.parseInt(tick_time) * 1000;
 
-    if (end <= start || durationMs <= 0) return 0;
+    if (end <= start || tickMs <= 0) return 0;
 
-    return Math.floor((end - start) / durationMs);
+    return Math.floor((end - start) / tickMs);
   };
 
   // Validation per step
@@ -255,25 +301,32 @@ export function ServerConfigStepper() {
     setGlobalError(null);
 
     if (currentStep === 1) {
+      const result = generalSchema.safeParse(config.general);
+      if (!result.success) {
+        for (const issue of result.error.issues) {
+          stepErrors[`general.${issue.path[0]}`] = issue.message;
+        }
+      }
+    } else if (currentStep === 2) {
       const result = flagCheckerSchema.safeParse(config.flagChecker);
       if (!result.success) {
         for (const issue of result.error.issues) {
           stepErrors[`flagChecker.${issue.path[0]}`] = issue.message;
         }
       }
-    } else if (currentStep === 2) {
-      const result = roundsSchema.safeParse(config.rounds);
+    } else if (currentStep === 3) {
+      const result = flagInfoSchema.safeParse(config.flagInfo);
       if (!result.success) {
         for (const issue of result.error.issues) {
-          stepErrors[`rounds.${issue.path[0]}`] = issue.message;
+          stepErrors[`flagInfo.${issue.path[0]}`] = issue.message;
         }
       }
-    } else if (currentStep === 3) {
+    } else if (currentStep === 4) {
       if (config.services.length === 0) {
         setGlobalError('At least one service is required.');
         return false;
       }
-      config.services.forEach((service, idx) => {
+      config.services.forEach(service => {
         const result = serviceSchema.safeParse(service);
         if (!result.success) {
           for (const issue of result.error.issues) {
@@ -282,7 +335,7 @@ export function ServerConfigStepper() {
           }
         }
       });
-    } else if (currentStep === 4) {
+    } else if (currentStep === 5) {
       const result = teamsSchema.safeParse(config.teams);
       if (!result.success) {
         for (const issue of result.error.issues) {
@@ -310,16 +363,18 @@ export function ServerConfigStepper() {
     }
   };
 
+  // Handle completion
   const handleComplete = () => {
     // Validate all steps
     const result = configSchema.safeParse(config);
     if (!result.success) {
       // Find first error and go to that step
       const firstIssue = result.error.issues[0];
-      if (firstIssue.path[0] === 'flagChecker') setCurrentStep(1);
-      else if (firstIssue.path[0] === 'rounds') setCurrentStep(2);
-      else if (firstIssue.path[0] === 'services') setCurrentStep(3);
-      else if (firstIssue.path[0] === 'teams') setCurrentStep(4);
+      if (firstIssue.path[0] === 'general') setCurrentStep(1);
+      else if (firstIssue.path[0] === 'flagChecker') setCurrentStep(2);
+      else if (firstIssue.path[0] === 'flagInfo') setCurrentStep(3);
+      else if (firstIssue.path[0] === 'services') setCurrentStep(4);
+      else if (firstIssue.path[0] === 'teams') setCurrentStep(5);
       // Set errors for all
       const allErrors: Record<string, string> = {};
       for (const issue of result.error.issues) {
@@ -347,7 +402,37 @@ export function ServerConfigStepper() {
     setCompleted(true);
     // Print config to console
     // eslint-disable-next-line no-console
-    console.log('Final ConfigData:', config);
+
+    let configFormatted = {
+      server: {
+        ...config.general,
+        ...config.flagChecker,
+      },
+      client: {
+        services: config.services.map(({ id, ...service }) => service),
+        ...config.teams,
+        ...config.flagInfo,
+      },
+    };
+
+    console.log('Final Config:', JSON.stringify(configFormatted, null, 2));
+    // Send as JSON instead of FormData
+    axios
+      .post('/api/config', configFormatted, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      .then(response => {
+        console.log('Config submitted successfully:', response.data);
+        // Puoi aggiungere qui altre azioni dopo il successo dell'invio
+      })
+      .catch(error => {
+        console.error('Config submission failed:', error);
+        // Puoi gestire l'errore qui, ad esempio mostrando un messaggio all'utente
+        setGlobalError('Failed to submit configuration. Please try again.');
+        setCompleted(false);
+      });
   };
 
   const InfoTooltip = ({ content }: { content: string }) => (
@@ -370,121 +455,26 @@ export function ServerConfigStepper() {
           <div className="space-y-6">
             <div className="space-y-2">
               <div className="flex items-center">
-                <Label htmlFor="ip-address">IP Address</Label>
-                <InfoTooltip content="The IP address of the flag checker server where flags will be submitted" />
-              </div>
-              <Input
-                id="ip-address"
-                placeholder="192.168.1.100"
-                value={config.flagChecker.ipAddress}
-                onChange={e =>
-                  updateConfig('flagChecker', 'ipAddress', e.target.value)
-                }
-              />
-              {errors['flagChecker.ipAddress'] && (
-                <p className="text-destructive text-xs">
-                  {errors['flagChecker.ipAddress']}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center">
-                <Label htmlFor="port">Port</Label>
-                <InfoTooltip content="The port number on which the flag checker service is running" />
-              </div>
-              <Input
-                id="port"
-                placeholder="8080"
-                type="number"
-                value={config.flagChecker.port}
-                onChange={e =>
-                  updateConfig('flagChecker', 'port', e.target.value)
-                }
-              />
-              {errors['flagChecker.port'] && (
-                <p className="text-destructive text-xs">
-                  {errors['flagChecker.port']}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center">
-                <Label htmlFor="team-token">Team Token</Label>
-                <InfoTooltip content="Authentication token provided by the CTF organizers for your team" />
-              </div>
-              <Input
-                id="team-token"
-                placeholder="your-team-token-here"
-                type="password"
-                value={config.flagChecker.teamToken}
-                onChange={e =>
-                  updateConfig('flagChecker', 'teamToken', e.target.value)
-                }
-              />
-              {errors['flagChecker.teamToken'] && (
-                <p className="text-destructive text-xs">
-                  {errors['flagChecker.teamToken']}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center">
-                <Label htmlFor="submit-time">Submit Time (seconds)</Label>
-                <InfoTooltip content="How many seconds to wait before submitting all pending flags in batch" />
-              </div>
-              <Input
-                id="submit-time"
-                placeholder="30"
-                type="number"
-                value={config.flagChecker.submitTime}
-                onChange={e =>
-                  updateConfig('flagChecker', 'submitTime', e.target.value)
-                }
-              />
-              {errors['flagChecker.submitTime'] && (
-                <p className="text-destructive text-xs">
-                  {errors['flagChecker.submitTime']}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center">
-                <Label htmlFor="batch-size">Batch Size</Label>
-                <InfoTooltip content="Maximum number of flags to submit in a single batch request" />
-              </div>
-              <Input
-                id="batch-size"
-                placeholder="100"
-                type="number"
-                value={config.flagChecker.batchSize}
-                onChange={e =>
-                  updateConfig('flagChecker', 'batchSize', e.target.value)
-                }
-              />
-              {errors['flagChecker.batchSize'] && (
-                <p className="text-destructive text-xs">
-                  {errors['flagChecker.batchSize']}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center">
                 <Label htmlFor="protocol">Communication Protocol</Label>
                 <InfoTooltip content="The protocol used to communicate with the flag checker (depends on CTF platform)" />
               </div>
               <Select
-                value={config.flagChecker.protocol}
+                value={config.general.protocol}
                 onValueChange={value =>
-                  updateConfig('flagChecker', 'protocol', value)
+                  updateConfig('general', 'protocol', value)
                 }
+                disabled={loadingProtocols}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select protocol" />
+                  <SelectValue
+                    placeholder={
+                      loadingProtocols
+                        ? 'Loading protocols...'
+                        : protocolsError
+                          ? 'Error loading protocols'
+                          : 'Select protocol'
+                    }
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   {protocols.map(protocol => (
@@ -494,38 +484,56 @@ export function ServerConfigStepper() {
                   ))}
                 </SelectContent>
               </Select>
-              {errors['flagChecker.protocol'] && (
+              {protocolsError && (
                 <p className="text-destructive text-xs">
-                  {errors['flagChecker.protocol']}
+                  Error loading protocols: {protocolsError.message}
+                </p>
+              )}
+              {errors['general.protocol'] && (
+                <p className="text-destructive text-xs">
+                  {errors['general.protocol']}
                 </p>
               )}
             </div>
-            {globalError && (
-              <p className="text-destructive text-sm">{globalError}</p>
-            )}
-          </div>
-        );
 
-      case 2:
-        return (
-          <div className="space-y-6">
             <div className="space-y-2">
               <div className="flex items-center">
-                <Label htmlFor="round-duration">Round Duration (seconds)</Label>
+                <Label htmlFor="tick-time">Tick Time (seconds)</Label>
                 <InfoTooltip content="Duration of each round/tick in seconds. Common values are 60, 120, or 300 seconds" />
               </div>
               <Input
-                id="round-duration"
+                id="tick-time"
                 placeholder="120"
                 type="number"
-                value={config.rounds.duration}
+                value={config.general.tick_time}
                 onChange={e =>
-                  updateConfig('rounds', 'duration', e.target.value)
+                  updateConfig('general', 'tick_time', e.target.value)
                 }
               />
-              {errors['rounds.duration'] && (
+              {errors['general.tick_time'] && (
                 <p className="text-destructive text-xs">
-                  {errors['rounds.duration']}
+                  {errors['general.tick_time']}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center">
+                <Label htmlFor="flag-ttl">Flag Time to Live (rounds)</Label>
+                <InfoTooltip content="How long flags remain valid for submission after being generated" />
+              </div>
+              <Input
+                id="flag-ttl"
+                placeholder="5"
+                type="number"
+                value={config.general.flag_ttl}
+                onChange={e =>
+                  updateConfig('general', 'flag_ttl', e.target.value)
+                }
+              />
+              {errors['general.flag_ttl'] && (
+                <p className="text-destructive text-xs">
+                  {errors['general.flag_ttl']}
                 </p>
               )}
             </div>
@@ -538,14 +546,14 @@ export function ServerConfigStepper() {
               <Input
                 id="start-time"
                 type="datetime-local"
-                value={config.rounds.startTime}
+                value={config.general.start_time}
                 onChange={e =>
-                  updateConfig('rounds', 'startTime', e.target.value)
+                  updateConfig('general', 'start_time', e.target.value)
                 }
               />
-              {errors['rounds.startTime'] && (
+              {errors['general.start_time'] && (
                 <p className="text-destructive text-xs">
-                  {errors['rounds.startTime']}
+                  {errors['general.start_time']}
                 </p>
               )}
             </div>
@@ -558,14 +566,14 @@ export function ServerConfigStepper() {
               <Input
                 id="end-time"
                 type="datetime-local"
-                value={config.rounds.endTime}
+                value={config.general.end_time}
                 onChange={e =>
-                  updateConfig('rounds', 'endTime', e.target.value)
+                  updateConfig('general', 'end_time', e.target.value)
                 }
               />
-              {errors['rounds.endTime'] && (
+              {errors['general.end_time'] && (
                 <p className="text-destructive text-xs">
-                  {errors['rounds.endTime']}
+                  {errors['general.end_time']}
                 </p>
               )}
             </div>
@@ -573,7 +581,7 @@ export function ServerConfigStepper() {
             <div className="space-y-2">
               <div className="flex items-center">
                 <Label>Total Number of Ticks</Label>
-                <InfoTooltip content="Automatically calculated based on match duration and round length" />
+                <InfoTooltip content="Automatically calculated based on match duration and tick time" />
               </div>
               <div className="bg-muted rounded-md p-3">
                 <span className="text-primary text-2xl font-bold">
@@ -590,7 +598,175 @@ export function ServerConfigStepper() {
           </div>
         );
 
+      case 2:
+        return (
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <div className="flex items-center">
+                <Label htmlFor="url_flag_checker">url_flag_checker</Label>
+                <InfoTooltip content="The address of the flag checker server where flags will be submitted, in the format ip:port (e.g., 192.168.1.100:8080)" />
+              </div>
+              <Input
+                id="url_flag_checker"
+                placeholder="http://192.168.1.100:8080"
+                value={config.flagChecker.url_flag_checker}
+                onChange={e =>
+                  updateConfig(
+                    'flagChecker',
+                    'url_flag_checker',
+                    e.target.value,
+                  )
+                }
+              />
+              {errors['flagChecker.url_flag_checker'] && (
+                <p className="text-destructive text-xs">
+                  {errors['flagChecker.url_flag_checker']}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center">
+                <Label htmlFor="team-token">Team Token</Label>
+                <InfoTooltip content="Authentication token provided by the CTF organizers for your team" />
+              </div>
+              <Input
+                id="team-token"
+                placeholder="your-team-token-here"
+                type="password"
+                value={config.flagChecker.team_token}
+                onChange={e =>
+                  updateConfig('flagChecker', 'team_token', e.target.value)
+                }
+              />
+              {errors['flagChecker.team_token'] && (
+                <p className="text-destructive text-xs">
+                  {errors['flagChecker.team_token']}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center">
+                <Label htmlFor="submit-time">Submit Time (seconds)</Label>
+                <InfoTooltip content="How many seconds to wait before submitting all pending flags in batch" />
+              </div>
+              <Input
+                id="submit-time"
+                placeholder="30"
+                type="number"
+                value={config.flagChecker.submit_flag_checker_time}
+                onChange={e =>
+                  updateConfig(
+                    'flagChecker',
+                    'submit_flag_checker_time',
+                    e.target.value,
+                  )
+                }
+              />
+              {errors['flagChecker.submit_flag_checker_time'] && (
+                <p className="text-destructive text-xs">
+                  {errors['flagChecker.submit_flag_checker_time']}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center">
+                <Label htmlFor="batch-size">Batch Size</Label>
+                <InfoTooltip content="Maximum number of flags to submit in a single batch request" />
+              </div>
+              <Input
+                id="batch-size"
+                placeholder="100"
+                type="number"
+                value={config.flagChecker.max_flag_batch_size}
+                onChange={e =>
+                  updateConfig(
+                    'flagChecker',
+                    'max_flag_batch_size',
+                    e.target.value,
+                  )
+                }
+              />
+              {errors['flagChecker.max_flag_batch_size'] && (
+                <p className="text-destructive text-xs">
+                  {errors['flagChecker.max_flag_batch_size']}
+                </p>
+              )}
+            </div>
+            {globalError && (
+              <p className="text-destructive text-sm">{globalError}</p>
+            )}
+          </div>
+        );
+
       case 3:
+        return (
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <div className="flex items-center">
+                <Label htmlFor="flag-format">Flag Format</Label>
+                <InfoTooltip content="The regex pattern or format used to identify flags (e.g., FLAG{...} or CTF{...})" />
+              </div>
+              <Input
+                id="flag-format"
+                placeholder="FLAG{.*}"
+                value={config.flagInfo.regex_flag}
+                onChange={e =>
+                  updateConfig('flagInfo', 'regex_flag', e.target.value)
+                }
+              />
+              {errors['flagInfo.regex_flag'] && (
+                <p className="text-destructive text-xs">
+                  {errors['flagInfo.regex_flag']}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center">
+                <Label htmlFor="flag-ids-url_flag_checker">
+                  Flag IDs url_flag_checker
+                </Label>
+                <InfoTooltip content="URL or endpoint where the flag IDs can be retrieved for each tick" />
+              </div>
+              <Input
+                id="flag-ids-url_flag_checker"
+                placeholder="https://192.168.1.100:8080/flagids"
+                type="url"
+                value={config.flagInfo.url_flag_ids}
+                onChange={e =>
+                  updateConfig('flagInfo', 'url_flag_ids', e.target.value)
+                }
+              />
+              {errors['flagInfo.url_flag_ids'] && (
+                <p className="text-destructive text-xs">
+                  {errors['flagInfo.url_flag_ids']}
+                </p>
+              )}
+            </div>
+
+            <div className="bg-muted mt-6 rounded-lg p-4">
+              <h4 className="mb-2 font-semibold">Flag Information Summary:</h4>
+              <div className="text-muted-foreground space-y-1 text-sm">
+                <p>
+                  <strong>Format:</strong>{' '}
+                  {config.flagInfo.regex_flag || 'Not set'}
+                </p>
+                <p>
+                  <strong>IDs Source:</strong>{' '}
+                  {config.flagInfo.url_flag_ids || 'Not set'}
+                </p>
+              </div>
+            </div>
+            {globalError && (
+              <p className="text-destructive text-sm">{globalError}</p>
+            )}
+          </div>
+        );
+
+      case 4:
         return (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
@@ -612,20 +788,15 @@ export function ServerConfigStepper() {
               <div className="text-muted-foreground py-8 text-center">
                 <p>No services configured yet.</p>
                 <p className="text-sm">
-                  Click &quot; Add Service&quot; to get started.
+                  Click &quot;Add Service&quot; to get started.
                 </p>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="mx-auto w-6/12 space-y-4">
                 {config.services.map(service => (
-                  <Card key={service.id}>
-                    <CardContent className="pt-6">
+                  <Card key={service.id} className="py-4">
+                    <CardContent>
                       <div className="flex items-center gap-4">
-                        <Badge variant="outline">
-                          Service{' '}
-                          {config.services.findIndex(s => s.id === service.id) +
-                            1}
-                        </Badge>
                         <div className="grid flex-1 grid-cols-1 gap-4 md:grid-cols-2">
                           <div className="space-y-2">
                             <div className="flex items-center">
@@ -693,7 +864,7 @@ export function ServerConfigStepper() {
           </div>
         );
 
-      case 4:
+      case 5:
         return (
           <div className="space-y-6">
             <div className="space-y-2">
@@ -705,14 +876,14 @@ export function ServerConfigStepper() {
                 id="num-teams"
                 placeholder="10"
                 type="number"
-                value={config.teams.numberOfTeams}
+                value={config.teams.range_ip_teams}
                 onChange={e =>
-                  updateConfig('teams', 'numberOfTeams', e.target.value)
+                  updateConfig('teams', 'range_ip_teams', e.target.value)
                 }
               />
-              {errors['teams.numberOfTeams'] && (
+              {errors['teams.range_ip_teams'] && (
                 <p className="text-destructive text-xs">
-                  {errors['teams.numberOfTeams']}
+                  {errors['teams.range_ip_teams']}
                 </p>
               )}
             </div>
@@ -726,14 +897,14 @@ export function ServerConfigStepper() {
                 id="nop-team"
                 placeholder="1"
                 type="number"
-                value={config.teams.nopTeamId}
+                value={config.teams.nop_team}
                 onChange={e =>
-                  updateConfig('teams', 'nopTeamId', e.target.value)
+                  updateConfig('teams', 'nop_team', e.target.value)
                 }
               />
-              {errors['teams.nopTeamId'] && (
+              {errors['teams.nop_team'] && (
                 <p className="text-destructive text-xs">
-                  {errors['teams.nopTeamId']}
+                  {errors['teams.nop_team']}
                 </p>
               )}
             </div>
@@ -747,14 +918,14 @@ export function ServerConfigStepper() {
                 id="own-team"
                 placeholder="5"
                 type="number"
-                value={config.teams.ownTeamId}
+                value={config.teams.my_team_id}
                 onChange={e =>
-                  updateConfig('teams', 'ownTeamId', e.target.value)
+                  updateConfig('teams', 'my_team_id', e.target.value)
                 }
               />
-              {errors['teams.ownTeamId'] && (
+              {errors['teams.my_team_id'] && (
                 <p className="text-destructive text-xs">
-                  {errors['teams.ownTeamId']}
+                  {errors['teams.my_team_id']}
                 </p>
               )}
             </div>
@@ -767,14 +938,14 @@ export function ServerConfigStepper() {
               <Input
                 id="ip-format"
                 placeholder="10.10.{}.1"
-                value={config.teams.ipFormat}
+                value={config.teams.format_ip_teams}
                 onChange={e =>
-                  updateConfig('teams', 'ipFormat', e.target.value)
+                  updateConfig('teams', 'format_ip_teams', e.target.value)
                 }
               />
-              {errors['teams.ipFormat'] && (
+              {errors['teams.format_ip_teams'] && (
                 <p className="text-destructive text-xs">
-                  {errors['teams.ipFormat']}
+                  {errors['teams.format_ip_teams']}
                 </p>
               )}
             </div>
@@ -782,9 +953,9 @@ export function ServerConfigStepper() {
             <div className="bg-muted mt-6 rounded-lg p-4">
               <h4 className="mb-2 font-semibold">Example Team IPs:</h4>
               <div className="text-muted-foreground space-y-1 text-sm">
-                <p>Team 1: {config.teams.ipFormat.replace('{}', '1')}</p>
-                <p>Team 2: {config.teams.ipFormat.replace('{}', '2')}</p>
-                <p>Team 3: {config.teams.ipFormat.replace('{}', '3')}</p>
+                <p>Team 1: {config.teams.format_ip_teams.replace('{}', '1')}</p>
+                <p>Team 2: {config.teams.format_ip_teams.replace('{}', '2')}</p>
+                <p>Team 3: {config.teams.format_ip_teams.replace('{}', '3')}</p>
               </div>
             </div>
             {globalError && (
@@ -830,9 +1001,6 @@ export function ServerConfigStepper() {
                 >
                   {step.title}
                 </p>
-                <p className="text-muted-foreground text-xs">
-                  {step.description}
-                </p>
               </div>
             </div>
             {index < steps.length - 1 && (
@@ -846,9 +1014,6 @@ export function ServerConfigStepper() {
       <Card>
         <CardHeader>
           <CardTitle>{steps[currentStep - 1].title}</CardTitle>
-          <CardDescription>
-            {steps[currentStep - 1].description}
-          </CardDescription>
         </CardHeader>
         <CardContent>{renderStepContent()}</CardContent>
       </Card>
@@ -897,25 +1062,31 @@ export function ServerConfigStepper() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
+              <h4 className="mb-2 font-semibold">General Settings</h4>
+              <div className="text-muted-foreground space-y-1 text-sm">
+                <p>Protocol: {config.general.protocol}</p>
+                <p>Tick Time: {config.general.tick_time}s</p>
+                <p>Flag Time to Live: {config.general.flag_ttl}s</p>
+                <p>Total Ticks: {calculateTotalTicks()}</p>
+              </div>
+            </div>
+            <Separator />
+            <div>
               <h4 className="mb-2 font-semibold">Flag Checker</h4>
               <div className="text-muted-foreground space-y-1 text-sm">
+                <p>Server: {config.flagChecker.url_flag_checker}</p>
                 <p>
-                  Server: {config.flagChecker.ipAddress}:
-                  {config.flagChecker.port}
-                </p>
-                <p>Protocol: {config.flagChecker.protocol}</p>
-                <p>
-                  Submit Time: {config.flagChecker.submitTime}s, Batch Size:{' '}
-                  {config.flagChecker.batchSize}
+                  Submit Time: {config.flagChecker.submit_flag_checker_time}s,
+                  Batch Size: {config.flagChecker.max_flag_batch_size}
                 </p>
               </div>
             </div>
             <Separator />
             <div>
-              <h4 className="mb-2 font-semibold">Match Info</h4>
+              <h4 className="mb-2 font-semibold">Flag Information</h4>
               <div className="text-muted-foreground space-y-1 text-sm">
-                <p>Round Duration: {config.rounds.duration}s</p>
-                <p>Total Ticks: {calculateTotalTicks()}</p>
+                <p>Format: {config.flagInfo.regex_flag}</p>
+                <p>FlagIDs Address: {config.flagInfo.url_flag_ids}</p>
               </div>
             </div>
             <Separator />
@@ -935,12 +1106,12 @@ export function ServerConfigStepper() {
             <div>
               <h4 className="mb-2 font-semibold">Teams</h4>
               <div className="text-muted-foreground space-y-1 text-sm">
-                <p>Total Teams: {config.teams.numberOfTeams}</p>
+                <p>Total Teams: {config.teams.range_ip_teams}</p>
                 <p>
-                  Your Team: {config.teams.ownTeamId}, NOP Team:{' '}
-                  {config.teams.nopTeamId}
+                  Your Team: {config.teams.my_team_id}, NOP Team:{' '}
+                  {config.teams.nop_team}
                 </p>
-                <p>IP Format: {config.teams.ipFormat}</p>
+                <p>IP Format: {config.teams.format_ip_teams}</p>
               </div>
             </div>
             {completed && (
