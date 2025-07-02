@@ -5,8 +5,8 @@ DEBUG="${DEBUG:-false}"
 
 CMD="/app/bin/cks"
 
-CMD="$CMD -p \"$PASSWORD\""
-CMD="$CMD -P \"$PORT\""
+CMD="$CMD -P \"$PASSWORD\""
+CMD="$CMD -p \"$PORT\""pacman -S docker-buildx
 
 if [ -n "$CONFIG_FILE" ]; then
     CMD="$CMD -c"

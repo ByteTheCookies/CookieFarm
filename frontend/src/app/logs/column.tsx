@@ -136,149 +136,169 @@ const getStatusBadge = (status: string) => {
   }
 };
 
-export const columns: ColumnDef<Flag>[] = [
-  {
-    accessorKey: 'status',
-    header: ' ',
-    cell: ({ row }) => {
-      return getStatusBadge(row.getValue('status'));
+export function getColumns(
+  deleteFlag: (flag: Flag) => void,
+  submitFlag: (flag: Flag) => void
+): ColumnDef<Flag>[] {
+  return [
+    {
+      accessorKey: 'status',
+      header: ' ',
+      cell: ({ row }) => {
+        return getStatusBadge(row.getValue('status'));
+      },
+      size: 140,
     },
-    size: 140,
-  },
-  {
-    accessorKey: 'flag_code',
-    header: 'Flag Code',
-    cell: ({ row }) => {
-      const flagCode = row.getValue('flag_code') as string;
-      return (
-        <div
-          className="max-w-[140px] font-mono text-xs text-white sm:max-w-[180px] sm:text-sm"
-          title={flagCode}
-        >
-          {flagCode}
-        </div>
-      );
-    },
-    size: 180,
-  },
-  {
-    accessorKey: 'msg',
-    header: 'Message',
-    cell: ({ row }) => {
-      const message = row.getValue('msg') as string;
-      return (
-        <div
-          className="w-[180px] max-w-[300px] truncate text-xs font-light text-gray-200 sm:max-w-[300px] sm:text-sm"
-          title={message}
-        >
-          {message}
-        </div>
-      );
-    },
-    size: 300,
-  },
-  {
-    header: 'Service',
-    accessorFn: row => `${row.service_name}:${row.port_service}`,
-    cell: ({ row }) => {
-      const serviceName = row.original.service_name as string;
-      const servicePort = row.original.port_service as number;
-      return (
-        <div
-          className="max-w-[100px] truncate sm:max-w-[150px]"
-          title={`${serviceName}:${servicePort}`}
-        >
-          <p className="text-gray-200">{serviceName}</p>
-          <p className="text-muted-foreground text-xs">{servicePort}</p>
-        </div>
-      );
-    },
-    size: 150,
-  },
-  {
-    header: 'Victim',
-    accessorFn: row => `${row.team_id} with ${row.exploit_name}`,
-    cell: ({ row }) => {
-      const exploitName = row.original.exploit_name as string;
-      const teamId = row.original.team_id as number;
-
-      return (
-        <div
-          className="max-w-[100px] truncate sm:max-w-[150px]"
-          title={exploitName}
-        >
-          <p className="text-sm text-gray-200">
-            Team <span className="font-mono">{teamId}</span>
-          </p>
-          <p className="text-muted-foreground font-mono text-xs">
-            with <span className="text-rose-400">{exploitName}</span>
-          </p>
-        </div>
-      );
-    },
-    size: 150,
-  },
-  {
-    accessorKey: 'submit_time',
-    header: 'Submitted',
-    cell: ({ row }) => {
-      const submitTime = row.getValue('submit_time') as number;
-      const date = new Date(submitTime * 1000);
-      return (
-        <div className="text-sm whitespace-nowrap text-gray-200 sm:text-sm">
-          <div>{date.toLocaleTimeString()}</div>
-          <div className="text-muted-foreground text-xs">
-            {date.toLocaleDateString()}
+    {
+      accessorKey: 'flag_code',
+      header: 'Flag Code',
+      cell: ({ row }) => {
+        const flagCode = row.getValue('flag_code') as string;
+        return (
+          <div
+            className="max-w-[140px] font-mono text-xs text-white sm:max-w-[180px] sm:text-sm"
+            title={flagCode}
+          >
+            {flagCode}
           </div>
-        </div>
-      );
+        );
+      },
+      size: 180,
     },
-    size: 120,
-  },
-  {
-    accessorKey: 'response_time',
-    header: 'Duration',
-    cell: ({ row }) => {
-      const responseTime = row.getValue('response_time') as number;
-      const submitTime = row.getValue('submit_time') as number;
-      const duration = responseTime - submitTime;
-      if (isNaN(duration) || duration < 0) {
-        return <span className="text-muted-foreground text-xs">N/A</span>;
-      }
-      return (
-        <Badge variant="outline" className="font-mono text-xs text-gray-200">
-          {duration} s
-        </Badge>
-      );
+    {
+      accessorKey: 'msg',
+      header: 'Message',
+      cell: ({ row }) => {
+        const message = row.getValue('msg') as string;
+        return (
+          <div
+            className="w-[180px] max-w-[300px] truncate text-xs font-light text-gray-200 sm:max-w-[300px] sm:text-sm"
+            title={message}
+          >
+            {message}
+          </div>
+        );
+      },
+      size: 300,
     },
-    size: 80,
-  },
-  {
-    id: 'actions',
-    cell: ({ row }) => {
-      const flag = row.original;
+    {
+      header: 'Service',
+      accessorFn: row => `${row.service_name}:${row.port_service}`,
+      cell: ({ row }) => {
+        const serviceName = row.original.service_name as string;
+        const servicePort = row.original.port_service as number;
+        return (
+          <div
+            className="max-w-[100px] truncate sm:max-w-[150px]"
+            title={`${serviceName}:${servicePort}`}
+          >
+            <p className="text-gray-200">{serviceName}</p>
+            <p className="text-muted-foreground text-xs">{servicePort}</p>
+          </div>
+        );
+      },
+      size: 150,
+    },
+    {
+      header: 'Victim',
+      accessorFn: row => `${row.team_id} with ${row.exploit_name}`,
+      cell: ({ row }) => {
+        const exploitName = row.original.exploit_name as string;
+        const teamId = row.original.team_id as number;
 
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only"> Open menu </span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions </DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(flag.flag_code)}
-            >
-              Copy flag code
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View details </DropdownMenuItem>
-            <DropdownMenuItem> View exploit </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
+        return (
+          <div
+            className="max-w-[100px] truncate sm:max-w-[150px]"
+            title={exploitName}
+          >
+            <p className="text-sm text-gray-200">
+              Team <span className="font-mono">{teamId}</span>
+            </p>
+            <p className="text-muted-foreground font-mono text-xs">
+              with <span className="text-rose-400">{exploitName}</span>
+            </p>
+          </div>
+        );
+      },
+      size: 150,
     },
-  },
-];
+    {
+      accessorKey: 'submit_time',
+      header: 'Submitted',
+      cell: ({ row }) => {
+        const submitTime = row.getValue('submit_time') as number;
+        const date = new Date(submitTime * 1000);
+        return (
+          <div className="text-sm whitespace-nowrap text-gray-200 sm:text-sm">
+            <div>{date.toLocaleTimeString()}</div>
+            <div className="text-muted-foreground text-xs">
+              {date.toLocaleDateString()}
+            </div>
+          </div>
+        );
+      },
+      size: 120,
+    },
+    {
+      accessorKey: 'response_time',
+      header: 'Duration',
+      cell: ({ row }) => {
+        const responseTime = row.getValue('response_time') as number;
+        const submitTime = row.getValue('submit_time') as number;
+        const duration = responseTime - submitTime;
+        if (isNaN(duration) || duration < 0) {
+          return <span className="text-muted-foreground text-xs">N/A</span>;
+        }
+        return (
+          <Badge variant="outline" className="font-mono text-xs text-gray-200">
+            {duration} s
+          </Badge>
+        );
+      },
+      size: 80,
+    },
+    {
+      id: 'actions',
+      cell: ({ row }) => {
+        const flag = row.original;
+
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only"> Open menu </span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions </DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() => navigator.clipboard.writeText(flag.flag_code)}
+              >
+                Copy flag code
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                View details
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                View exploit
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => deleteFlag(flag)}
+              >
+                Delete flag
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => submitFlag(flag)}
+              >
+                Submit flag
+              </DropdownMenuItem>
+
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+  ];
+}

@@ -1,4 +1,4 @@
-configured: false
+configured: true
 
 server:
   url_flag_checker: "http://localhost:5001/flags"

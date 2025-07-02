@@ -8,10 +8,15 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { columns } from './column';
+import { Flag, getColumns } from './column';
 import { DataTable } from './data-table';
 import { FilterPanel } from './filter-panel';
 import { usePaginatedFlags } from '@/hooks/usePaginatedFlags';
+import axios from 'axios';
+import { BACKEND_URL } from '@/lib/constants';
+import { RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { toast } from "sonner"
 
 export default function FlagLogs() {
   const {
@@ -22,7 +27,7 @@ export default function FlagLogs() {
     filters,
     sorting,
     columnFilters,
-
+    isLoading,
     setPagination,
     setSearchTerm,
     setSearchField,
@@ -33,9 +38,42 @@ export default function FlagLogs() {
     setSortDirection,
     setSorting,
     setColumnFilters,
-
+    forceRefetch,
     onClearAll,
   } = usePaginatedFlags();
+
+  function deleteFlag(flag: Flag) {
+    axios.delete(`${BACKEND_URL}/api/v1/delete-flag?flag=${flag.flag_code}`, {
+      withCredentials: true,
+    })
+      .then(() => {
+        toast.success('Flag deleted successfully');
+        forceRefetch()
+      })
+      .catch(error => {
+        toast.error('Error deleting flag');
+        console.error(error);
+        alert('Error deleting flag');
+      });
+  }
+
+  function submitFlag(flag: Flag) {
+    axios.post(`${BACKEND_URL}/api/v1/submit-flag`, { flag: flag }, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      withCredentials: true,
+    })
+      .then(() => {
+        toast.success('Flag submitted successfully');
+        forceRefetch()
+      })
+      .catch(error => {
+        toast.error('Error submitting flag');
+        console.error(error);
+        alert('Error submitting flag');
+      });
+  }
 
   if (error) {
     return (
@@ -81,6 +119,18 @@ export default function FlagLogs() {
           <Badge variant="default" className="text-xs sm:text-sm">
             {totalCount} filtered
           </Badge>
+          {/* Reload button */}
+          <Button
+            variant="outline"
+            className="flex items-center gap-1 text-xs sm:text-sm"
+            onClick={forceRefetch}
+            disabled={isLoading}
+          >
+            {isLoading
+              ? <RefreshCw className="h-4 w-4 animate-spin" />
+              : <RefreshCw className="h-4 w-4" />}
+            <span>Reload</span>
+          </Button>
         </div>
       </div>
 
@@ -113,12 +163,14 @@ export default function FlagLogs() {
       <Card>
         <CardHeader className="pb-4">
           <CardTitle className="text-lg sm:text-xl">Flag Submissions</CardTitle>
-          <CardDescription className="text-sm"></CardDescription>
+          <CardDescription className="text-sm">
+            Eat all the cookies
+          </CardDescription>
         </CardHeader>
         <CardContent className="p-0 sm:p-6">
           <DataTable
             key={`${JSON.stringify(filters)}-${pagination.pageIndex}-${pagination.pageSize}`}
-            columns={columns}
+            columns={getColumns(deleteFlag, submitFlag)}
             data={filteredData}
             totalCount={totalCount}
             pageIndex={pagination.pageIndex}
@@ -127,6 +179,6 @@ export default function FlagLogs() {
           />
         </CardContent>
       </Card>
-    </div>
+    </div >
   );
 }

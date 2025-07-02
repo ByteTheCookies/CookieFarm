@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 import { fetcher } from '@/lib/fetchers';
 import { BACKEND_URL } from '@/lib/constants';
 import { Flag } from '@/app/logs/column';
@@ -46,6 +46,7 @@ interface UsePaginatedFlagsReturn {
   setSorting: (sorting: SortingState) => void;
   setColumnFilters: (filters: ColumnFiltersState) => void;
   onClearAll: () => void;
+  forceRefetch: () => void;
 }
 
 export function usePaginatedFlags(): UsePaginatedFlagsReturn {
@@ -141,6 +142,7 @@ export function usePaginatedFlags(): UsePaginatedFlagsReturn {
     revalidateOnReconnect: true,
     dedupingInterval: 0,
     keepPreviousData: true,
+    refreshInterval: 30_000,
   });
 
   const filteredData = useMemo(() => {
@@ -199,6 +201,10 @@ export function usePaginatedFlags(): UsePaginatedFlagsReturn {
     setPagination(prev => ({ ...prev, pageIndex: 0 }));
   };
 
+  const forceRefetch = () => {
+    mutate(paginatedUrl);
+  };
+
   // Reset to first page when filtering changes
   useEffect(() => {
     setPagination(prev => ({ ...prev, pageIndex: 0 }));
@@ -233,5 +239,6 @@ export function usePaginatedFlags(): UsePaginatedFlagsReturn {
     setSorting,
     setColumnFilters,
     onClearAll,
+    forceRefetch,
   };
 }
