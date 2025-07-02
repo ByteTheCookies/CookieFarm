@@ -75,10 +75,10 @@ export function DataTable<TData, TValue>({
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map(headerGroup => (
-                <TableRow key={headerGroup.id}>
+                <TableRow key={headerGroup.id} className="h-16">
                   {headerGroup.headers.map(header => {
                     return (
-                      <TableHead key={header.id}>
+                      <TableHead key={header.id} className="font-bold">
                         {header.isPlaceholder
                           ? null
                           : flexRender(
@@ -95,6 +95,7 @@ export function DataTable<TData, TValue>({
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map(row => (
                   <TableRow
+                    className="h-16"
                     key={row.id}
                     data-state={row.getIsSelected() && 'selected'}
                   >
