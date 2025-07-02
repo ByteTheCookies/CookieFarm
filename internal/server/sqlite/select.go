@@ -44,6 +44,33 @@ func GetPagedFlags(limit, offset uint) ([]models.ClientData, error) {
 	return queryFlags(queryPagedFlags, limit, offset)
 }
 
+func GetFilteredFlagList(opts FilterOptions) ([]models.ClientData, error) {
+	qb := NewQueryBuilder(baseFlagQuery)
+	filterQb, params := buildFilterConditions(opts)
+
+	// Apply WHERE conditions first
+	if len(filterQb.conditions) > 0 {
+		qb.query += " WHERE " + filterQb.conditions[0]
+		for i := 1; i < len(filterQb.conditions); i++ {
+			qb.query += " AND " + filterQb.conditions[i]
+		}
+	}
+	qb.params = append(qb.params, params...)
+
+	// Add sorting
+	if opts.SortField != "" {
+		qb.AddSort(opts.SortField, opts.SortDir)
+	} else {
+		qb.AddSort("submit_time", "DESC")
+	}
+
+	// Add pagination
+	qb.AddPagination(opts.Limit, opts.Offset)
+
+	query, finalParams := qb.Build()
+	return queryFlags(query, finalParams...)
+}
+
 // --------- Flag Code Only ---------
 
 // GetAllFlagCodeList retrieves all flag codes from the database.
@@ -151,4 +178,30 @@ func queryFlagCodes(query string, args ...any) ([]string, error) {
 	}
 
 	return codes, nil
+}
+
+// CountAllFlags returns the total number of flags in the database.
+func CountFlags() (int, error) {
+	conn := DBPool.Get(context.Background())
+	if conn == nil {
+		return 0, errors.New("no available SQLite connection")
+	}
+	defer DBPool.Put(conn)
+
+	stmt, err := conn.Prepare("SELECT COUNT(*) FROM flags")
+	if err != nil {
+		return 0, fmt.Errorf("prepare CountAllFlags: %w", err)
+	}
+	defer stmt.Finalize()
+
+	hasRow, err := stmt.Step()
+	if err != nil {
+		return 0, fmt.Errorf("step: %w", err)
+	}
+	if !hasRow {
+		return 0, errors.New("no row returned from COUNT query")
+	}
+
+	count := stmt.ColumnInt(0)
+	return count, nil
 }

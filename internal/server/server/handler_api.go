@@ -60,16 +60,38 @@ func HandleGetPaginatedFlags(c *fiber.Ctx) error {
 		offset = config.DefaultOffset
 	}
 
-	flags, err := sqlite.GetPagedFlags(uint(limit), uint(offset))
+	// Build filter options from query parameters
+	opts := sqlite.FilterOptions{
+		Status:      c.Query("status", ""),
+		ServiceName: c.Query("service", ""),
+		TeamID:      c.Query("team", ""),
+		Search:      c.Query("search", ""),
+		SearchField: c.Query("search_field", "flag_code"),
+		SortField:   c.Query("sort_field", "submit_time"),
+		SortDir:     c.Query("sort_dir", "DESC"),
+		Limit:       uint(limit),
+		Offset:      uint(offset),
+	}
+
+	flags, err := sqlite.GetFilteredFlagList(opts)
 	if err != nil {
-		logger.Log.Error().Err(err).Msg("Failed to fetch paginated flags")
+		logger.Log.Error().Err(err).Msg("Failed to fetch filtered flags")
 		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{Error: err.Error()})
 	}
+
+	// Get filtered count for accurate pagination
+	n_flags, err := sqlite.CountFilteredFlags(opts)
+	if err != nil {
+		logger.Log.Error().Err(err).Msg("Failed to count filtered flags")
+		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{Error: err.Error()})
+	}
+
 	if flags == nil {
 		flags = []models.ClientData{}
 	}
+
 	return c.JSON(ResponseFlags{
-		Nflags: len(flags),
+		Nflags: n_flags,
 		Flags:  flags,
 	})
 }
