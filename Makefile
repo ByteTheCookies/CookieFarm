@@ -153,7 +153,7 @@ client-build-linux-prod:
 client-build-windows-prod:
 	@$(ECHO_CMD) "$(CYAN)[*] Building client for Windows production...$(RESET)"
 	@$(MKDIR_CMD) $(CLIENT_BIN_DIR)
-	@GOOS=windows GOARCH=amd64 go build -race -trimpath -gcflags="-m" -ldflags="-s -w" -o $(CLIENT_BIN_DIR)$(PATHSEP)$(CLIENT_BINARY_NAME) $(CLIENT_CMD_DIR)$(CLIENT_MAIN_FILE)
+	@GOOS=windows GOARCH=amd64 go build -trimpath -gcflags="-m" -ldflags="-s -w" -o $(CLIENT_BIN_DIR)$(PATHSEP)$(CLIENT_BINARY_NAME) $(CLIENT_CMD_DIR)$(CLIENT_MAIN_FILE)
 	@$(ECHO_CMD) "$(GREEN)[+] Windows production build complete!$(RESET)"
 
 client-build-prod:
