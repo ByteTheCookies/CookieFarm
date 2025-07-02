@@ -17,18 +17,18 @@ import {
 import Image from 'next/image';
 
 const navigationItems = [
+  // {
+  //   title: 'Match Overview',
+  //   url: '/',
+  //   icon: BarChart3,
+  // },
+  // {
+  //   title: 'Service Monitoring',
+  //   url: '/monitoring',
+  //   icon: Shield,
+  // },
   {
-    title: 'Match Overview',
-    url: '/',
-    icon: BarChart3,
-  },
-  {
-    title: 'Service Monitoring',
-    url: '/monitoring',
-    icon: Shield,
-  },
-  {
-    title: 'Flag Logs',
+    title: 'Flag Table',
     url: '/logs',
     icon: FileText,
   },
