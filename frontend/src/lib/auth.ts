@@ -1,8 +1,9 @@
-import axios from "axios";
-import { BACKEND_URL } from "./constants";
+import axios from 'axios';
+import { BACKEND_URL } from './constants';
 
-
-export default async function isAuthenticated(request: Request): Promise<boolean> {
+export default async function isAuthenticated(
+  request: Request,
+): Promise<boolean> {
   const cookie = request.headers.get('cookie');
   if (!cookie) {
     return false;
@@ -15,8 +16,8 @@ export default async function isAuthenticated(request: Request): Promise<boolean
   try {
     const response = await axios.get(`${BACKEND_URL}/api/v1/auth/verify`, {
       headers: {
-        'Cookie': cookie
-      }
+        Cookie: cookie,
+      },
     });
 
     if (response.status !== 200) {

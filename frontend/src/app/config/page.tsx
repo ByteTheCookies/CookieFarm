@@ -4,8 +4,8 @@ import { ServerConfigStepper } from '@/components/server-config-stepper';
 
 export default function MatchOverview() {
   return (
-    <div className="p-6">
-      <div className="mx-auto max-w-4xl">
+    <div className="p-10">
+      <div className="mx-auto max-w-6xl">
         <div className="mb-8">
           <h1 className="text-foreground text-3xl font-bold">
             Server Configuration
