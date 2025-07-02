@@ -245,7 +245,9 @@ func HandlePostConfig(c *fiber.Ctx) error {
 	shutdownCancel = cancel
 
 	go core.StartFlagProcessingLoop(ctx)
-	go core.ValidateFlagTTL(ctx, config.SharedConfig.ConfigServer.FlagTTL, config.SharedConfig.ConfigServer.TickTime)
+	if config.SharedConfig.ConfigServer.FlagTTL > 0 {
+		go core.ValidateFlagTTL(ctx, config.SharedConfig.ConfigServer.FlagTTL, config.SharedConfig.ConfigServer.TickTime)
+	}
 
 	cfgJSON, err := json.Marshal(config.SharedConfig)
 	if err != nil {
