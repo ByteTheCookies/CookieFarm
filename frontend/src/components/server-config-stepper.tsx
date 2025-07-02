@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import useSWR from 'swr';
 import axios from 'axios';
-import { BACKEND_URL } from '@/lib/constants';
 
 import {
   Card,
@@ -30,7 +29,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 
 import {
@@ -207,9 +205,8 @@ export function ServerConfigStepper() {
   const updateConfig = (
     section: keyof ConfigData,
     field: string,
-    value: any,
+    value: any, //eslint-disable-line @typescript-eslint/no-explicit-any
   ) => {
-    //eslint-disable-line @typescript-eslint/no-explicit-any
     let processedValue = value;
 
     // Convert string numbers to actual numbers for numeric fields
@@ -414,25 +411,22 @@ export function ServerConfigStepper() {
     setErrors({});
     setGlobalError(null);
     setCompleted(true);
-    // Print config to console
-    // eslint-disable-next-line no-console
 
-    let configFormatted = {
+    const configFormatted = {
       config: {
         server: {
           ...config.general,
           ...config.flagChecker,
         },
         client: {
-          services: config.services.map(({ id, ...service }) => service),
+          services: config.services.map(({ id, ...service }) => service), //eslint-disable-line
           ...config.teams,
           ...config.flagInfo,
         },
-        configured: true
+        configured: true,
       },
     };
 
-    console.log('Final Config:', JSON.stringify(configFormatted, null, 2));
     // Send as JSON instead of FormData
     axios
       .post('/api/config', configFormatted, {
@@ -443,7 +437,7 @@ export function ServerConfigStepper() {
       .then(response => {
         console.log('Config submitted successfully:', response.data);
         // Puoi aggiungere qui altre azioni dopo il successo dell'invio
-        router.push("/")
+        router.push('/');
       })
       .catch(error => {
         console.error('Config submission failed:', error);
@@ -995,12 +989,13 @@ export function ServerConfigStepper() {
           <div key={step.id} className="flex items-center">
             <div className="flex items-center">
               <div
-                className={`flex h-10 w-10 items-center justify-center rounded-full border-2 ${currentStep === step.id
-                  ? 'border-primary bg-primary text-primary-foreground'
-                  : currentStep > step.id
-                    ? 'border-green-500 bg-green-500 text-white'
-                    : 'border-muted-foreground bg-background text-muted-foreground'
-                  }`}
+                className={`flex h-10 w-10 items-center justify-center rounded-full border-2 ${
+                  currentStep === step.id
+                    ? 'border-primary bg-primary text-primary-foreground'
+                    : currentStep > step.id
+                      ? 'border-green-500 bg-green-500 text-white'
+                      : 'border-muted-foreground bg-background text-muted-foreground'
+                }`}
               >
                 {currentStep > step.id ? (
                   <Check className="h-5 w-5" />
@@ -1010,10 +1005,11 @@ export function ServerConfigStepper() {
               </div>
               <div className="ml-3 hidden sm:block">
                 <p
-                  className={`text-sm font-medium ${currentStep === step.id
-                    ? 'text-primary'
-                    : 'text-muted-foreground'
-                    }`}
+                  className={`text-sm font-medium ${
+                    currentStep === step.id
+                      ? 'text-primary'
+                      : 'text-muted-foreground'
+                  }`}
                 >
                   {step.title}
                 </p>

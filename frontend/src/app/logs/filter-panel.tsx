@@ -98,13 +98,11 @@ export function FilterPanel({
   searchField,
   onSearchFieldChange,
   sorting,
-  onSortingChange,
   sortField,
   onSortFieldChange,
   sortDirection,
   onSortDirectionChange,
   columnFilters,
-  onColumnFiltersChange,
   statusFilter,
   onStatusFilterChange,
   serviceFilter,
@@ -288,7 +286,7 @@ export function FilterPanel({
                 <div className="flex flex-wrap gap-2">
                   {globalFilter && (
                     <Badge variant="secondary" className="text-xs">
-                      Search: "{globalFilter}"
+                      Search: &quot;{globalFilter}&quot;
                       <Button
                         variant="ghost"
                         size="sm"
@@ -317,7 +315,7 @@ export function FilterPanel({
 
                   {serviceFilter && (
                     <Badge variant="secondary" className="text-xs">
-                      Service: "{serviceFilter}"
+                      Service: &quot;{serviceFilter}&quot;
                       <Button
                         variant="ghost"
                         size="sm"

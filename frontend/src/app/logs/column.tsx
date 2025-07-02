@@ -24,11 +24,7 @@ import {
   AlertCircle,
   Ban,
   AlertTriangle,
-  HelpCircle,
   MoreHorizontal,
-  ArrowUpDown,
-  ArrowUp,
-  ArrowDown,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 

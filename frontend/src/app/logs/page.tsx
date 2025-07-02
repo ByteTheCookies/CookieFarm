@@ -8,17 +8,15 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { columns, Flag } from './column';
+import { columns } from './column';
 import { DataTable } from './data-table';
 import { FilterPanel } from './filter-panel';
-import Loading from './loading';
 import { usePaginatedFlags } from '@/hooks/usePaginatedFlags';
 
 export default function FlagLogs() {
   const {
     data: filteredData,
     totalCount,
-    isLoading,
     error,
     pagination,
     filters,

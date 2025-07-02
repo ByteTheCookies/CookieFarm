@@ -12,21 +12,20 @@ export async function middleware(request: NextRequest) {
   }
 
   try {
-    let res = await axios.get(`${BACKEND_URL}/api/v1/config`, {
+    const res = await axios.get(`${BACKEND_URL}/api/v1/config`, {
       headers: {
         'Content-Type': 'application/json',
-        'Cookie': request.headers.get('cookie')
+        Cookie: request.headers.get('cookie'),
       },
-      withCredentials: true
-    })
-    console.log(res.data.configured)
-    if (!res.data.configured && pathname != "/config") {
+      withCredentials: true,
+    });
+
+    if (!res.data.configured && pathname != '/config') {
       return NextResponse.redirect(new URL('/config', request.url));
     }
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
-
 
   const response = NextResponse.next();
 

@@ -29,7 +29,7 @@ interface UsePaginatedFlagsReturn {
   data: Flag[];
   totalCount: number;
   isLoading: boolean;
-  error: any;
+  error: any; //eslint-disable-line
   pagination: PaginationState;
   filters: FilterState;
   sorting: SortingState;
@@ -65,7 +65,7 @@ export function usePaginatedFlags(): UsePaginatedFlagsReturn {
   });
 
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
-  const debounceTimer = useRef<NodeJS.Timeout>();
+  const debounceTimer = useRef<NodeJS.Timeout | undefined>(undefined);
 
   // TanStack Table state
   const [sorting, setSorting] = useState<SortingState>([]);

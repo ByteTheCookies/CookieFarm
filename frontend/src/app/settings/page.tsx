@@ -121,9 +121,8 @@ export default function Settings() {
   const updateConfig = (
     section: keyof ConfigData,
     field: string,
-    value: any,
+    value: any, // eslint-disable-line
   ) => {
-    // eslint-disable-line
     setConfig(prev => ({
       ...prev,
       [section]: {
