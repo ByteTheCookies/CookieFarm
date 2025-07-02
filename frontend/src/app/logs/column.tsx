@@ -10,8 +10,32 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+<<<<<<< HEAD
 import { Badge } from '@/components/ui/badge';
 import { MoreHorizontal, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+=======
+
+import {
+  Tooltip,
+  TooltipProvider,
+  TooltipTrigger,
+  TooltipContent,
+} from '@/components/ui/tooltip';
+
+import {
+  Check,
+  Clock,
+  AlertCircle,
+  Ban,
+  AlertTriangle,
+  HelpCircle,
+  MoreHorizontal,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+} from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+>>>>>>> feature/suga-fe_flag_table
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -31,41 +55,104 @@ const getStatusBadge = (status: string) => {
   switch (status) {
     case 'ACCEPTED':
       return (
-        <Badge className="border-green-500/20 bg-green-500/10 text-green-500">
-          Accepted
-        </Badge>
+        <div className="text-center">
+          <TooltipProvider>
+            <Tooltip bg->
+              <TooltipTrigger asChild className="items-center">
+                <Badge className="border-green-500/60 bg-green-500/10 p-1 text-green-500">
+                  <Check />
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent className="bg-green-500/20 text-green-500">
+                <p>Accepted</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       );
     case 'RESUBMIT':
       return (
-        <Badge className="border-yellow-500/20 bg-yellow-500/10 text-yellow-500">
-          Resubmit
-        </Badge>
+        <div className="text-center">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild className="items-center">
+                <Badge className="border-yellow-500/60 bg-yellow-500/10 p-1 text-yellow-500">
+                  <AlertTriangle className="h-4 w-4" />
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent className="bg-yellow-500/20 text-yellow-500">
+                <p>Resubmit</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       );
+
     case 'DENIED':
       return (
-        <Badge className="border-red-500/20 bg-red-500/10 text-red-500">
-          Denied
-        </Badge>
+        <div className="text-center">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild className="items-center">
+                <Badge className="border-red-500/60 bg-red-500/10 p-1 text-red-500">
+                  <Ban className="h-4 w-4" />
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent className="bg-red-500/20 text-red-500">
+                <p>Denied</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       );
+
     case 'ERROR':
       return (
-        <Badge className="border-gray-500/20 bg-gray-500/10 text-gray-500">
-          Error
-        </Badge>
+        <div className="text-center">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild className="items-center">
+                <Badge className="border-purple-500/60 bg-purple-500/10 p-1 text-purple-500">
+                  <AlertCircle className="h-4 w-4" />
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent className="bg-purple-500/20 text-purple-500">
+                <p>Error</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       );
+
     default:
-      return <Badge variant="outline">{status}</Badge>;
+      // NEW: Pending state (default)
+      return (
+        <div className="text-center">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild className="items-center">
+                <Badge className="border-gray-500/60 bg-gray-500/10 p-1 text-gray-500">
+                  <Clock className="h-4 w-4" />
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent className="bg-gray-500/10 text-gray-500">
+                <p>Pending</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      );
   }
 };
 
 export const columns: ColumnDef<Flag>[] = [
   {
     accessorKey: 'status',
-    header: 'Status',
+    header: ' ',
     cell: ({ row }) => {
       return getStatusBadge(row.getValue('status'));
     },
-    size: 120,
+    size: 140,
   },
   {
     accessorKey: 'flag_code',
@@ -74,58 +161,14 @@ export const columns: ColumnDef<Flag>[] = [
       const flagCode = row.getValue('flag_code') as string;
       return (
         <div
-          className="max-w-[120px] truncate font-mono text-xs sm:max-w-[200px] sm:text-sm"
+          className="max-w-[140px] font-mono text-xs text-white sm:max-w-[180px] sm:text-sm"
           title={flagCode}
         >
           {flagCode}
         </div>
       );
     },
-    size: 200,
-  },
-  {
-    accessorKey: 'service_name',
-    header: 'Service',
-    cell: ({ row }) => {
-      const serviceName = row.getValue('service_name') as string;
-      return (
-        <div
-          className="max-w-[100px] truncate sm:max-w-[150px]"
-          title={serviceName}
-        >
-          {serviceName}
-        </div>
-      );
-    },
-    size: 150,
-  },
-  {
-    accessorKey: 'port_service',
-    header: 'Port',
-    cell: ({ row }) => {
-      return (
-        <Badge variant="secondary" className="font-mono text-xs">
-          {row.getValue('port_service')}
-        </Badge>
-      );
-    },
-    size: 80,
-  },
-  {
-    accessorKey: 'exploit_name',
-    header: 'Exploit',
-    cell: ({ row }) => {
-      const exploitName = row.getValue('exploit_name') as string;
-      return (
-        <div
-          className="max-w-[100px] truncate sm:max-w-[150px]"
-          title={exploitName}
-        >
-          {exploitName}
-        </div>
-      );
-    },
-    size: 150,
+    size: 180,
   },
   {
     accessorKey: 'msg',
@@ -134,7 +177,7 @@ export const columns: ColumnDef<Flag>[] = [
       const message = row.getValue('msg') as string;
       return (
         <div
-          className="max-w-[150px] truncate text-xs sm:max-w-[300px] sm:text-sm"
+          className="w-[180px] max-w-[300px] truncate text-xs font-light text-gray-200 sm:max-w-[300px] sm:text-sm"
           title={message}
         >
           {message}
@@ -144,16 +187,45 @@ export const columns: ColumnDef<Flag>[] = [
     size: 300,
   },
   {
-    accessorKey: 'team_id',
-    header: 'Team',
+    header: 'Service',
+    accessorFn: row => `${row.service_name}:${row.port_service}`,
     cell: ({ row }) => {
+      const serviceName = row.original.service_name as string;
+      const servicePort = row.original.port_service as number;
       return (
-        <Badge variant="outline" className="font-mono">
-          {row.getValue('team_id')}
-        </Badge>
+        <div
+          className="max-w-[100px] truncate sm:max-w-[150px]"
+          title={`${serviceName}:${servicePort}`}
+        >
+          <p className="text-gray-200">{serviceName}</p>
+          <p className="text-muted-foreground text-xs">{servicePort}</p>
+        </div>
       );
     },
-    size: 80,
+    size: 150,
+  },
+  {
+    header: 'Victim',
+    accessorFn: row => `${row.team_id} with ${row.exploit_name}`,
+    cell: ({ row }) => {
+      const exploitName = row.original.exploit_name as string;
+      const teamId = row.original.team_id as number;
+
+      return (
+        <div
+          className="max-w-[100px] truncate sm:max-w-[150px]"
+          title={exploitName}
+        >
+          <p className="text-sm text-gray-200">
+            Team <span className="font-mono">{teamId}</span>
+          </p>
+          <p className="text-muted-foreground font-mono text-xs">
+            with <span className="text-rose-400">{exploitName}</span>
+          </p>
+        </div>
+      );
+    },
+    size: 150,
   },
   {
     accessorKey: 'submit_time',
@@ -162,10 +234,10 @@ export const columns: ColumnDef<Flag>[] = [
       const submitTime = row.getValue('submit_time') as number;
       const date = new Date(submitTime * 1000);
       return (
-        <div className="text-xs whitespace-nowrap sm:text-sm">
-          <div>{date.toLocaleDateString()}</div>
-          <div className="text-muted-foreground">
-            {date.toLocaleTimeString()}
+        <div className="text-sm whitespace-nowrap text-gray-200 sm:text-sm">
+          <div>{date.toLocaleTimeString()}</div>
+          <div className="text-muted-foreground text-xs">
+            {date.toLocaleDateString()}
           </div>
         </div>
       );
@@ -183,8 +255,8 @@ export const columns: ColumnDef<Flag>[] = [
         return <span className="text-muted-foreground text-xs">N/A</span>;
       }
       return (
-        <Badge variant="outline" className="font-mono text-xs">
-          {duration}s
+        <Badge variant="outline" className="font-mono text-xs text-gray-200">
+          {duration} s
         </Badge>
       );
     },
