@@ -42,6 +42,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { z } from 'zod';
+import { useRouter } from 'next/navigation';
 
 interface Service {
   id: string;
@@ -196,7 +197,7 @@ export function ServerConfigStepper() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [globalError, setGlobalError] = useState<string | null>(null);
   const [completed, setCompleted] = useState(false);
-
+  const router = useRouter();
   const {
     data: protocols = [],
     error: protocolsError,
@@ -427,6 +428,7 @@ export function ServerConfigStepper() {
           ...config.teams,
           ...config.flagInfo,
         },
+        configured: true
       },
     };
 
@@ -441,6 +443,7 @@ export function ServerConfigStepper() {
       .then(response => {
         console.log('Config submitted successfully:', response.data);
         // Puoi aggiungere qui altre azioni dopo il successo dell'invio
+        router.push("/")
       })
       .catch(error => {
         console.error('Config submission failed:', error);
@@ -992,13 +995,12 @@ export function ServerConfigStepper() {
           <div key={step.id} className="flex items-center">
             <div className="flex items-center">
               <div
-                className={`flex h-10 w-10 items-center justify-center rounded-full border-2 ${
-                  currentStep === step.id
-                    ? 'border-primary bg-primary text-primary-foreground'
-                    : currentStep > step.id
-                      ? 'border-green-500 bg-green-500 text-white'
-                      : 'border-muted-foreground bg-background text-muted-foreground'
-                }`}
+                className={`flex h-10 w-10 items-center justify-center rounded-full border-2 ${currentStep === step.id
+                  ? 'border-primary bg-primary text-primary-foreground'
+                  : currentStep > step.id
+                    ? 'border-green-500 bg-green-500 text-white'
+                    : 'border-muted-foreground bg-background text-muted-foreground'
+                  }`}
               >
                 {currentStep > step.id ? (
                   <Check className="h-5 w-5" />
@@ -1008,11 +1010,10 @@ export function ServerConfigStepper() {
               </div>
               <div className="ml-3 hidden sm:block">
                 <p
-                  className={`text-sm font-medium ${
-                    currentStep === step.id
-                      ? 'text-primary'
-                      : 'text-muted-foreground'
-                  }`}
+                  className={`text-sm font-medium ${currentStep === step.id
+                    ? 'text-primary'
+                    : 'text-muted-foreground'
+                    }`}
                 >
                   {step.title}
                 </p>

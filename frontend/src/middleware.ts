@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import isAuthenticated from '@/lib/auth';
+import { BACKEND_URL } from './lib/constants';
+import axios from 'axios';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -8,6 +10,23 @@ export async function middleware(request: NextRequest) {
     console.log('User is not authenticated, redirecting to /login');
     return NextResponse.redirect(new URL('/login', request.url));
   }
+
+  try {
+    let res = await axios.get(`${BACKEND_URL}/api/v1/config`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Cookie': request.headers.get('cookie')
+      },
+      withCredentials: true
+    })
+    console.log(res.data.configured)
+    if (!res.data.configured && pathname != "/config") {
+      return NextResponse.redirect(new URL('/config', request.url));
+    }
+  } catch (error) {
+    console.log(error)
+  }
+
 
   const response = NextResponse.next();
 
