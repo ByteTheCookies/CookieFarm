@@ -80,7 +80,7 @@ func HandleGetPaginatedFlags(c *fiber.Ctx) error {
 	}
 
 	// Get filtered count for accurate pagination
-	n_flags, err := sqlite.CountFilteredFlags(opts)
+	nFlags, err := sqlite.CountFilteredFlags(opts)
 	if err != nil {
 		logger.Log.Error().Err(err).Msg("Failed to count filtered flags")
 		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{Error: err.Error()})
@@ -91,7 +91,7 @@ func HandleGetPaginatedFlags(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(ResponseFlags{
-		Nflags: n_flags,
+		Nflags: nFlags,
 		Flags:  flags,
 	})
 }

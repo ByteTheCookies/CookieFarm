@@ -46,22 +46,22 @@ import { z } from 'zod';
 interface Service {
   id: string;
   name: string;
-  port: string;
+  port: number;
 }
 
 interface ConfigData {
   general: {
     protocol: string;
-    tick_time: string;
-    flag_ttl: string;
+    tick_time: number;
+    flag_ttl: number;
     start_time: string;
     end_time: string;
   };
   flagChecker: {
     url_flag_checker: string;
     team_token: string;
-    submit_flag_checker_time: string;
-    max_flag_batch_size: string;
+    submit_flag_checker_time: number;
+    max_flag_batch_size: number;
   };
   flagInfo: {
     regex_flag: string;
@@ -69,9 +69,9 @@ interface ConfigData {
   };
   services: Service[];
   teams: {
-    range_ip_teams: string;
-    nop_team: string;
-    my_team_id: string;
+    range_ip_teams: number;
+    nop_team: number;
+    my_team_id: number;
     format_ip_teams: string;
   };
 }
@@ -84,16 +84,16 @@ interface Protocol {
 const initialConfig: ConfigData = {
   general: {
     protocol: '',
-    tick_time: '120',
-    flag_ttl: '5',
+    tick_time: 120,
+    flag_ttl: 5,
     start_time: '2025-07-02T10:00',
     end_time: '2025-07-02T18:00',
   },
   flagChecker: {
     url_flag_checker: 'http://10.10.0.1:8080/flags',
     team_token: '',
-    submit_flag_checker_time: '120',
-    max_flag_batch_size: '1000',
+    submit_flag_checker_time: 120,
+    max_flag_batch_size: 1000,
   },
   flagInfo: {
     regex_flag: '[A-Z0-9]{31}=',
@@ -101,9 +101,9 @@ const initialConfig: ConfigData = {
   },
   services: [],
   teams: {
-    range_ip_teams: '',
-    nop_team: '0',
-    my_team_id: '',
+    range_ip_teams: 0,
+    nop_team: 0,
+    my_team_id: 1,
     format_ip_teams: '10.60.{}.1',
   },
 };
@@ -141,22 +141,13 @@ const steps = [
 const serviceSchema = z.object({
   id: z.string(),
   name: z.string().min(1, 'Service name is required'),
-  port: z
-    .string()
-    .min(1, 'Port is required')
-    .regex(/^\d+$/, 'Port must be a number'),
+  port: z.number().min(1, 'Port must be greater than 0'),
 });
 
 const generalSchema = z.object({
   protocol: z.string().min(1, 'Protocol is required'),
-  tick_time: z
-    .string()
-    .min(1, 'Tick time is required')
-    .regex(/^\d+$/, 'Must be a number'),
-  flag_ttl: z
-    .string()
-    .min(1, 'Flag time to live is required')
-    .regex(/^\d+$/, 'Must be a number'),
+  tick_time: z.number().min(1, 'Tick time must be greater than 0'),
+  flag_ttl: z.number().min(1, 'Flag time to live must be greater than 0'),
   start_time: z.string().min(1, 'Start time is required'),
   end_time: z.string().min(1, 'End time is required'),
 });
@@ -167,14 +158,8 @@ const flagCheckerSchema = z.object({
     .min(1, 'url_flag_checker is required')
     .url('Must be a valid URL'),
   team_token: z.string().min(1, 'Team token is required'),
-  submit_flag_checker_time: z
-    .string()
-    .min(1, 'Submit time is required')
-    .regex(/^\d+$/, 'Must be a number'),
-  max_flag_batch_size: z
-    .string()
-    .min(1, 'Batch size is required')
-    .regex(/^\d+$/, 'Must be a number'),
+  submit_flag_checker_time: z.number().min(1, 'Submit time must be greater than 0'),
+  max_flag_batch_size: z.number().min(1, 'Batch size must be greater than 0'),
 });
 
 const flagInfoSchema = z.object({
@@ -186,18 +171,9 @@ const flagInfoSchema = z.object({
 });
 
 const teamsSchema = z.object({
-  range_ip_teams: z
-    .string()
-    .min(1, 'Number of teams is required')
-    .regex(/^\d+$/, 'Must be a number'),
-  nop_team: z
-    .string()
-    .min(1, 'NOP Team ID is required')
-    .regex(/^\d+$/, 'Must be a number'),
-  my_team_id: z
-    .string()
-    .min(1, 'Own Team ID is required')
-    .regex(/^\d+$/, 'Must be a number'),
+  range_ip_teams: z.number().min(1, 'Number of teams must be greater than 0'),
+  nop_team: z.number().min(0, 'NOP Team ID must be valid'),
+  my_team_id: z.number().min(1, 'Own Team ID must be greater than 0'),
   format_ip_teams: z
     .string()
     .min(1, 'IP Format is required')
@@ -231,11 +207,24 @@ export function ServerConfigStepper() {
     value: any,
   ) => {
     //eslint-disable-line @typescript-eslint/no-explicit-any
+    let processedValue = value;
+
+    // Convert string numbers to actual numbers for numeric fields
+    if (section === 'general' && ['tick_time', 'flag_ttl'].includes(field)) {
+      processedValue = value === '' ? 0 : parseInt(value) || 0;
+    }
+    if (section === 'flagChecker' && ['submit_flag_checker_time', 'max_flag_batch_size'].includes(field)) {
+      processedValue = value === '' ? 0 : parseInt(value) || 0;
+    }
+    if (section === 'teams' && ['range_ip_teams', 'nop_team', 'my_team_id'].includes(field)) {
+      processedValue = value === '' ? 0 : parseInt(value) || 0;
+    }
+
     setConfig(prev => ({
       ...prev,
       [section]: {
         ...prev[section],
-        [field]: value,
+        [field]: processedValue,
       },
     }));
     setErrors(prev => {
@@ -250,7 +239,7 @@ export function ServerConfigStepper() {
     const newService: Service = {
       id: Date.now().toString(),
       name: '',
-      port: '',
+      port: 0,
     };
     setConfig(prev => ({
       ...prev,
@@ -267,11 +256,18 @@ export function ServerConfigStepper() {
     setGlobalError(null);
   };
 
-  const updateService = (id: string, field: keyof Service, value: string) => {
+  const updateService = (id: string, field: keyof Service, value: string | number) => {
+    let processedValue = value;
+
+    // Convert string to number for port field
+    if (field === 'port') {
+      processedValue = typeof value === 'string' ? (value === '' ? 0 : parseInt(value) || 0) : value;
+    }
+
     setConfig(prev => ({
       ...prev,
       services: prev.services.map(service =>
-        service.id === id ? { ...service, [field]: value } : service,
+        service.id === id ? { ...service, [field]: processedValue } : service,
       ),
     }));
     setErrors(prev => {
@@ -288,7 +284,7 @@ export function ServerConfigStepper() {
 
     const start = new Date(start_time).getTime();
     const end = new Date(end_time).getTime();
-    const tickMs = Number.parseInt(tick_time) * 1000;
+    const tickMs = tick_time * 1000;
 
     if (end <= start || tickMs <= 0) return 0;
 
@@ -404,15 +400,17 @@ export function ServerConfigStepper() {
     // eslint-disable-next-line no-console
 
     let configFormatted = {
-      server: {
-        ...config.general,
-        ...config.flagChecker,
-      },
-      client: {
-        services: config.services.map(({ id, ...service }) => service),
-        ...config.teams,
-        ...config.flagInfo,
-      },
+      config: {
+        server: {
+          ...config.general,
+          ...config.flagChecker,
+        },
+        client: {
+          services: config.services.map(({ id, ...service }) => service),
+          ...config.teams,
+          ...config.flagInfo,
+        },
+      }
     };
 
     console.log('Final Config:', JSON.stringify(configFormatted, null, 2));
@@ -505,7 +503,7 @@ export function ServerConfigStepper() {
                 id="tick-time"
                 placeholder="120"
                 type="number"
-                value={config.general.tick_time}
+                value={config.general.tick_time || ''}
                 onChange={e =>
                   updateConfig('general', 'tick_time', e.target.value)
                 }
@@ -526,7 +524,7 @@ export function ServerConfigStepper() {
                 id="flag-ttl"
                 placeholder="5"
                 type="number"
-                value={config.general.flag_ttl}
+                value={config.general.flag_ttl || ''}
                 onChange={e =>
                   updateConfig('general', 'flag_ttl', e.target.value)
                 }
@@ -655,7 +653,7 @@ export function ServerConfigStepper() {
                 id="submit-time"
                 placeholder="30"
                 type="number"
-                value={config.flagChecker.submit_flag_checker_time}
+                value={config.flagChecker.submit_flag_checker_time || ''}
                 onChange={e =>
                   updateConfig(
                     'flagChecker',
@@ -680,7 +678,7 @@ export function ServerConfigStepper() {
                 id="batch-size"
                 placeholder="100"
                 type="number"
-                value={config.flagChecker.max_flag_batch_size}
+                value={config.flagChecker.max_flag_batch_size || ''}
                 onChange={e =>
                   updateConfig(
                     'flagChecker',
@@ -828,7 +826,7 @@ export function ServerConfigStepper() {
                             <Input
                               placeholder="80"
                               type="number"
-                              value={service.port}
+                              value={service.port || ''}
                               onChange={e =>
                                 updateService(
                                   service.id,
@@ -876,7 +874,7 @@ export function ServerConfigStepper() {
                 id="num-teams"
                 placeholder="10"
                 type="number"
-                value={config.teams.range_ip_teams}
+                value={config.teams.range_ip_teams || ''}
                 onChange={e =>
                   updateConfig('teams', 'range_ip_teams', e.target.value)
                 }
@@ -897,7 +895,7 @@ export function ServerConfigStepper() {
                 id="nop-team"
                 placeholder="1"
                 type="number"
-                value={config.teams.nop_team}
+                value={config.teams.nop_team || ''}
                 onChange={e =>
                   updateConfig('teams', 'nop_team', e.target.value)
                 }
@@ -918,7 +916,7 @@ export function ServerConfigStepper() {
                 id="own-team"
                 placeholder="5"
                 type="number"
-                value={config.teams.my_team_id}
+                value={config.teams.my_team_id || ''}
                 onChange={e =>
                   updateConfig('teams', 'my_team_id', e.target.value)
                 }
@@ -977,13 +975,12 @@ export function ServerConfigStepper() {
           <div key={step.id} className="flex items-center">
             <div className="flex items-center">
               <div
-                className={`flex h-10 w-10 items-center justify-center rounded-full border-2 ${
-                  currentStep === step.id
-                    ? 'border-primary bg-primary text-primary-foreground'
-                    : currentStep > step.id
-                      ? 'border-green-500 bg-green-500 text-white'
-                      : 'border-muted-foreground bg-background text-muted-foreground'
-                }`}
+                className={`flex h-10 w-10 items-center justify-center rounded-full border-2 ${currentStep === step.id
+                  ? 'border-primary bg-primary text-primary-foreground'
+                  : currentStep > step.id
+                    ? 'border-green-500 bg-green-500 text-white'
+                    : 'border-muted-foreground bg-background text-muted-foreground'
+                  }`}
               >
                 {currentStep > step.id ? (
                   <Check className="h-5 w-5" />
@@ -993,11 +990,10 @@ export function ServerConfigStepper() {
               </div>
               <div className="ml-3 hidden sm:block">
                 <p
-                  className={`text-sm font-medium ${
-                    currentStep === step.id
-                      ? 'text-primary'
-                      : 'text-muted-foreground'
-                  }`}
+                  className={`text-sm font-medium ${currentStep === step.id
+                    ? 'text-primary'
+                    : 'text-muted-foreground'
+                    }`}
                 >
                   {step.title}
                 </p>
