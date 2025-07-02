@@ -64,16 +64,12 @@ func Execute() {
 func init() {
 	RootCmd.PersistentFlags().BoolVarP(&debug, "debug", "D", false, "Enable debug logging")
 	RootCmd.PersistentFlags().BoolVarP(&config.ConfigFile, "config", "c", false, "Use configuration file instead of web config")
-	RootCmd.PersistentFlags().StringVarP(&config.Password, "password", "p", "password", "Password for authentication")
-	RootCmd.PersistentFlags().StringVarP(&config.ServerPort, "port", "P", "8080", "Port for server")
+	RootCmd.PersistentFlags().StringVarP(&config.Password, "password", "P", "password", "Password for authentication")
+	RootCmd.PersistentFlags().StringVarP(&config.ServerPort, "port", "p", "8080", "Port for server")
 	RootCmd.PersistentFlags().BoolVarP(&enablePprof, "pprof", "b", false, "Enable pprof for profiling")
 
 	RootCmd.PersistentPreRun = func(cmd *cobra.Command, args []string) {
-		if debug {
-			logger.Setup("debug", true)
-		} else {
-			logger.Setup("info", true)
-		}
+		config.Debug = debug
 
 		if enablePprof {
 			mux := http.NewServeMux()
