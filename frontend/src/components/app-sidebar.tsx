@@ -1,6 +1,6 @@
 'use client';
 
-import { BarChart3, Shield, FileText, Settings } from 'lucide-react';
+import { BarChart3, Shield, LandPlot, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -30,7 +30,7 @@ const navigationItems = [
   {
     title: 'Flag Table',
     url: '/logs',
-    icon: FileText,
+    icon: LandPlot,
   },
 ];
 
@@ -55,7 +55,7 @@ export function AppSidebar() {
           <div className="text-center">
             <h1 className="text-foreground text-2xl font-bold">CookieFarm</h1>
             <p className="text-muted-foreground text-[0.7rem] leading-3.5">
-              Zero distraction <br /> Only exploiting
+              Zero distraction <br /> Only exploitation
             </p>
           </div>
         </div>

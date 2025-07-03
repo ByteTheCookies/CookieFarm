@@ -181,14 +181,14 @@ export function getColumns(
         const message = row.getValue('msg') as string;
         return (
           <div
-            className="w-[180px] max-w-[300px] truncate text-xs font-light text-gray-200 sm:max-w-[300px] sm:text-sm"
+            className="w-[180px] max-w-[200px] truncate text-xs font-light text-gray-200 sm:max-w-[200px] sm:text-sm"
             title={message}
           >
             {message}
           </div>
         );
       },
-      size: 300,
+      size: 200,
     },
     {
       header: 'Service',

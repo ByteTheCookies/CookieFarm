@@ -8,6 +8,13 @@ import {
 } from '@tanstack/react-table';
 
 import {
+  ChevronsLeft,
+  ChevronLeft,
+  ChevronsRight,
+  ChevronRight,
+} from 'lucide-react';
+
+import {
   Table,
   TableBody,
   TableCell,
@@ -80,9 +87,9 @@ export function DataTable<TData, TValue>({
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )}
                       </TableHead>
                     );
                   })}
@@ -142,7 +149,7 @@ export function DataTable<TData, TValue>({
             </TableBody>
           </Table>
         </div>
-        <div className="mx-4 flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mx-4 flex flex-col gap-4 px-2 py-6 sm:flex-row sm:items-center sm:justify-between">
           {/* Page Size Selector */}
           <div className="flex items-center space-x-2">
             <p className="text-xs font-medium whitespace-nowrap sm:text-sm">
@@ -170,102 +177,98 @@ export function DataTable<TData, TValue>({
             </Select>
           </div>
 
+          {/* Navigation Controls */}
+          <div className="flex items-center justify-center space-x-1 sm:space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="hidden h-8 w-8 p-0 sm:flex"
+              onClick={() => onPaginationChange({ pageIndex: 0, pageSize })}
+              disabled={pageIndex === 0}
+            >
+              <span className="sr-only">Go to first page</span>
+              <ChevronsLeft className="h-2 w-2" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 w-8 p-0"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              <span className="sr-only">Go to previous page</span>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+
+            {/* Page Numbers for larger screens */}
+            <div className="hidden items-center space-x-1 md:flex">
+              {Array.from(
+                { length: Math.min(5, Math.ceil(totalCount / pageSize)) },
+                (_, i) => {
+                  const pageNum =
+                    Math.max(
+                      0,
+                      Math.min(
+                        Math.ceil(totalCount / pageSize) - 5,
+                        pageIndex - 2,
+                      ),
+                    ) + i;
+
+                  if (pageNum >= Math.ceil(totalCount / pageSize)) return null;
+
+                  return (
+                    <Button
+                      key={pageNum}
+                      variant={pageNum === pageIndex ? 'default' : 'outline'}
+                      size="sm"
+                      className="h-8 w-8 p-0"
+                      onClick={() =>
+                        onPaginationChange({ pageIndex: pageNum, pageSize })
+                      }
+                    >
+                      {pageNum + 1}
+                    </Button>
+                  );
+                },
+              )}
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 w-8 p-0"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              <span className="sr-only">Go to next page</span>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="hidden h-8 w-8 p-0 sm:flex"
+              onClick={() =>
+                onPaginationChange({
+                  pageIndex: Math.ceil(totalCount / pageSize) - 1,
+                  pageSize,
+                })
+              }
+              disabled={pageIndex >= Math.ceil(totalCount / pageSize) - 1}
+            >
+              <span className="sr-only">Go to last page</span>
+              <ChevronsRight className="h-2 w-2" />
+            </Button>
+          </div>
+
           {/* Page Info */}
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-6">
-            <div className="text-center sm:text-left">
-              <p className="text-xs font-medium sm:text-sm">
-                Page {pageIndex + 1} of {Math.ceil(totalCount / pageSize)}
-              </p>
-              <p className="text-muted-foreground text-xs">
-                Showing {pageIndex * pageSize + 1} to{' '}
-                {Math.min((pageIndex + 1) * pageSize, totalCount)} of{' '}
-                {totalCount}
-              </p>
-            </div>
-
-            {/* Navigation Controls */}
-            <div className="flex items-center justify-center space-x-1 sm:space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="hidden h-8 w-8 p-0 sm:flex"
-                onClick={() => onPaginationChange({ pageIndex: 0, pageSize })}
-                disabled={pageIndex === 0}
-              >
-                <span className="sr-only">Go to first page</span>
-                {'<<'}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 w-8 p-0"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
-              >
-                <span className="sr-only">Go to previous page</span>
-                {'<'}
-              </Button>
-
-              {/* Page Numbers for larger screens */}
-              <div className="hidden items-center space-x-1 md:flex">
-                {Array.from(
-                  { length: Math.min(5, Math.ceil(totalCount / pageSize)) },
-                  (_, i) => {
-                    const pageNum =
-                      Math.max(
-                        0,
-                        Math.min(
-                          Math.ceil(totalCount / pageSize) - 5,
-                          pageIndex - 2,
-                        ),
-                      ) + i;
-
-                    if (pageNum >= Math.ceil(totalCount / pageSize))
-                      return null;
-
-                    return (
-                      <Button
-                        key={pageNum}
-                        variant={pageNum === pageIndex ? 'default' : 'outline'}
-                        size="sm"
-                        className="h-8 w-8 p-0"
-                        onClick={() =>
-                          onPaginationChange({ pageIndex: pageNum, pageSize })
-                        }
-                      >
-                        {pageNum + 1}
-                      </Button>
-                    );
-                  },
-                )}
-              </div>
-
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 w-8 p-0"
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
-              >
-                <span className="sr-only">Go to next page</span>
-                {'>'}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="hidden h-8 w-8 p-0 sm:flex"
-                onClick={() =>
-                  onPaginationChange({
-                    pageIndex: Math.ceil(totalCount / pageSize) - 1,
-                    pageSize,
-                  })
-                }
-                disabled={pageIndex >= Math.ceil(totalCount / pageSize) - 1}
-              >
-                <span className="sr-only">Go to last page</span>
-                {'>>'}
-              </Button>
-            </div>
+          <div className="text-center sm:text-right">
+            <p className="text-xs font-medium sm:text-sm">
+              Page {pageIndex + 1} of {Math.ceil(totalCount / pageSize)}
+            </p>
+            <p className="text-muted-foreground text-xs">
+              Showing {pageIndex * pageSize + 1} to{' '}
+              {Math.min((pageIndex + 1) * pageSize, totalCount)} of {totalCount}
+            </p>
           </div>
         </div>
       </div>
