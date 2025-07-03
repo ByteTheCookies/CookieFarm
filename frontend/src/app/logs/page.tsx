@@ -16,7 +16,7 @@ import axios from 'axios';
 import { BACKEND_URL } from '@/lib/constants';
 import { RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { toast } from "sonner"
+import { toast } from 'sonner';
 
 export default function FlagLogs() {
   const {
@@ -43,12 +43,13 @@ export default function FlagLogs() {
   } = usePaginatedFlags();
 
   function deleteFlag(flag: Flag) {
-    axios.delete(`${BACKEND_URL}/api/v1/delete-flag?flag=${flag.flag_code}`, {
-      withCredentials: true,
-    })
+    axios
+      .delete(`${BACKEND_URL}/api/v1/delete-flag?flag=${flag.flag_code}`, {
+        withCredentials: true,
+      })
       .then(() => {
         toast.success('Flag deleted successfully');
-        forceRefetch()
+        forceRefetch();
       })
       .catch(error => {
         toast.error('Error deleting flag');
@@ -57,16 +58,34 @@ export default function FlagLogs() {
       });
   }
 
+  function copyFlagCode(flag: Flag) {
+    navigator.clipboard
+      .writeText(flag.flag_code)
+      .then(() => {
+        toast.success('Flag copied to clipboard');
+      })
+      .catch(error => {
+        toast.error('Error copying flag');
+        console.error(error);
+        alert('Error copying flag');
+      });
+  }
+
   function submitFlag(flag: Flag) {
-    axios.post(`${BACKEND_URL}/api/v1/submit-flag`, { flag: flag }, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      withCredentials: true,
-    })
+    axios
+      .post(
+        `${BACKEND_URL}/api/v1/submit-flag`,
+        { flag: flag },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          withCredentials: true,
+        },
+      )
       .then(() => {
         toast.success('Flag submitted successfully');
-        forceRefetch()
+        forceRefetch();
       })
       .catch(error => {
         toast.error('Error submitting flag');
@@ -126,9 +145,11 @@ export default function FlagLogs() {
             onClick={forceRefetch}
             disabled={isLoading}
           >
-            {isLoading
-              ? <RefreshCw className="h-4 w-4 animate-spin" />
-              : <RefreshCw className="h-4 w-4" />}
+            {isLoading ? (
+              <RefreshCw className="h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="h-4 w-4" />
+            )}
             <span>Reload</span>
           </Button>
         </div>
@@ -161,16 +182,18 @@ export default function FlagLogs() {
 
       {/* Data Table */}
       <Card>
-        <CardHeader className="pb-4">
-          <CardTitle className="text-lg sm:text-xl">Flag Submissions</CardTitle>
+        <CardHeader className="ml-2 flex items-center gap-3 pb-2">
+          <CardTitle className="text-lg sm:text-2xl">
+            Flag Submissions
+          </CardTitle>
           <CardDescription className="text-sm">
             Eat all the cookies
           </CardDescription>
         </CardHeader>
-        <CardContent className="p-0 sm:p-6">
+        <CardContent className="p-0 sm:px-6">
           <DataTable
             key={`${JSON.stringify(filters)}-${pagination.pageIndex}-${pagination.pageSize}`}
-            columns={getColumns(deleteFlag, submitFlag)}
+            columns={getColumns(deleteFlag, submitFlag, copyFlagCode)}
             data={filteredData}
             totalCount={totalCount}
             pageIndex={pagination.pageIndex}
@@ -179,6 +202,6 @@ export default function FlagLogs() {
           />
         </CardContent>
       </Card>
-    </div >
+    </div>
   );
 }

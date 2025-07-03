@@ -63,6 +63,7 @@ export default function FlagModal({
   flag,
   onDelete,
   onSubmit,
+  onCopyCode,
 }: FlagModalProps) {
   const [view, setView] = useState<ModalView>('details');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -94,7 +95,7 @@ export default function FlagModal({
   };
 
   const handleCopyCode = () => {
-    navigator.clipboard.writeText(flag.flag_code);
+    onCopyCode?.();
   };
 
   const handleDelete = () => {
@@ -233,7 +234,7 @@ export default function FlagModal({
               <div>
                 <div className="mb-2 flex items-center gap-2">
                   <AlertTriangle className="h-4 w-4 text-gray-200" />
-                  <span className="text-sm font-medium text-gray-200">
+                  <span className="text-base font-medium text-gray-200">
                     Message
                   </span>
                 </div>
@@ -293,8 +294,8 @@ export default function FlagModal({
                       <div>
                         {new Date(flag.submit_time).toLocaleTimeString()}
                       </div>
-                      <div className="text-xs">
-                        {new Date(flag.submit_time).toDateString()}
+                      <div className="text-xs tracking-widest">
+                        {new Date(flag.submit_time).toLocaleDateString()}
                       </div>
                     </div>
                   </div>
@@ -302,7 +303,7 @@ export default function FlagModal({
                   <div>
                     <div className="mb-2 flex items-center gap-2">
                       <Hourglass className="h-4 w-4 text-gray-200" />
-                      <span className="text-sm font-medium text-gray-200">
+                      <span className="text-base font-medium text-gray-200">
                         Duration
                       </span>
                     </div>

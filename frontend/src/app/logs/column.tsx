@@ -147,6 +147,7 @@ const getStatusBadge = (status: string) => {
 export function getColumns(
   deleteFlag: (flag: Flag) => void,
   submitFlag: (flag: Flag) => void,
+  copyFlagCode: (flag: Flag) => void,
 ): ColumnDef<Flag>[] {
   return [
     {
@@ -281,9 +282,7 @@ export function getColumns(
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem
-                  onClick={() => navigator.clipboard.writeText(flag.flag_code)}
-                >
+                <DropdownMenuItem onClick={() => copyFlagCode(flag)}>
                   <Copy className="mr-2 h-4 w-4" />
                   <p className="text-xs">Copy flag code</p>
                 </DropdownMenuItem>
@@ -312,6 +311,7 @@ export function getColumns(
               flag={flag}
               onDelete={() => deleteFlag(flag)}
               onSubmit={() => submitFlag(flag)}
+              onCopyCode={() => copyFlagCode(flag)}
             />
           </>
         );
