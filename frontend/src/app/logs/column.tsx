@@ -2,6 +2,10 @@
 
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
+import { useState } from 'react';
+
+import FlagModal from './flag-modal';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,12 +23,16 @@ import {
 } from '@/components/ui/tooltip';
 
 import {
+  Send,
+  Trash2,
   Check,
+  Copy,
   Clock,
   AlertCircle,
   Ban,
   AlertTriangle,
   MoreHorizontal,
+  BookOpenText,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
@@ -138,7 +146,8 @@ const getStatusBadge = (status: string) => {
 
 export function getColumns(
   deleteFlag: (flag: Flag) => void,
-  submitFlag: (flag: Flag) => void
+  submitFlag: (flag: Flag) => void,
+  copyFlagCode: (flag: Flag) => void,
 ): ColumnDef<Flag>[] {
   return [
     {
@@ -261,42 +270,50 @@ export function getColumns(
       id: 'actions',
       cell: ({ row }) => {
         const flag = row.original;
+        const [open, setOpen] = useState(false);
 
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only"> Open menu </span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions </DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(flag.flag_code)}
-              >
-                Copy flag code
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                View details
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                View exploit
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => deleteFlag(flag)}
-              >
-                Delete flag
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => submitFlag(flag)}
-              >
-                Submit flag
-              </DropdownMenuItem>
+          <>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only"> Open menu </span>
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => copyFlagCode(flag)}>
+                  <Copy className="mr-2 h-4 w-4" />
+                  <p className="text-xs">Copy flag code</p>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => submitFlag(flag)}>
+                  <Send className="mr-2 h-4 w-4" />
+                  <p className="text-xs">Submit flag</p>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setOpen(true)}>
+                  <BookOpenText className="mr-2 h-4 w-4" />
+                  <p className="text-xs">View details</p>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-red-400"
+                  onClick={() => deleteFlag(flag)}
+                >
+                  <Trash2 className="mr-2 h-4 w-4 text-red-400" />
+                  <p className="text-xs">Delete flag</p>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-            </DropdownMenuContent>
-          </DropdownMenu>
+            <FlagModal
+              isOpen={open}
+              onClose={() => setOpen(false)}
+              flag={flag}
+              onDelete={() => deleteFlag(flag)}
+              onSubmit={() => submitFlag(flag)}
+              onCopyCode={() => copyFlagCode(flag)}
+            />
+          </>
         );
       },
     },
