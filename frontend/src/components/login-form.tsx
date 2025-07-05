@@ -77,7 +77,7 @@ export function LoginForm({
       {/* Background image covering the entire page */}
       <div className="fixed inset-0 z-0">
         <Image
-          src="images/background-login.png"
+          src="/images/background-login.png"
           alt="background"
           fill
           className="object-cover brightness-70"
@@ -104,7 +104,7 @@ export function LoginForm({
                   >
                     <div className="flex size-15 items-center justify-center rounded-md">
                       <Image
-                        src="images/logo.png"
+                        src="/images/logo.png"
                         alt="logo"
                         width={200}
                         height={200}

@@ -1,45 +1,27 @@
-FROM oven/bun:1.1.38-alpine AS base
-
-FROM base AS deps
+# 1) build stage
+FROM oven/bun:1.2.5-alpine AS builder
 WORKDIR /app
 
+# install deps e build
 COPY package.json bun.lock* ./
-
 RUN bun install --frozen-lockfile
-
-FROM base AS builder
-WORKDIR /app
-
-COPY --from=deps /app/node_modules ./node_modules
-
 COPY . .
-
 ENV NEXT_TELEMETRY_DISABLED=1
-
 RUN bun run build
 
-FROM base AS runner
+# 2) runtime stage
+FROM oven/bun:1.2.5-alpine AS runner
 WORKDIR /app
 
+# copia tutto il necessario
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/.next        ./.next
+COPY --from=builder /app/public       ./public
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/bun.lock*    ./
+
 ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
-
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-
-COPY --from=builder /app/public ./public
-
-RUN mkdir .next
-RUN chown nextjs:nodejs .next
-
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-USER nextjs
-
 EXPOSE 3000
 
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
-
-CMD ["node", "server.js"]
+# avvia con bun run start (che esegue `next start`)
+CMD ["bun", "run", "start"]

@@ -10,7 +10,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -270,7 +269,7 @@ export function getColumns(
       id: 'actions',
       cell: ({ row }) => {
         const flag = row.original;
-        const [open, setOpen] = useState(false);
+        const [open, setOpen] = useState(false); //eslint-disable-line react-hooks/rules-of-hooks
 
         return (
           <>

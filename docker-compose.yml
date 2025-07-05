@@ -25,7 +25,6 @@ services:
       - "3000:3000"
     environment:
       - NEXT_PUBLIC_BACKEND_URL=${BACKEND_URL}
-      - NODE_ENV=production
     depends_on:
       - server
     networks:

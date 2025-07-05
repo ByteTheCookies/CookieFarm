@@ -57,6 +57,7 @@ Make sure you have the following installed:
       PASSWORD=SuperSecret  # Set a strong password for authentication
       CONFIG_FILE=true  # Set if the server takes the config from config.yml in the filesystem; otherwise, do not set the variable
       PORT=8080            # Define the port the server will listen on
+      BACKEND_URL=http://server:8080 # URL for the backend service (Is used by the frontend to connect to the server)
     ```
 
   > ⚠️ For production environments, set `DEBUG=false` and use a strong, unique password

@@ -21,7 +21,6 @@ import {
   XCircle,
   Trash2,
   Send,
-  Eye,
   MoreHorizontal,
   Flag,
 } from 'lucide-react';
