@@ -24,7 +24,8 @@ export async function POST(request: NextRequest) {
 
     console.log('Backend response:', response.data);
     return NextResponse.json(response.data);
-  } catch (error: any) {// eslint-disable-line
+  } catch (error: any) {
+    // eslint-disable-line
     console.error('Error sending config:', error);
 
     if (error.response?.status === 401) {
@@ -33,6 +34,28 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       { error: 'Failed to save configuration' },
+      { status: 500 },
+    );
+  }
+}
+
+export async function GET() {
+  try {
+    const response = await axios.get(`${BACKEND_URL}/api/v1/config`, {
+      withCredentials: true,
+    });
+
+    console.log('Backend response:', response.data);
+    return NextResponse.json(response.data);
+  } catch (error: any) {
+    console.error('Error fetching config:', error);
+
+    if (error.response?.status === 401) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    return NextResponse.json(
+      { error: 'Failed to fetch configuration' },
       { status: 500 },
     );
   }

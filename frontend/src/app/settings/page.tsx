@@ -29,11 +29,18 @@ import {
 } from '@/components/ui/tooltip';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Info, Plus, Trash2, Save, Download } from 'lucide-react';
+import axios from 'axios';
+import useSWR from 'swr';
 
 interface Service {
   id: string;
   name: string;
   port: string;
+}
+
+interface Protocol {
+  value: string;
+  label: string;
 }
 
 interface ConfigData {
@@ -71,13 +78,11 @@ interface ConfigData {
   };
 }
 
-const protocols = [
-  { value: 'cc_http', label: 'CC HTTP' },
-  { value: 'cc_grpc', label: 'CC gRPC' },
-  { value: 'defcon_http', label: 'DEFCON HTTP' },
-  { value: 'custom_tcp', label: 'Custom TCP' },
-  { value: 'custom_udp', label: 'Custom UDP' },
-];
+const fetcher = async (url: string) => {
+  const response = await axios.get(url);
+  console.log(`Fetching data from ${url}:`, response.data);
+  return response.data;
+};
 
 export default function Settings() {
   const [config, setConfig] = useState<ConfigData>({
@@ -87,7 +92,7 @@ export default function Settings() {
       teamToken: '',
       submitTime: '30',
       batchSize: '100',
-      protocol: 'cc_http',
+      protocol: 'cc_http.so',
     },
     rounds: {
       duration: '120',
@@ -185,6 +190,12 @@ export default function Settings() {
       </Tooltip>
     </TooltipProvider>
   );
+
+  const {
+    data: protocols = [],
+    error: protocolsError,
+    isLoading: loadingProtocols,
+  } = useSWR<Protocol[]>(`/api/protocols`, fetcher);
 
   const saveConfiguration = () => {
     // Implementation for saving configuration
