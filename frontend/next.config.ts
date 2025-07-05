@@ -4,7 +4,6 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 const nextConfig: NextConfig = isProduction
   ? {
-      output: 'standalone',
       experimental: {
         optimizeCss: true,
       },

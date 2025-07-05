@@ -203,3 +203,14 @@ snapshot-goroutine:
 	@echo -e "$(CYAN)[*] Taking Goroutine snapshot...$(RESET)"
 	go tool pprof -http=:6063 http://localhost:6060/debug/pprof/goroutine?debug=1
 	@echo -e "$(GREEN)[+] Goroutine snapshot complete!$(RESET)"
+
+run-frontend-prod:
+	@echo -e "$(CYAN)[*] Running frontend in production mode...$(RESET)"
+	@ bun install --frozen-lockfile && \
+    rm -rf .next && \
+    bun run build && \
+    mkdir -p .next/standalone/.next/static && \
+    cp -R .next/static .next/standalone/.next/static && \
+    cp -R public .next/standalone/public && \
+    node .next/standalone/server.js
+	@echo -e "$(GREEN)[+] Frontend is running in production mode!$(RESET)"

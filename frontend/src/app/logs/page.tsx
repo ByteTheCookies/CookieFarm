@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Flag, getColumns } from './column';
+import { getColumns } from './column';
 import { DataTable } from './data-table';
 import { FilterPanel } from './filter-panel';
 import { usePaginatedFlags } from '@/hooks/usePaginatedFlags';
@@ -17,6 +17,9 @@ import { BACKEND_URL } from '@/lib/constants';
 import { RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { Input } from '@/components/ui/input';
+import { useState } from 'react';
+import { Flag } from '@/lib/types';
 
 export default function FlagLogs() {
   const {
@@ -41,6 +44,8 @@ export default function FlagLogs() {
     forceRefetch,
     onClearAll,
   } = usePaginatedFlags();
+
+  const [manualFlag, setManualFlag] = useState('');
 
   function deleteFlag(flag: Flag) {
     axios
@@ -94,6 +99,41 @@ export default function FlagLogs() {
       });
   }
 
+  function submitFlagCode(flag: string) {
+    const flagObj: Flag = {
+      flag_code: flag,
+      service_name: '',
+      status: 'UNSUBMITTED',
+      exploit_name: '',
+      msg: '',
+      submit_time: Math.floor(Date.now() / 1000),
+      response_time: 0,
+      port_service: 0,
+      team_id: 0,
+    };
+
+    axios
+      .post(
+        `${BACKEND_URL}/api/v1/submit-flag`,
+        { flag: flagObj },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          withCredentials: true,
+        },
+      )
+      .then(() => {
+        toast.success('Flag submitted successfully');
+        forceRefetch();
+      })
+      .catch(error => {
+        toast.error('Error submitting flag');
+        console.error(error);
+        alert('Error submitting flag');
+      });
+  }
+
   if (error) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -126,6 +166,16 @@ export default function FlagLogs() {
           <p className="text-muted-foreground text-sm sm:text-base">
             Advanced server-side filtering, searching, sorting and pagination
           </p>
+        </div>
+        <div className="flex gap-2">
+          <Input
+            name="flag"
+            type="text"
+            value={manualFlag}
+            onChange={e => setManualFlag(e.target.value)}
+            placeholder="flag..."
+          />
+          <Button onClick={() => submitFlagCode(manualFlag)}>Submit</Button>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="outline" className="text-xs sm:text-sm">

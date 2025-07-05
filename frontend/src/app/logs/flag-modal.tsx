@@ -21,9 +21,8 @@ import {
   XCircle,
   Trash2,
   Send,
-  Eye,
   MoreHorizontal,
-  Flag,
+  Flag as FlagIcon,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -33,20 +32,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
+import { Flag } from '@/lib/types';
 
 type ModalView = 'details' | 'exploit';
-
-export type Flag = {
-  flag_code: string;
-  service_name: string;
-  status: 'ACCEPTED' | 'DENIED' | 'RESUBMIT' | 'ERROR';
-  exploit_name: string;
-  msg: string;
-  submit_time: number;
-  response_time: number;
-  port_service: number;
-  team_id: number;
-};
 
 interface FlagModalProps {
   isOpen: boolean;
@@ -74,7 +62,7 @@ export default function FlagModal({
         return <CheckCircle className="h-3 w-3 text-green-400" />;
       case 'DENIED':
         return <XCircle className="h-3 w-3 text-red-400" />;
-      case 'PENDING':
+      case 'UNSUBMITTED':
         return <Clock className="h-3 w-3 text-yellow-400" />;
       default:
         return <AlertTriangle className="h-3 w-3 text-gray-400" />;
@@ -118,7 +106,7 @@ export default function FlagModal({
         <DialogHeader className="px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Flag className="w-5 text-[#8b8b8b]" />
+              <FlagIcon className="w-5 text-[#8b8b8b]" />
               <h2 className="text-lg font-medium text-white">Flag Details</h2>
               <div className="flex items-center gap-1">
                 {getStatusIcon(flag.status)}

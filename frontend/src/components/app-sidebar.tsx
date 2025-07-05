@@ -50,7 +50,7 @@ export function AppSidebar() {
       <SidebarHeader className="border-border/40 border-b p-6">
         <div className="flex items-center justify-around gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-lg">
-            <Image alt="logo" src={'images/logo.png'} width={50} height={20} />
+            <Image alt="logo" src={'/images/logo.png'} width={50} height={20} />
           </div>
           <div className="text-center">
             <h1 className="text-foreground text-2xl font-bold">CookieFarm</h1>

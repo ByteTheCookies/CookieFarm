@@ -69,7 +69,6 @@
                         </button>
                     </div>
 
-                    <!-- SERVER CONFIGURATION -->
                     <div>
                         <h3 class="text-lg font-semibold mb-3">
                             Server Configuration
@@ -91,13 +90,13 @@
                             </div>
 
                             <div class="grid gap-2">
-                                <label for="host_flagchecker"
-                                    >Host Flag Checker
+                                <label for="url_flag_checker"
+                                    >URL Flag Checker
                                     <span class="text-red-500">*</span></label
                                 >
                                 <input
-                                    id="host_flagchecker"
-                                    name="host_flagchecker"
+                                    id="url_flag_checker"
+                                    name="url_flag_checker"
                                     type="text"
                                     required
                                     placeholder="flagchecker.example.com"
@@ -107,7 +106,7 @@
 
                             <div class="grid gap-2">
                                 <label for="protocol"
-                                    >Protocol (.so)
+                                    >Protocol
                                     <span class="text-red-500">*</span></label
                                 >
                                 <input
@@ -116,6 +115,66 @@
                                     type="text"
                                     required
                                     placeholder="name_without_extension"
+                                    class="input"
+                                />
+                            </div>
+
+                            <div class="grid gap-2">
+                                <label for="start_time"
+                                    >Start Time (HH:MM:SS)
+                                    <span class="text-red-500">*</span></label
+                                >
+                                <input
+                                    id="start_time"
+                                    name="start_time"
+                                    type="text"
+                                    required
+                                    placeholder="00:00:00"
+                                    class="input"
+                                />
+                            </div>
+
+                            <div class="grid gap-2">
+                                <label for="end_time"
+                                    >End Time (HH:MM:SS)
+                                    <span class="text-red-500">*</span></label
+                                >
+                                <input
+                                    id="end_time"
+                                    name="end_time"
+                                    type="text"
+                                    required
+                                    placeholder="23:59:59"
+                                    class="input"
+                                />
+                            </div>
+
+                            <div class="grid gap-2">
+                                <label for="max_flag_batch_size"
+                                    >Max Flag Batch Size</label
+                                >
+                                <input
+                                    id="max_flag_batch_size"
+                                    name="max_flag_batch_size"
+                                    type="number"
+                                    min="1"
+                                    placeholder="500"
+                                    value="500"
+                                    class="input"
+                                />
+                            </div>
+
+                            <div class="grid gap-2">
+                                <label for="tick_time"
+                                    >Tick Time (sec)</label
+                                >
+                                <input
+                                    id="tick_time"
+                                    name="tick_time"
+                                    type="number"
+                                    min="1"
+                                    placeholder="60"
+                                    value="60"
                                     class="input"
                                 />
                             </div>
@@ -136,16 +195,16 @@
                             </div>
 
                             <div class="grid gap-2">
-                                <label for="max_flag_batch_size"
-                                    >Max Flag Batch Size</label
+                                <label for="flag_ttl"
+                                    >Flag TTL (ticks)</label
                                 >
                                 <input
-                                    id="max_flag_batch_size"
-                                    name="max_flag_batch_size"
+                                    id="flag_ttl"
+                                    name="flag_ttl"
                                     type="number"
                                     min="1"
-                                    placeholder="500"
-                                    value="500"
+                                    placeholder="10"
+                                    value="10"
                                     class="input"
                                 />
                             </div>
@@ -174,16 +233,15 @@
                             </div>
 
                             <div class="grid gap-2">
-                                <label for="range_ip_teams"
-                                    >IP Range for Teams
+                                <label for="regex_flag"
+                                    >Regex Flag
                                     <span class="text-red-500">*</span></label
                                 >
                                 <input
-                                    id="range_ip_teams"
-                                    name="range_ip_teams"
-                                    type="number"
-                                    min="1"
-                                    placeholder="10"
+                                    id="regex_flag"
+                                    name="regex_flag"
+                                    type="text"
+                                    placeholder="^[A-Z0-9]{31}=$"
                                     class="input"
                                 />
                             </div>
@@ -203,29 +261,59 @@
                             </div>
 
                             <div class="grid gap-2">
-                                <label for="my_team_ip"
-                                    >My Team IP
+                                <label for="my_team_id"
+                                    >My Team ID
                                     <span class="text-red-500">*</span></label
                                 >
                                 <input
-                                    id="my_team_ip"
-                                    name="my_team_ip"
-                                    type="text"
-                                    placeholder="192.168.1.1"
+                                    id="my_team_id"
+                                    name="my_team_id"
+                                    type="number"
+                                    min="1"
+                                    placeholder="1"
                                     class="input"
                                 />
                             </div>
 
                             <div class="grid gap-2">
-                                <label for="regex_flag"
-                                    >Regex Flag
+                                <label for="url_flag_ids"
+                                    >URL Flag IDs
                                     <span class="text-red-500">*</span></label
                                 >
                                 <input
-                                    id="regex_flag"
-                                    name="regex_flag"
+                                    id="url_flag_ids"
+                                    name="url_flag_ids"
                                     type="text"
-                                    placeholder="^[A-Z0-9]{31}=$"
+                                    placeholder="flagids.example.com"
+                                    class="input"
+                                />
+                            </div>
+
+                            <div class="grid gap-2">
+                                <label for="nop_team"
+                                    >NOP Team ID</label
+                                >
+                                <input
+                                    id="nop_team"
+                                    name="nop_team"
+                                    type="number"
+                                    min="1"
+                                    placeholder="0"
+                                    class="input"
+                                />
+                            </div>
+
+                            <div class="grid gap-2">
+                                <label for="range_ip_teams"
+                                    >IP Range for Teams
+                                    <span class="text-red-500">*</span></label
+                                >
+                                <input
+                                    id="range_ip_teams"
+                                    name="range_ip_teams"
+                                    type="number"
+                                    min="1"
+                                    placeholder="10"
                                     class="input"
                                 />
                             </div>
@@ -289,30 +377,36 @@
 
 
     async function fillModalFields() {
-           try {
-               const data = await getConfig()
-               if (data) {
-                   const server = data.server;
-                   if (server.team_token) document.getElementById("team_token").value = server.team_token;
-                   if (server.host_flagchecker) document.getElementById("host_flagchecker").value = server.host_flagchecker;
-                   if (server.protocol) document.getElementById("protocol").value = server.protocol;
-                   if (server.submit_flag_checker_time) document.getElementById("submit_flag_checker_time").value = server.submit_flag_checker_time;
-                   if (server.max_flag_batch_size) document.getElementById("max_flag_batch_size").value = server.max_flag_batch_size;
+        try {
+            const data = await getConfig();
+            if (data) {
+                const server = data.server;
+                if (server.team_token) document.getElementById("team_token").value = server.team_token;
+                if (server.url_flag_checker) document.getElementById("url_flag_checker").value = server.url_flag_checker;
+                if (server.protocol) document.getElementById("protocol").value = server.protocol;
+                if (server.start_time) document.getElementById("start_time").value = server.start_time;
+                if (server.end_time) document.getElementById("end_time").value = server.end_time;
+                if (server.max_flag_batch_size) document.getElementById("max_flag_batch_size").value = server.max_flag_batch_size;
+                if (server.tick_time) document.getElementById("tick_time").value = server.tick_time;
+                if (server.submit_flag_checker_time) document.getElementById("submit_flag_checker_time").value = server.submit_flag_checker_time;
+                if (server.flag_ttl) document.getElementById("flag_ttl").value = server.flag_ttl;
 
-                   const client = data.client;
-                   if (client.services && client.services.length > 0) {
-                       tagify.removeAllTags();
-                       tagify.addTags(client.services.map(s => `${s.name}:${s.port}`));
-                   }
-                   if (client.range_ip_teams) document.getElementById("range_ip_teams").value = client.range_ip_teams;
-                   if (client.format_ip_teams) document.getElementById("format_ip_teams").value = client.format_ip_teams;
-                   if (client.my_team_ip) document.getElementById("my_team_ip").value = client.my_team_ip;
-                   if (client.regex_flag) document.getElementById("regex_flag").value = client.regex_flag;
-               }
-           } catch (e) {
-               console.error("Error fetching config:", e);
-           }
-       }
+                const client = data.client;
+                if (client.services && client.services.length > 0) {
+                    tagify.removeAllTags();
+                    tagify.addTags(client.services.map(s => `${s.name}:${s.port}`));
+                }
+                if (client.regex_flag) document.getElementById("regex_flag").value = client.regex_flag;
+                if (client.format_ip_teams) document.getElementById("format_ip_teams").value = client.format_ip_teams;
+                if (client.my_team_id) document.getElementById("my_team_id").value = client.my_team_id;
+                if (client.url_flag_ids) document.getElementById("url_flag_ids").value = client.url_flag_ids;
+                if (client.nop_team) document.getElementById("nop_team").value = client.nop_team;
+                if (client.range_ip_teams) document.getElementById("range_ip_teams").value = client.range_ip_teams;
+            }
+        } catch (e) {
+            console.error("Error fetching config:", e);
+        }
+    }
 
     (async () => {
         if (!(await checkConfig())) {
