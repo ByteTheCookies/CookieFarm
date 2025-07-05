@@ -94,7 +94,7 @@ Make sure you have the following installed:
 
 4. Run your exploit:
    ```bash
-   ckc exploit run -e your_exploit_name.py -p 1234 -t 120 -T 40
+   ckc exploit run -e your_exploit_name.py -n CookieService -t 120 -T 40
    ```
 
 📘 For more usage examples, check out the [client documentation](./docs/client/README.md).

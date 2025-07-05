@@ -246,7 +246,7 @@ Parameters:
 *Example:*
 ```bash
 # In CLI mode (with no environment variable setted):
-ckc exploit run -e my_exploit.py -p 1234 -t 120 -T 40
+ckc exploit run -e my_exploit.py -n CookieService -t 120 -T 40
 # This will return the PID of the running exploit.
 ```
 
