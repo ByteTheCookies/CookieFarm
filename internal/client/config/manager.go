@@ -331,3 +331,16 @@ func (cm *ConfigManager) MapPortToService(port uint16) string {
 	}
 	return ""
 }
+
+// MapServiceToPort maps a service name to a port using the shared configuration
+func (cm *ConfigManager) MapServiceToPort(serviceName string) uint16 {
+	cm.mu.RLock()
+	defer cm.mu.RUnlock()
+
+	for _, service := range cm.sharedConfig.ConfigClient.Services {
+		if service.Name == serviceName {
+			return service.Port
+		}
+	}
+	return 0
+}

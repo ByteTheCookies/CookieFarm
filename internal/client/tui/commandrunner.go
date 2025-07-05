@@ -174,7 +174,6 @@ func (r *CommandRunner) ExecuteExploitTest(
 ) (string, error) {
 	tickTimeInt := 120  // default
 	threadCountInt := 5 // default
-	var servicePortUint16 uint16
 	var err error
 
 	if tickTime != "" {
@@ -194,17 +193,12 @@ func (r *CommandRunner) ExecuteExploitTest(
 	if servicePort == "" {
 		return "", errors.New("service port is required")
 	}
-	port, err := strconv.Atoi(servicePort)
-	if err != nil {
-		return "", fmt.Errorf("invalid service port: %s", servicePort)
-	}
-	servicePortUint16 = uint16(port)
 
 	result, err := exploit.Run(
 		exploitPath,
 		tickTimeInt,
 		threadCountInt,
-		servicePortUint16,
+		servicePort,
 		false,
 	)
 	if err != nil {
@@ -240,12 +234,11 @@ func (r *CommandRunner) ExecuteExploitTest(
 }
 
 func (r *CommandRunner) ExecuteExploitRun(
-	exploitPath, servicePort string,
+	exploitPath, serviceName string,
 	tickTime, threadCount string,
 ) (string, error) {
 	tickTimeInt := 120  // default
 	threadCountInt := 5 // default
-	var servicePortUint16 uint16
 	var err error
 
 	if tickTime != "" {
@@ -262,20 +255,15 @@ func (r *CommandRunner) ExecuteExploitRun(
 		}
 	}
 
-	if servicePort == "" {
+	if serviceName == "" {
 		return "", errors.New("service port is required")
 	}
-	port, err := strconv.Atoi(servicePort)
-	if err != nil {
-		return "", fmt.Errorf("invalid service port: %s", servicePort)
-	}
-	servicePortUint16 = uint16(port)
 
 	result, err := exploit.Run(
 		exploitPath,
 		tickTimeInt,
 		threadCountInt,
-		servicePortUint16,
+		serviceName,
 		false,
 	)
 	if err != nil {

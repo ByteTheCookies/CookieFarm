@@ -12,7 +12,7 @@ type ArgsAttack struct {
 	ExploitPath string `json:"exploit_path"` // Path to the exploit to run
 	TickTime    int    `json:"tick_time"`    // Optional custom tick time
 	ThreadCount int    `json:"thread_count"` // Optional number of concurrent threads (coroutine) to use
-	ServicePort uint16 `json:"port"`         // Service Port
+	ServiceName string `json:"service_name"` // Service Port
 	Detach      bool   `json:"detach"`       // Run in background if true
 }
 
