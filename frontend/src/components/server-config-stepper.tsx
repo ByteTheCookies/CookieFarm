@@ -6,15 +6,18 @@ import useSWR from 'swr';
 import axios from 'axios';
 
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-
 import {
   Select,
   SelectContent,
@@ -22,13 +25,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 
 import {
@@ -42,43 +40,9 @@ import {
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
 
-interface Service {
-  id: string;
-  name: string;
-  port: number;
-}
-
-interface ConfigData {
-  general: {
-    protocol: string;
-    tick_time: number;
-    flag_ttl: number;
-    start_time: string;
-    end_time: string;
-  };
-  flagChecker: {
-    url_flag_checker: string;
-    team_token: string;
-    submit_flag_checker_time: number;
-    max_flag_batch_size: number;
-  };
-  flagInfo: {
-    regex_flag: string;
-    url_flag_ids: string;
-  };
-  services: Service[];
-  teams: {
-    range_ip_teams: number;
-    nop_team: number;
-    my_team_id: number;
-    format_ip_teams: string;
-  };
-}
-
-interface Protocol {
-  value: string;
-  label: string;
-}
+import { Service, ConfigData, Protocol } from '@/lib/types'; // Adjust the import path as needed
+import { fetcher } from '@/lib/fetchers';
+import { toast } from 'sonner';
 
 const initialConfig: ConfigData = {
   general: {
@@ -105,12 +69,6 @@ const initialConfig: ConfigData = {
     my_team_id: 1,
     format_ip_teams: '10.10.{}.1',
   },
-};
-
-const fetcher = async (url: string) => {
-  const response = await axios.get(url);
-  console.log(`Fetching data from ${url}:`, response.data);
-  return response.data;
 };
 
 const steps = [
@@ -434,9 +392,8 @@ export function ServerConfigStepper() {
           'Content-Type': 'application/json',
         },
       })
-      .then(response => {
-        console.log('Config submitted successfully:', response.data);
-        // Puoi aggiungere qui altre azioni dopo il successo dell'invio
+      .then(() => {
+        toast.success('Configuration saved successfully!');
         router.push('/');
       })
       .catch(error => {
@@ -667,7 +624,7 @@ export function ServerConfigStepper() {
                 id="submit-time"
                 placeholder="30"
                 type="number"
-                value={config.flagChecker.submit_flag_checker_time || ''}
+                value={config.flagChecker.submit_flag_checker_time || 0}
                 onChange={e =>
                   updateConfig(
                     'flagChecker',
@@ -907,7 +864,7 @@ export function ServerConfigStepper() {
               </div>
               <Input
                 id="nop-team"
-                placeholder="1"
+                placeholder="0"
                 type="number"
                 value={config.teams.nop_team || 0}
                 onChange={e =>

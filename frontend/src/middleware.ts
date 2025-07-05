@@ -23,6 +23,10 @@ export async function middleware(request: NextRequest) {
     if (!res.data.configured && pathname != '/config') {
       return NextResponse.redirect(new URL('/config', request.url));
     }
+
+    if (pathname == '/') {
+      return NextResponse.redirect(new URL('/logs', request.url));
+    }
   } catch (error) {
     console.log(error);
   }
