@@ -221,11 +221,11 @@ In this case, the exploit will be created in the current directory.
 Test an exploit against the NOP team:
 ```bash
 # In CLI mode (with no environment variable setted):
-ckc exploit test -e <exploit_file> -p <service_port> [-t <timeout>] [-T <threads>]
+ckc exploit test -e <exploit_file> -n <service_name> [-t <timeout>] [-T <threads>]
 ```
 Parameters:
 - `-e <exploit_file>`: Path to the exploit file (Python script).
-- `-p <service_port`: Port of the target service
+- `-n <service_name>`: Name of the service to test the exploit against.
 - `-t <timeout>`: Timeout for the exploit in seconds (default is 120).
 - `-T <threads>`: Number of threads to use (default is 10).
 
@@ -233,12 +233,12 @@ Parameters:
 Run an exploit:
 ```bash
 # In CLI mode (with no environment variable setted):
-ckc exploit run -e <exploit_file> -p <port> [-t <timeout>] [-T <threads>] [-D]
+ckc exploit run -e <exploit_file> -n <service_name> [-t <timeout>] [-T <threads>] [-D]
 
 ```
 Parameters:
 - `-e <exploit_file>`: Path to the exploit file (Python script).
-- `-p <port>`: Port to run the exploit on.
+- `-n <service_name>`: Name of the service to run the exploit against.
 - `-t <timeout>`: Timeout for the exploit in seconds (default is 120).
 - `-T <threads>`: Number of threads to use (default is 10).
 - `-D`: Enable debug mode for more verbose output.
