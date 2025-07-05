@@ -59,11 +59,11 @@ func RegisterRoutes(app *fiber.App) {
 	privateAPI.Get("/flags", HandleGetAllFlags)
 	privateAPI.Get("/flags/:limit", HandleGetPaginatedFlags)
 	privateAPI.Get("/config", HandleGetConfig)
+	privateAPI.Post("/config", HandlePostConfig)
 	privateAPI.Post("/submit-flags", HandlePostFlags)
 	privateAPI.Post("/submit-flag", HandlePostFlag)
 	privateAPI.Post("/submit-flags-standalone", HandlePostFlagsStandalone)
 	privateAPI.Delete("/delete-flag", HandleDeleteFlag)
-	privateAPI.Post("/config", HandlePostConfig)
 
 	websocketsAPI := app.Group("/ws")
 	websockets.GlobalManager = websockets.NewManager()
