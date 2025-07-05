@@ -59,7 +59,6 @@ export default function FlagLogs() {
       .catch(error => {
         toast.error('Error deleting flag');
         console.error(error);
-        alert('Error deleting flag');
       });
   }
 
@@ -72,7 +71,6 @@ export default function FlagLogs() {
       .catch(error => {
         toast.error('Error copying flag');
         console.error(error);
-        alert('Error copying flag');
       });
   }
 
@@ -95,7 +93,6 @@ export default function FlagLogs() {
       .catch(error => {
         toast.error('Error submitting flag');
         console.error(error);
-        alert('Error submitting flag');
       });
   }
 
@@ -130,7 +127,6 @@ export default function FlagLogs() {
       .catch(error => {
         toast.error('Error submitting flag');
         console.error(error);
-        alert('Error submitting flag');
       });
   }
 
@@ -156,12 +152,12 @@ export default function FlagLogs() {
   }
 
   return (
-    <div className="container mx-auto space-y-6 p-4">
+    <div className="container mx-auto space-y-6 px-8 py-12">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-            Flag Logs
+          <h1 className="text-3xl font-bold tracking-tight sm:text-3xl">
+            Flag Table
           </h1>
           <p className="text-muted-foreground text-sm sm:text-base">
             Advanced server-side filtering, searching, sorting and pagination

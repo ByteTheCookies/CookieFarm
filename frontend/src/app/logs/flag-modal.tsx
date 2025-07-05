@@ -75,7 +75,7 @@ export default function FlagModal({
         return 'text-green-400';
       case 'DENIED':
         return 'text-red-400';
-      case 'PENDING':
+      case 'UNSUBMITTED':
         return 'text-yellow-400';
       default:
         return 'text-gray-400';
