@@ -24,8 +24,7 @@ export async function POST(request: NextRequest) {
 
     console.log('Backend response:', response.data);
     return NextResponse.json(response.data);
-  } catch (error: any) {
-    // eslint-disable-line
+  } catch (error: any) { // eslint-disable-line
     console.error('Error sending config:', error);
 
     if (error.response?.status === 401) {
@@ -53,11 +52,10 @@ export async function GET(request: NextRequest) {
 
     console.log('Backend response:', response.data);
 
-    
     console.log('Services: ', response.data.client.services);
 
     return NextResponse.json(response.data);
-  } catch (error: any) {
+  } catch (error: any) { // eslint-disable-line
     console.error('Error fetching config:', error);
 
     if (error.response?.status === 401) {

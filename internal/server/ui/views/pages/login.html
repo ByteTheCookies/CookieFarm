@@ -49,7 +49,6 @@ document.body.addEventListener("htmx:afterRequest", function (event) {
    if (event.detail.requestConfig.elt.id === "loginForm") {
      try {
        const responseText = event.detail.xhr.responseText;
-       console.log(responseText);
        const data = JSON.parse(responseText);
 
        if (event.detail.xhr.status !== 200){

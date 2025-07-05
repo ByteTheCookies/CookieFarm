@@ -42,6 +42,7 @@ import { useRouter } from 'next/navigation';
 
 import { Service, ConfigData, Protocol } from '@/lib/types'; // Adjust the import path as needed
 import { fetcher } from '@/lib/fetchers';
+import { toast } from 'sonner';
 
 const initialConfig: ConfigData = {
   general: {
@@ -391,9 +392,8 @@ export function ServerConfigStepper() {
           'Content-Type': 'application/json',
         },
       })
-      .then(response => {
-        console.log('Config submitted successfully:', response.data);
-        // Puoi aggiungere qui altre azioni dopo il successo dell'invio
+      .then(() => {
+        toast.success('Configuration saved successfully!');
         router.push('/');
       })
       .catch(error => {
@@ -624,7 +624,7 @@ export function ServerConfigStepper() {
                 id="submit-time"
                 placeholder="30"
                 type="number"
-                value={config.flagChecker.submit_flag_checker_time || ''}
+                value={config.flagChecker.submit_flag_checker_time || 0}
                 onChange={e =>
                   updateConfig(
                     'flagChecker',

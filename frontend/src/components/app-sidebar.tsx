@@ -1,6 +1,6 @@
 'use client';
 
-import { BarChart3, Shield, LandPlot, Settings } from 'lucide-react';
+import { LandPlot, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {

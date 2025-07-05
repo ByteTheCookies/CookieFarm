@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -11,7 +11,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -29,61 +28,46 @@ import {
 } from '@/components/ui/tooltip';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Info, Plus, Trash2, Save, Download } from 'lucide-react';
-import axios from 'axios';
 import useSWR from 'swr';
 import { Service, Protocol, ConfigData, SharedConfig } from '@/lib/types';
 import { fetcher } from '@/lib/fetchers';
-import { sharedConfigToConfigData } from '@/lib/adapters';
+import {
+  sharedConfigToConfigData,
+  configDataToSharedConfig,
+} from '@/lib/adapters';
+import { toast } from 'sonner';
+import { stringify } from 'yaml';
 
 export default function Settings() {
-  const {
-    data: sharedConfig,
-    error: configErrors,
-    isLoading: configLoading,
-  } = useSWR<SharedConfig>('/api/config', fetcher);
+  const [config, setConfig] = useState<ConfigData | null>(null);
+  const [protocols, setProtocols] = useState<Protocol[]>([]);
 
-  if (sharedConfig == null || undefined) {
+  const { data: sharedConfig } = useSWR<SharedConfig>('/api/config', fetcher);
+  const { data: fetchedProtocols } = useSWR<Protocol[]>(
+    '/api/protocols',
+    fetcher,
+  );
+
+  useEffect(() => {
+    if (sharedConfig) {
+      const configDataNew: ConfigData = sharedConfigToConfigData(sharedConfig);
+      setConfig(configDataNew);
+    }
+  }, [sharedConfig]);
+
+  useEffect(() => {
+    if (fetchedProtocols) {
+      setProtocols(fetchedProtocols);
+    }
+  }, [fetchedProtocols]);
+
+  if (!config) {
     return (
       <div className="flex h-screen items-center justify-center">
         <p className="text-muted-foreground">Loading configuration...</p>
       </div>
     );
   }
-  const configDataNew: ConfigData = sharedConfigToConfigData(sharedConfig);
-  const [config, setConfig] = useState<ConfigData>({
-    flagChecker: {
-      ipAddress: '',
-      port: '',
-      teamToken: '',
-      submitTime: '30',
-      batchSize: '100',
-      protocol: 'http',
-    },
-    rounds: {
-      duration: '120',
-      startTime: '',
-      endTime: '',
-    },
-    services: [],
-    teams: {
-      numberOfTeams: 10,
-      ownTeamId: 1,
-      nopTeamId: 0,
-      ipFormat: '10.10.{}.1',
-    },
-    notifications: {
-      flagSubmissionAlerts: true,
-      serviceDownAlerts: true,
-      roundChangeNotifications: true,
-      exploitSuccessAlerts: true,
-    },
-    security: {
-      apiKey: '',
-      sessionTimeout: '8',
-      twoFactorAuth: false,
-      auditLogging: false,
-    },
-  });
 
   const updateConfig = (
     section: keyof ConfigData,
@@ -91,9 +75,9 @@ export default function Settings() {
     value: any, // eslint-disable-line
   ) => {
     setConfig(prev => ({
-      ...prev,
+      ...prev!,
       [section]: {
-        ...prev[section],
+        ...prev![section],
         [field]: value,
       },
     }));
@@ -103,41 +87,28 @@ export default function Settings() {
     const newService: Service = {
       id: Date.now().toString(),
       name: '',
-      port: '',
+      port: 0,
     };
     setConfig(prev => ({
-      ...prev,
-      services: [...prev.services, newService],
+      ...prev!,
+      services: [...prev!.services, newService],
     }));
   };
 
   const removeService = (id: string) => {
     setConfig(prev => ({
-      ...prev,
-      services: prev.services.filter(service => service.id !== id),
+      ...prev!,
+      services: prev!.services.filter(service => service.id !== id),
     }));
   };
 
   const updateService = (id: string, field: keyof Service, value: string) => {
     setConfig(prev => ({
-      ...prev,
-      services: prev.services.map(service =>
+      ...prev!,
+      services: prev!.services.map(service =>
         service.id === id ? { ...service, [field]: value } : service,
       ),
     }));
-  };
-
-  const calculateTotalTicks = () => {
-    const { startTime, endTime, duration } = config.rounds;
-    if (!startTime || !endTime || !duration) return 0;
-
-    const start = new Date(startTime).getTime();
-    const end = new Date(endTime).getTime();
-    const durationMs = Number.parseInt(duration) * 1000;
-
-    if (end <= start || durationMs <= 0) return 0;
-
-    return Math.floor((end - start) / durationMs);
   };
 
   const InfoTooltip = ({ content }: { content: string }) => (
@@ -153,22 +124,31 @@ export default function Settings() {
     </TooltipProvider>
   );
 
-  const {
-    data: protocols = [],
-    error: protocolsError,
-    isLoading: loadingProtocols,
-  } = useSWR<Protocol[]>(`/api/protocols`, fetcher);
+  const saveConfiguration = async () => {
+    try {
+      const response = await fetch('/api/config', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ config: configDataToSharedConfig(config) }),
+      });
 
-  const saveConfiguration = () => {
-    // Implementation for saving configuration
-    console.log('Saving configuration:', config);
+      if (!response.ok) {
+        throw new Error('Failed to save configuration');
+      }
+      toast.success('Configuration saved successfully');
+    } catch (error) {
+      toast.error('Error saving configuration');
+      console.error('Error saving configuration:', error);
+    }
   };
 
   const exportConfiguration = () => {
-    const dataStr = JSON.stringify(config, null, 2);
+    const dataStr = stringify(configDataToSharedConfig(config), null, 2);
     const dataUri =
-      'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-    const exportFileDefaultName = 'cookiefarm-config.json';
+      'data:application/yaml;charset=utf-8,' + encodeURIComponent(dataStr);
+    const exportFileDefaultName = 'config.yaml';
 
     const linkElement = document.createElement('a');
     linkElement.setAttribute('href', dataUri);
@@ -200,10 +180,9 @@ export default function Settings() {
       <Tabs defaultValue="flag-checker" className="space-y-6">
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="flag-checker">Flag Checker</TabsTrigger>
-          <TabsTrigger value="rounds">Rounds</TabsTrigger>
           <TabsTrigger value="services">Services</TabsTrigger>
           <TabsTrigger value="teams">Teams</TabsTrigger>
-          <TabsTrigger value="system">System</TabsTrigger>
+          <TabsTrigger value="general">General</TabsTrigger>
         </TabsList>
 
         <TabsContent value="flag-checker" className="space-y-6">
@@ -215,37 +194,23 @@ export default function Settings() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <div className="flex items-center">
-                    <Label htmlFor="ip-address">IP Address</Label>
-                    <InfoTooltip content="The IP address of the flag checker server where flags will be submitted" />
-                  </div>
-                  <Input
-                    id="ip-address"
-                    placeholder="192.168.1.100"
-                    value={config.flagChecker.ipAddress}
-                    onChange={e =>
-                      updateConfig('flagChecker', 'ipAddress', e.target.value)
-                    }
-                  />
+              <div className="space-y-2">
+                <div className="flex items-center">
+                  <Label htmlFor="url-flag-checker">Flag Checker URL</Label>
+                  <InfoTooltip content="The URL of the flag checker server where flags will be submitted" />
                 </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center">
-                    <Label htmlFor="port">Port</Label>
-                    <InfoTooltip content="The port number on which the flag checker service is running" />
-                  </div>
-                  <Input
-                    id="port"
-                    placeholder="8080"
-                    type="number"
-                    value={config.flagChecker.port}
-                    onChange={e =>
-                      updateConfig('flagChecker', 'port', e.target.value)
-                    }
-                  />
-                </div>
+                <Input
+                  id="url-flag-checker"
+                  placeholder="http://example.com/flag-checker"
+                  value={config.flagChecker.url_flag_checker}
+                  onChange={e =>
+                    updateConfig(
+                      'flagChecker',
+                      'url_flag_checker',
+                      e.target.value,
+                    )
+                  }
+                />
               </div>
 
               <div className="space-y-2">
@@ -257,9 +222,9 @@ export default function Settings() {
                   id="team-token"
                   placeholder="your-team-token-here"
                   type="password"
-                  value={config.flagChecker.teamToken}
+                  value={config.flagChecker.team_token}
                   onChange={e =>
-                    updateConfig('flagChecker', 'teamToken', e.target.value)
+                    updateConfig('flagChecker', 'team_token', e.target.value)
                   }
                 />
               </div>
@@ -274,9 +239,13 @@ export default function Settings() {
                     id="submit-time"
                     placeholder="30"
                     type="number"
-                    value={config.flagChecker.submitTime}
+                    value={config.flagChecker.submit_flag_checker_time}
                     onChange={e =>
-                      updateConfig('flagChecker', 'submitTime', e.target.value)
+                      updateConfig(
+                        'flagChecker',
+                        'submit_flag_checker_time',
+                        e.target.value,
+                      )
                     }
                   />
                 </div>
@@ -290,120 +259,48 @@ export default function Settings() {
                     id="batch-size"
                     placeholder="100"
                     type="number"
-                    value={config.flagChecker.batchSize}
+                    value={config.flagChecker.max_flag_batch_size}
                     onChange={e =>
-                      updateConfig('flagChecker', 'batchSize', e.target.value)
+                      updateConfig(
+                        'flagChecker',
+                        'max_flag_batch_size',
+                        e.target.value,
+                      )
                     }
                   />
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <div className="flex items-center">
-                  <Label htmlFor="protocol">Communication Protocol</Label>
-                  <InfoTooltip content="The protocol used to communicate with the flag checker (depends on CTF platform)" />
-                </div>
-                <Select
-                  value={config.flagChecker.protocol}
-                  onValueChange={value =>
-                    updateConfig('flagChecker', 'protocol', value)
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select protocol" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {protocols.map(protocol => (
-                      <SelectItem key={protocol.value} value={protocol.value}>
-                        {protocol.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+              <Separator />
 
-        <TabsContent value="rounds" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Rounds Configuration</CardTitle>
-              <CardDescription>
-                Set up match timing, round duration, and schedule
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
               <div className="space-y-2">
                 <div className="flex items-center">
-                  <Label htmlFor="round-duration">
-                    Round Duration (seconds)
-                  </Label>
-                  <InfoTooltip content="Duration of each round/tick in seconds. Common values are 60, 120, or 300 seconds" />
+                  <Label htmlFor="regex-flag">Flag Regex</Label>
+                  <InfoTooltip content="Regular expression used to validate flag format" />
                 </div>
                 <Input
-                  id="round-duration"
-                  placeholder="120"
-                  type="number"
-                  value={config.rounds.duration}
+                  id="regex-flag"
+                  placeholder="^FLAG-[A-Za-z0-9]+$"
+                  value={config.flagInfo.regex_flag}
                   onChange={e =>
-                    updateConfig('rounds', 'duration', e.target.value)
+                    updateConfig('flagInfo', 'regex_flag', e.target.value)
                   }
                 />
               </div>
 
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <div className="flex items-center">
-                    <Label htmlFor="start-time">Match Start Time</Label>
-                    <InfoTooltip content="When the CTF match begins. Use local time format" />
-                  </div>
-                  <Input
-                    id="start-time"
-                    type="datetime-local"
-                    value={config.rounds.startTime}
-                    onChange={e =>
-                      updateConfig('rounds', 'startTime', e.target.value)
-                    }
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center">
-                    <Label htmlFor="end-time">Match End Time</Label>
-                    <InfoTooltip content="When the CTF match ends. Use local time format" />
-                  </div>
-                  <Input
-                    id="end-time"
-                    type="datetime-local"
-                    value={config.rounds.endTime}
-                    onChange={e =>
-                      updateConfig('rounds', 'endTime', e.target.value)
-                    }
-                  />
-                </div>
-              </div>
-
               <div className="space-y-2">
                 <div className="flex items-center">
-                  <Label>Total Number of Ticks</Label>
-                  <InfoTooltip content="Automatically calculated based on match duration and round length" />
+                  <Label htmlFor="url-flag-ids">Flag IDs URL</Label>
+                  <InfoTooltip content="URL to fetch flag IDs for validation and tracking" />
                 </div>
-                <div className="bg-muted rounded-lg p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-primary text-3xl font-bold">
-                        {calculateTotalTicks()}
-                      </span>
-                      <span className="text-muted-foreground ml-2 text-lg">
-                        ticks
-                      </span>
-                    </div>
-                    <Badge variant="outline">
-                      {config.rounds.duration}s per round
-                    </Badge>
-                  </div>
-                </div>
+                <Input
+                  id="url-flag-ids"
+                  placeholder="http://example.com/flag-ids"
+                  value={config.flagInfo.url_flag_ids}
+                  onChange={e =>
+                    updateConfig('flagInfo', 'url_flag_ids', e.target.value)
+                  }
+                />
               </div>
             </CardContent>
           </Card>
@@ -437,7 +334,7 @@ export default function Settings() {
                 <div className="space-y-4">
                   {config.services.map((service, index) => (
                     <div
-                      key={service.id}
+                      key={`${service.id}-${index}`}
                       className="flex items-center gap-4 rounded-lg border p-4"
                     >
                       <Badge variant="outline">Service {index + 1}</Badge>
@@ -495,38 +392,36 @@ export default function Settings() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <div className="flex items-center">
-                    <Label htmlFor="num-teams">Number of Teams</Label>
-                    <InfoTooltip content="Total number of teams participating in the CTF" />
-                  </div>
-                  <Input
-                    id="num-teams"
-                    placeholder="10"
-                    type="number"
-                    value={config.teams.numberOfTeams}
-                    onChange={e =>
-                      updateConfig('teams', 'numberOfTeams', e.target.value)
-                    }
-                  />
+              <div className="space-y-2">
+                <div className="flex items-center">
+                  <Label htmlFor="range-ip-teams">Range of IP Teams</Label>
+                  <InfoTooltip content="Total number of teams participating in the CTF" />
                 </div>
+                <Input
+                  id="range-ip-teams"
+                  placeholder="10"
+                  type="number"
+                  value={config.teams.range_ip_teams}
+                  onChange={e =>
+                    updateConfig('teams', 'range_ip_teams', e.target.value)
+                  }
+                />
+              </div>
 
-                <div className="space-y-2">
-                  <div className="flex items-center">
-                    <Label htmlFor="own-team">Your Team ID</Label>
-                    <InfoTooltip content="Your own team ID - this team will be excluded from attacks" />
-                  </div>
-                  <Input
-                    id="own-team"
-                    placeholder="5"
-                    type="number"
-                    value={config.teams.ownTeamId}
-                    onChange={e =>
-                      updateConfig('teams', 'ownTeamId', e.target.value)
-                    }
-                  />
+              <div className="space-y-2">
+                <div className="flex items-center">
+                  <Label htmlFor="my-team-id">Your Team ID</Label>
+                  <InfoTooltip content="Your own team ID - this team will be excluded from attacks" />
                 </div>
+                <Input
+                  id="my-team-id"
+                  placeholder="5"
+                  type="number"
+                  value={config.teams.my_team_id}
+                  onChange={e =>
+                    updateConfig('teams', 'my_team_id', e.target.value)
+                  }
+                />
               </div>
 
               <div className="space-y-2">
@@ -538,24 +433,24 @@ export default function Settings() {
                   id="nop-team"
                   placeholder="1"
                   type="number"
-                  value={config.teams.nopTeamId}
+                  value={config.teams.nop_team}
                   onChange={e =>
-                    updateConfig('teams', 'nopTeamId', e.target.value)
+                    updateConfig('teams', 'nop_team', e.target.value)
                   }
                 />
               </div>
 
               <div className="space-y-2">
                 <div className="flex items-center">
-                  <Label htmlFor="ip-format">Team IP Format</Label>
+                  <Label htmlFor="format-ip-teams">Team IP Format</Label>
                   <InfoTooltip content="IP address pattern for teams. Use {} as placeholder for team ID (e.g., 10.10.{}.1 becomes 10.10.5.1 for team 5)" />
                 </div>
                 <Input
-                  id="ip-format"
+                  id="format-ip-teams"
                   placeholder="10.10.{}.1"
-                  value={config.teams.ipFormat}
+                  value={config.teams.format_ip_teams}
                   onChange={e =>
-                    updateConfig('teams', 'ipFormat', e.target.value)
+                    updateConfig('teams', 'format_ip_teams', e.target.value)
                   }
                 />
               </div>
@@ -563,14 +458,20 @@ export default function Settings() {
               <div className="bg-muted mt-6 rounded-lg p-4">
                 <h4 className="mb-2 font-semibold">Example Team IPs:</h4>
                 <div className="text-muted-foreground space-y-1 text-sm">
-                  <p>Team 1: {config.teams.ipFormat.replace('{}', '1')}</p>
-                  <p>Team 2: {config.teams.ipFormat.replace('{}', '2')}</p>
-                  <p>Team 3: {config.teams.ipFormat.replace('{}', '3')}</p>
                   <p>
-                    Your Team ({config.teams.ownTeamId}):{' '}
-                    {config.teams.ipFormat.replace(
+                    Team 1: {config.teams.format_ip_teams.replace('{}', '1')}
+                  </p>
+                  <p>
+                    Team 2: {config.teams.format_ip_teams.replace('{}', '2')}
+                  </p>
+                  <p>
+                    Team 3: {config.teams.format_ip_teams.replace('{}', '3')}
+                  </p>
+                  <p>
+                    Your Team ({config.teams.my_team_id}):{' '}
+                    {config.teams.format_ip_teams.replace(
                       '{}',
-                      config.teams.ownTeamId,
+                      config.teams.my_team_id.toString(),
                     )}
                   </p>
                 </div>
@@ -578,163 +479,104 @@ export default function Settings() {
             </CardContent>
           </Card>
         </TabsContent>
+        <TabsContent value="general" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>General Configuration</CardTitle>
+              <CardDescription>
+                Configure general server settings and time parameters
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <div className="flex items-center">
+                  <Label htmlFor="protocol">Protocol</Label>
+                  <InfoTooltip content="Protocol used by the server (e.g., HTTP, HTTPS)" />
+                </div>
+                <Select
+                  value={config.general.protocol}
+                  onValueChange={value =>
+                    updateConfig('general', 'protocol', value)
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select protocol" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {protocols.map(protocol => (
+                      <SelectItem key={protocol.value} value={protocol.value}>
+                        {protocol.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-        <TabsContent value="system" className="space-y-6">
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            {/* Notification Settings */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Notifications</CardTitle>
-                <CardDescription>
-                  Configure alert and notification preferences
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Flag Submission Alerts</Label>
-                    <p className="text-muted-foreground text-sm">
-                      Get notified when flags are submitted
-                    </p>
-                  </div>
-                  <Switch
-                    checked={config.notifications.flagSubmissionAlerts}
-                    onCheckedChange={checked =>
-                      updateConfig(
-                        'notifications',
-                        'flagSubmissionAlerts',
-                        checked,
-                      )
-                    }
-                  />
+              <div className="space-y-2">
+                <div className="flex items-center">
+                  <Label htmlFor="tick-time">Tick Time (ms)</Label>
+                  <InfoTooltip content="Interval in milliseconds between server ticks" />
                 </div>
-                <Separator />
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Service Down Alerts</Label>
-                    <p className="text-muted-foreground text-sm">
-                      Alert when services go offline
-                    </p>
-                  </div>
-                  <Switch
-                    checked={config.notifications.serviceDownAlerts}
-                    onCheckedChange={checked =>
-                      updateConfig(
-                        'notifications',
-                        'serviceDownAlerts',
-                        checked,
-                      )
-                    }
-                  />
-                </div>
-                <Separator />
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Round Change Notifications</Label>
-                    <p className="text-muted-foreground text-sm">
-                      Notify when rounds change
-                    </p>
-                  </div>
-                  <Switch
-                    checked={config.notifications.roundChangeNotifications}
-                    onCheckedChange={checked =>
-                      updateConfig(
-                        'notifications',
-                        'roundChangeNotifications',
-                        checked,
-                      )
-                    }
-                  />
-                </div>
-                <Separator />
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Exploit Success Alerts</Label>
-                    <p className="text-muted-foreground text-sm">
-                      Alert on successful exploits
-                    </p>
-                  </div>
-                  <Switch
-                    checked={config.notifications.exploitSuccessAlerts}
-                    onCheckedChange={checked =>
-                      updateConfig(
-                        'notifications',
-                        'exploitSuccessAlerts',
-                        checked,
-                      )
-                    }
-                  />
-                </div>
-              </CardContent>
-            </Card>
+                <Input
+                  id="tick-time"
+                  placeholder="1000"
+                  type="number"
+                  value={config.general.tick_time}
+                  onChange={e =>
+                    updateConfig('general', 'tick_time', e.target.value)
+                  }
+                />
+              </div>
 
-            {/* Security Settings */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Security</CardTitle>
-                <CardDescription>
-                  Configure security and access control settings
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="api-key">API Key</Label>
-                  <Input
-                    id="api-key"
-                    type="password"
-                    placeholder="••••••••••••••••"
-                    value={config.security.apiKey}
-                    onChange={e =>
-                      updateConfig('security', 'apiKey', e.target.value)
-                    }
-                  />
+              <div className="space-y-2">
+                <div className="flex items-center">
+                  <Label htmlFor="flag-ttl">Flag TTL (seconds)</Label>
+                  <InfoTooltip content="Time-to-live for flags before they expire" />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="session-timeout">
-                    Session Timeout (hours)
-                  </Label>
-                  <Input
-                    id="session-timeout"
-                    type="number"
-                    placeholder="8"
-                    value={config.security.sessionTimeout}
-                    onChange={e =>
-                      updateConfig('security', 'sessionTimeout', e.target.value)
-                    }
-                  />
+                <Input
+                  id="flag-ttl"
+                  placeholder="300"
+                  type="number"
+                  value={config.general.flag_ttl}
+                  onChange={e =>
+                    updateConfig('general', 'flag_ttl', e.target.value)
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center">
+                  <Label htmlFor="start-time">Start Time</Label>
+                  <InfoTooltip content="Start time of the CTF match (ISO 8601 format)" />
                 </div>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Two-Factor Authentication</Label>
-                    <p className="text-muted-foreground text-sm">
-                      Enable 2FA for additional security
-                    </p>
-                  </div>
-                  <Switch
-                    checked={config.security.twoFactorAuth}
-                    onCheckedChange={checked =>
-                      updateConfig('security', 'twoFactorAuth', checked)
-                    }
-                  />
+                <Input
+                  id="start-time"
+                  placeholder="2023-01-01T00:00:00Z"
+                  type="text"
+                  value={config.general.start_time}
+                  onChange={e =>
+                    updateConfig('general', 'start_time', e.target.value)
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center">
+                  <Label htmlFor="end-time">End Time</Label>
+                  <InfoTooltip content="End time of the CTF match (ISO 8601 format)" />
                 </div>
-                <Separator />
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Audit Logging</Label>
-                    <p className="text-muted-foreground text-sm">
-                      Log all system activities
-                    </p>
-                  </div>
-                  <Switch
-                    checked={config.security.auditLogging}
-                    onCheckedChange={checked =>
-                      updateConfig('security', 'auditLogging', checked)
-                    }
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+                <Input
+                  id="end-time"
+                  placeholder="2023-01-01T12:00:00Z"
+                  type="text"
+                  value={config.general.end_time}
+                  onChange={e =>
+                    updateConfig('general', 'end_time', e.target.value)
+                  }
+                />
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>

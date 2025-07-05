@@ -24,8 +24,9 @@ export type Service = {
 };
 
 export type SharedConfig = {
+  configured: boolean;
   server: {
-    protocol: Protocol;
+    protocol: string;
     tick_time: number;
     flag_ttl: number;
     start_time: string;

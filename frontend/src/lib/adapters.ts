@@ -5,7 +5,7 @@ export function sharedConfigToConfigData(
 ): ConfigData {
   return {
     general: {
-      protocol: shared_config.server.protocol.value,
+      protocol: shared_config.server.protocol,
       tick_time: shared_config.server.tick_time,
       flag_ttl: shared_config.server.flag_ttl,
       start_time: shared_config.server.start_time,
@@ -27,6 +27,34 @@ export function sharedConfigToConfigData(
       nop_team: shared_config.client.nop_team,
       my_team_id: shared_config.client.my_team_id,
       format_ip_teams: shared_config.client.format_ip_teams,
+    },
+  };
+}
+
+export function configDataToSharedConfig(configData: ConfigData): SharedConfig {
+  return {
+    configured: true,
+    server: {
+      protocol: configData.general.protocol,
+      tick_time: Number(configData.general.tick_time),
+      flag_ttl: Number(configData.general.flag_ttl),
+      start_time: configData.general.start_time,
+      end_time: configData.general.end_time,
+      url_flag_checker: configData.flagChecker.url_flag_checker,
+      team_token: configData.flagChecker.team_token,
+      submit_flag_checker_time: Number(
+        configData.flagChecker.submit_flag_checker_time,
+      ),
+      max_flag_batch_size: Number(configData.flagChecker.max_flag_batch_size),
+    },
+    client: {
+      regex_flag: configData.flagInfo.regex_flag,
+      url_flag_ids: configData.flagInfo.url_flag_ids,
+      services: configData.services,
+      range_ip_teams: configData.teams.range_ip_teams,
+      nop_team: configData.teams.nop_team,
+      my_team_id: Number(configData.teams.my_team_id),
+      format_ip_teams: configData.teams.format_ip_teams,
     },
   };
 }
