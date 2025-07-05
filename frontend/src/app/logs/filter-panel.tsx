@@ -90,6 +90,7 @@ const statusOptions = [
   { value: 'DENIED', label: 'Denied' },
   { value: 'RESUBMIT', label: 'Resubmit' },
   { value: 'ERROR', label: 'Error' },
+  { value: 'UNSUBMITTED', label: 'Pending' },
 ];
 
 export function FilterPanel({
