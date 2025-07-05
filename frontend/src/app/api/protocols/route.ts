@@ -16,13 +16,13 @@ export async function GET() {
       );
     }
 
-    const transformedData = protocolsArray.map((protocol: string) => ({
+    // To clean up - akiidjk
+    const protocolData = protocolsArray.map((protocol: string) => ({
       value: protocol,
-      label: protocol.replace('.so', ''),
+      label: protocol,
     }));
 
-    console.log('Transformed protocols:', transformedData);
-    return NextResponse.json(transformedData);
+    return NextResponse.json(protocolData);
   } catch (error) {
     console.error('Error fetching protocols:', error);
     return NextResponse.json(

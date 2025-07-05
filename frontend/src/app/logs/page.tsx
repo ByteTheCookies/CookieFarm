@@ -59,7 +59,6 @@ export default function FlagLogs() {
       .catch(error => {
         toast.error('Error deleting flag');
         console.error(error);
-        alert('Error deleting flag');
       });
   }
 
@@ -72,7 +71,6 @@ export default function FlagLogs() {
       .catch(error => {
         toast.error('Error copying flag');
         console.error(error);
-        alert('Error copying flag');
       });
   }
 
@@ -95,7 +93,6 @@ export default function FlagLogs() {
       .catch(error => {
         toast.error('Error submitting flag');
         console.error(error);
-        alert('Error submitting flag');
       });
   }
 
@@ -130,7 +127,6 @@ export default function FlagLogs() {
       .catch(error => {
         toast.error('Error submitting flag');
         console.error(error);
-        alert('Error submitting flag');
       });
   }
 

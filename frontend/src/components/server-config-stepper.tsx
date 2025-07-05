@@ -89,21 +89,21 @@ const initialConfig: ConfigData = {
     end_time: '2025-07-02T18:00',
   },
   flagChecker: {
-    url_flag_checker: 'http://10.10.0.1:8080/flags',
-    team_token: '',
+    url_flag_checker: 'http://localhost:5001/flags',
+    team_token: '1234567890abcdef1234567890abcdef',
     submit_flag_checker_time: 120,
     max_flag_batch_size: 1000,
   },
   flagInfo: {
     regex_flag: '[A-Z0-9]{31}=',
-    url_flag_ids: 'http://10.10.0.1:8081/flagIds',
+    url_flag_ids: 'http://localhost:5001/flagIds',
   },
   services: [],
   teams: {
-    range_ip_teams: 0,
+    range_ip_teams: 29,
     nop_team: 0,
     my_team_id: 1,
-    format_ip_teams: '10.60.{}.1',
+    format_ip_teams: '10.10.{}.1',
   },
 };
 
@@ -146,7 +146,7 @@ const serviceSchema = z.object({
 const generalSchema = z.object({
   protocol: z.string().min(1, 'Protocol is required'),
   tick_time: z.number().min(1, 'Tick time must be greater than 0'),
-  flag_ttl: z.number().min(1, 'Flag time to live must be greater than 0'),
+  flag_ttl: z.number().min(0, 'Flag time to live must positive'),
   start_time: z.string().min(1, 'Start time is required'),
   end_time: z.string().min(1, 'End time is required'),
 });
@@ -538,7 +538,7 @@ export function ServerConfigStepper() {
                 id="flag-ttl"
                 placeholder="5"
                 type="number"
-                value={config.general.flag_ttl || ''}
+                value={config.general.flag_ttl || 0}
                 onChange={e =>
                   updateConfig('general', 'flag_ttl', e.target.value)
                 }
@@ -909,7 +909,7 @@ export function ServerConfigStepper() {
                 id="nop-team"
                 placeholder="1"
                 type="number"
-                value={config.teams.nop_team || ''}
+                value={config.teams.nop_team || 0}
                 onChange={e =>
                   updateConfig('teams', 'nop_team', e.target.value)
                 }

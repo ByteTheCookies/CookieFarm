@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"strings"
 
 	json "github.com/bytedance/sonic"
 
@@ -108,9 +109,9 @@ func HandleGetProtocols(c *fiber.Ctx) error {
 		if protocols, err := os.ReadDir(path); err == nil {
 			for _, entry := range protocols {
 				if entry.IsDir() {
-					protocolNames = append(protocolNames, entry.Name())
+					protocolNames = append(protocolNames, strings.Split(entry.Name(), ".")[0])
 				} else if matched, _ := filepath.Match("*.so", entry.Name()); matched {
-					protocolNames = append(protocolNames, entry.Name())
+					protocolNames = append(protocolNames, strings.Split(entry.Name(), ".")[0])
 				}
 			}
 			break
