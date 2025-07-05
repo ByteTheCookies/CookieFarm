@@ -39,13 +39,23 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const cookies = request.headers.get('cookie');
+
     const response = await axios.get(`${BACKEND_URL}/api/v1/config`, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(cookies && { Cookie: cookies }),
+      },
       withCredentials: true,
     });
 
     console.log('Backend response:', response.data);
+
+    
+    console.log('Services: ', response.data.client.services);
+
     return NextResponse.json(response.data);
   } catch (error: any) {
     console.error('Error fetching config:', error);

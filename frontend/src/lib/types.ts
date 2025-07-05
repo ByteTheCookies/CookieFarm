@@ -23,6 +23,29 @@ export type Service = {
   port: number;
 };
 
+export type SharedConfig = {
+  server: {
+    protocol: Protocol;
+    tick_time: number;
+    flag_ttl: number;
+    start_time: string;
+    end_time: string;
+    url_flag_checker: string;
+    team_token: string;
+    submit_flag_checker_time: number;
+    max_flag_batch_size: number;
+  };
+  client: {
+    regex_flag: string;
+    url_flag_ids: string;
+    range_ip_teams: number;
+    nop_team: number;
+    my_team_id: number;
+    format_ip_teams: string;
+    services: Service[];
+  };
+};
+
 export type ConfigData = {
   general: {
     protocol: string;
