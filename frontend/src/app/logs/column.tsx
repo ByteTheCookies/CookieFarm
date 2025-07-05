@@ -40,7 +40,7 @@ import { Badge } from '@/components/ui/badge';
 export type Flag = {
   flag_code: string;
   service_name: string;
-  status: 'ACCEPTED' | 'DENIED' | 'RESUBMIT' | 'ERROR';
+  status: 'ACCEPTED' | 'DENIED' | 'RESUBMIT' | 'ERROR' | 'UNSUBMITTED';
   exploit_name: string;
   msg: string;
   submit_time: number;

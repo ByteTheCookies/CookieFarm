@@ -5,7 +5,7 @@ import './globals.css';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app-sidebar';
 import { usePathname } from 'next/navigation';
-import { Toaster } from "@/components/ui/sonner"
+import { Toaster } from '@/components/ui/sonner';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -22,7 +22,10 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         {isLoginPage || isConfigPage ? (
-          <main className="min-h-screen w-full">{children}</main>
+          <div>
+            <main className="min-h-screen w-full">{children}</main>
+            <Toaster />
+          </div>
         ) : (
           <SidebarProvider>
             <div className="flex min-h-screen w-full">

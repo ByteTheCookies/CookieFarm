@@ -24,7 +24,8 @@ export async function POST(request: NextRequest) {
 
     console.log('Backend response:', response.data);
     return NextResponse.json(response.data);
-  } catch (error: any) { // eslint-disable-line
+  } catch (error: any) {
+    // eslint-disable-line
     console.error('Error sending config:', error);
 
     if (error.response?.status === 401) {

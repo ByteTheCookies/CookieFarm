@@ -4,22 +4,22 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 const nextConfig: NextConfig = isProduction
   ? {
-    experimental: {
-      optimizeCss: true,
-    },
-    compress: true,
-    images: {
-      unoptimized: false,
-    },
-  }
+      experimental: {
+        optimizeCss: true,
+      },
+      compress: true,
+      images: {
+        unoptimized: false,
+      },
+    }
   : {
-    experimental: {
-      optimizeCss: false,
-    },
-    compress: false,
-    images: {
-      unoptimized: true,
-    },
-  };
+      experimental: {
+        optimizeCss: false,
+      },
+      compress: false,
+      images: {
+        unoptimized: true,
+      },
+    };
 
 export default nextConfig;
