@@ -12,9 +12,14 @@ export function getServiceEntries(tagify) {
 export function validateConfigForm(document, tagify) {
   const validators = {
     team_token: val => val.length > 0,
-    host_flagchecker: val => val.length > 0,
+    url_flag_checker: val => val.length > 0,
     protocol: val => val.length > 0,
-    my_team_ip: val => /^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$/.test(val),
+    start_time: val => /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(val),
+    end_time: val => /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(val),
+    max_flag_batch_size: val => parseInt(val) > 0,
+    tick_time: val => parseInt(val) > 0,
+    submit_flag_checker_time: val => parseInt(val) >= 0,
+    flag_ttl: val => parseInt(val) > 0,
     regex_flag: val => {
       try {
         new RegExp(val);
@@ -24,9 +29,10 @@ export function validateConfigForm(document, tagify) {
       }
     },
     format_ip_teams: val => /^((\d{1,3}|\{\})\.){3}(\d{1,3}|\{\})$/.test(val),
+    my_team_id: val => parseInt(val) >= 0,
+    url_flag_ids: val => val.length > 0,
+    nop_team: val => parseInt(val) >= 0,
     range_ip_teams: val => parseInt(val) > 0,
-    max_flag_batch_size: val => parseInt(val) > 0,
-    submit_flag_checker_time: val => parseInt(val) >= 0,
   };
 
   const resultBox = document.getElementById("config-result");
@@ -58,18 +64,24 @@ export function buildConfigFromDOM(document, tagify) {
   return {
     configured: true,
     server: {
+      url_flag_checker: get("url_flag_checker"),
       team_token: get("team_token"),
-      host_flagchecker: get("host_flagchecker"),
       protocol: get("protocol"),
+      start_time: get("start_time"),
+      end_time: get("end_time"),
       max_flag_batch_size: Number(get("max_flag_batch_size")),
+      tick_time: Number(get("tick_time")),
       submit_flag_checker_time: Number(get("submit_flag_checker_time")),
+      flag_ttl: Number(get("flag_ttl")),
     },
     client: {
       services: getServiceEntries(tagify),
-      range_ip_teams: Number(get("range_ip_teams")),
-      format_ip_teams: get("format_ip_teams"),
-      my_team_ip: get("my_team_ip"),
       regex_flag: get("regex_flag"),
+      format_ip_teams: get("format_ip_teams"),
+      my_team_id: Number(get("my_team_id")),
+      url_flag_ids: get("url_flag_ids"),
+      nop_team: Number(get("nop_team")),
+      range_ip_teams: Number(get("range_ip_teams")),
     },
   };
 }
