@@ -2,8 +2,8 @@ import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import useSWR, { mutate } from 'swr';
 import { fetcher } from '@/lib/fetchers';
 import { BACKEND_URL } from '@/lib/constants';
-import { Flag } from '@/app/logs/column';
 import { SortingState, ColumnFiltersState } from '@tanstack/react-table';
+import { Flag } from '@/lib/types';
 
 interface PaginationState {
   pageIndex: number;

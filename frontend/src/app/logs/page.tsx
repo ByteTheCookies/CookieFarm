@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Flag, getColumns } from './column';
+import { getColumns } from './column';
 import { DataTable } from './data-table';
 import { FilterPanel } from './filter-panel';
 import { usePaginatedFlags } from '@/hooks/usePaginatedFlags';
@@ -19,7 +19,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
-import { Label } from '@radix-ui/react-label';
+import { Flag } from '@/lib/types';
 
 export default function FlagLogs() {
   const {
@@ -102,14 +102,14 @@ export default function FlagLogs() {
   function submitFlagCode(flag: string) {
     const flagObj: Flag = {
       flag_code: flag,
-      service_name: "",
-      status: "UNSUBMITTED",
-      exploit_name: "",
-      msg: "",
+      service_name: '',
+      status: 'UNSUBMITTED',
+      exploit_name: '',
+      msg: '',
       submit_time: Math.floor(Date.now() / 1000),
       response_time: 0,
       port_service: 0,
-      team_id: 0
+      team_id: 0,
     };
 
     axios
@@ -167,13 +167,13 @@ export default function FlagLogs() {
             Advanced server-side filtering, searching, sorting and pagination
           </p>
         </div>
-        <div className='flex gap-2'>
+        <div className="flex gap-2">
           <Input
             name="flag"
             type="text"
             value={manualFlag}
-            onChange={(e) => setManualFlag(e.target.value)}
-            placeholder='flag...'
+            onChange={e => setManualFlag(e.target.value)}
+            placeholder="flag..."
           />
           <Button onClick={() => submitFlagCode(manualFlag)}>Submit</Button>
         </div>
