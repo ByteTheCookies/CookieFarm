@@ -1,5 +1,5 @@
 # 1) build stage
-FROM oven/bun:1.2.5-alpine AS builder
+FROM oven/bun:1.2.18-alpine AS builder
 WORKDIR /app
 
 # install deps e build
@@ -10,7 +10,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN bun run build
 
 # 2) runtime stage
-FROM oven/bun:1.2.5-alpine AS runner
+FROM oven/bun:1.2.18-alpine AS runner
 WORKDIR /app
 
 # copia tutto il necessario

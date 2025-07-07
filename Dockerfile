@@ -13,7 +13,7 @@ RUN make server-build-prod
 RUN make server-build-plugins-prod
 
 # Runtime stage
-FROM alpine:3.20.1 AS prod
+FROM alpine:latest AS prod
 
 WORKDIR /app
 
