@@ -4,6 +4,8 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 )
 
+// =========== Menu Initialization ==========
+
 // InitializeMenus initializes all the menus for the TUI
 func InitializeMenus() (list.Model, list.Model, list.Model) {
 	mainMenu := createMainMenu()
@@ -76,6 +78,8 @@ func createExploitMenu() list.Model {
 
 	return exploitMenuList
 }
+
+// ========== Menu Item Handling ==========
 
 // GetSelectedItem returns the selected item from the given menu
 func GetSelectedItem(menu list.Model) (menuItem, bool) {

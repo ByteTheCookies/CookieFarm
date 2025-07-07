@@ -81,7 +81,14 @@ func init() {
 
 			go func() {
 				logger.Log.Info().Msg("pprof attivo su :6060")
-				logger.Log.Info().Msgf("%s", http.ListenAndServe("localhost:6060", mux))
+				server := &http.Server{
+					Addr:         "localhost:6060",
+					Handler:      mux,
+					ReadTimeout:  5 * time.Second,
+					WriteTimeout: 10 * time.Second,
+					IdleTimeout:  120 * time.Second,
+				}
+				logger.Log.Info().Msgf("%s", server.ListenAndServe())
 			}()
 		}
 	}

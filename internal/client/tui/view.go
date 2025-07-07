@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
@@ -351,4 +352,17 @@ func (r *ViewRenderer) renderQuitMessage() string {
 		lipgloss.Center,
 		message,
 	)
+}
+
+func (m Model) updateActiveView(msg tea.Msg) tea.Cmd {
+	var cmd tea.Cmd
+	switch m.GetActiveView() {
+	case "main":
+		m.mainMenu, cmd = m.mainMenu.Update(msg)
+	case "config":
+		m.configMenu, cmd = m.configMenu.Update(msg)
+	case "exploit":
+		m.exploitMenu, cmd = m.exploitMenu.Update(msg)
+	}
+	return cmd
 }

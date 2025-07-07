@@ -14,36 +14,38 @@ import (
 
 // Model is the main TUI model
 type Model struct {
-	activeView     string
-	mainMenu       list.Model
-	configMenu     list.Model
-	exploitMenu    list.Model
-	inputs         []textinput.Model
-	inputLabels    []string
-	focusIndex     int
-	inputMode      bool
-	err            error
-	help           help.Model
-	quitting       bool
-	width, height  int
-	banner         string
-	activeCommand  string
-	runningCommand bool
-	commandOutput  string
-	cmdRunner      *CommandRunner
-	streaming      bool          // Whether streaming mode is active
-	lastUpdate     int64         // Last update timestamp for streaming output
-	spinner        spinner.Model // Spinner for loading state
-	loading        bool          // Whether a command is currently loading
-
-	// Selection list for exploit processes to stop
+	err              error
+	cmdRunner        *CommandRunner
+	help             help.Model
+	mainMenu         list.Model
+	configMenu       list.Model
+	exploitMenu      list.Model
+	spinner          spinner.Model // Spinner for loading state
+	exploitTable     table.Model   // Table for displaying exploit data
+	inputLabels      []string
+	inputs           []textinput.Model
 	exploitProcesses []ExploitProcess // List of running exploit processes
-	selectedProcess  int              // Index of selected process
-	showProcessList  bool             // Whether to show process selection list
+	activeView       string
+	banner           string
+	activeCommand    string
+	commandOutput    string
+	lastUpdate       int64
+	width, height    int
+	focusIndex       int
+	selectedProcess  int
+	inputMode        bool
+	runningCommand   bool
+	quitting         bool
+	streaming        bool // Whether streaming mode is active
+	loading          bool // Whether a command is currently loading
+	showProcessList  bool // Whether to show process selection list
+	showTable        bool // Whether to show the table view
+}
 
-	// Table for displaying exploit data
-	exploitTable table.Model // Table for displaying exploit data
-	showTable    bool        // Whether to show the table view
+// TableUpdateMsg is a message to update the table data
+type TableUpdateMsg struct {
+	Rows []table.Row
+	Show bool
 }
 
 // CommandOutput represents the result of a command execution
@@ -127,6 +129,8 @@ func (k keyMap) FullHelp() [][]key.Binding {
 	}
 }
 
+// ========== Model Methods ==========
+
 // SetError sets an error message for the model
 func (m *Model) SetError(err error) {
 	m.err = err
@@ -142,14 +146,14 @@ func (m *Model) IsInputMode() bool {
 	return m.inputMode
 }
 
-// IsRunningCommand returns true if a command is currently running
-func (m *Model) IsRunningCommand() bool {
-	return m.runningCommand
-}
-
 // SetInputMode sets the input mode state
 func (m *Model) SetInputMode(state bool) {
 	m.inputMode = state
+}
+
+// IsRunningCommand returns true if a command is currently running
+func (m *Model) IsRunningCommand() bool {
+	return m.runningCommand
 }
 
 // SetRunningCommand sets the running command state
@@ -273,4 +277,50 @@ func (m *Model) SelectPreviousProcess() {
 		return
 	}
 	m.selectedProcess = (m.selectedProcess - 1 + len(m.exploitProcesses)) % len(m.exploitProcesses)
+}
+
+// ========== Exploit Process Management ==========
+
+// ExploitOutput represents output from a running exploit
+type ExploitOutput struct {
+	Content string
+	Error   error
+	PID     int
+}
+
+// CommandRunner handles the execution of commands for the TUI
+type CommandRunner struct {
+	exploitOutputChan chan ExploitOutput
+	currentExploitPID int
+}
+
+// ExploitProcess represents a running exploit process
+type ExploitProcess struct {
+	ID   int
+	Name string
+	PID  int
+}
+
+// ExploitTableData holds exploit process data
+var ExploitTableData []ExploitProcess
+
+// ========== Command Execution ==========
+
+// CommandHandler manages command execution and handling
+type CommandHandler struct {
+	cmdRunner *CommandRunner
+}
+
+// NewCommandHandler creates a new command handler
+func NewCommandHandler() *CommandHandler {
+	return &CommandHandler{
+		cmdRunner: NewCommandRunner(),
+	}
+}
+
+// ========== Form models ==========
+
+// FormData represents form input data
+type FormData struct {
+	Fields map[string]string
 }

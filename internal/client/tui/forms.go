@@ -10,10 +10,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-// FormData represents form input data
-type FormData struct {
-	Fields map[string]string
-}
+// ========== FormData creation function ==========
 
 // CreateForm creates input fields for a specific command
 func CreateForm(command string) ([]textinput.Model, []string) {
@@ -219,6 +216,8 @@ func createExploitStopForm() ([]textinput.Model, []string) {
 	return inputs, labels
 }
 
+// ========== FormData validation ==========
+
 // ValidateForm validates form inputs for a specific command
 func ValidateForm(command string, inputs []textinput.Model) error {
 	switch command {
@@ -324,6 +323,8 @@ func GetFormData(inputs []textinput.Model, labels []string) FormData {
 
 	return data
 }
+
+// ========== Form Navigation and Updates ==========
 
 // NavigateForm handles navigation within forms
 func NavigateForm(inputs []textinput.Model, currentFocus int, direction int) int {

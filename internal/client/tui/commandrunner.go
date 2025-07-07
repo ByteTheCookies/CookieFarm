@@ -20,19 +20,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-// ExploitOutput represents output from a running exploit
-type ExploitOutput struct {
-	Content string
-	Error   error
-	PID     int
-}
-
-// CommandRunner handles the execution of commands for the TUI
-type CommandRunner struct {
-	exploitOutputChan chan ExploitOutput
-	currentExploitPID int
-}
-
 // NewCommandRunner creates a new command runner
 func NewCommandRunner() *CommandRunner {
 	return &CommandRunner{
@@ -113,6 +100,15 @@ func (*CommandRunner) ExecuteConfigCommand(subcommand string) (string, error) {
 	}
 }
 
+// ExecuteExploitCommand executes exploit-related commands
+func (*CommandRunner) ExecuteExploitCommand(subcommand string) (string, error) {
+	// switch subcommand {
+	// default:
+	// 	return "", nil
+	// }
+	return "", nil
+}
+
 // ExecuteLogin handles the login command
 func (*CommandRunner) ExecuteLogin(password, host, username string, port uint16, https bool) (string, error) {
 	cm := config.GetConfigManager()
@@ -154,18 +150,6 @@ func (*CommandRunner) ExecuteConfigUpdate(host, port, username string, useHTTPS 
 		return "", fmt.Errorf("error during update of config in the file: %s", err)
 	}
 	return "Configuration updated successfully. File saved at:" + path, nil
-}
-
-var ExploitTableData []ExploitProcess
-
-// ExecuteExploitCommand executes exploit-related commands
-func (*CommandRunner) ExecuteExploitCommand(subcommand string) (string, error) {
-	switch subcommand {
-	case "list":
-		return "", nil
-	default:
-		return "", fmt.Errorf("unknown exploit subcommand: %s", subcommand)
-	}
 }
 
 func (r *CommandRunner) ExecuteExploitTest(
@@ -306,13 +290,6 @@ func (*CommandRunner) ExecuteExploitCreate(name string) (string, error) {
 // ExecuteExploitRemove handles removing an exploit template
 func (*CommandRunner) ExecuteExploitRemove(name string) (string, error) {
 	return exploit.Remove(name)
-}
-
-// ExploitProcess represents a running exploit process
-type ExploitProcess struct {
-	ID   int
-	Name string
-	PID  int
 }
 
 // GetRunningExploits returns a list of running exploit processes

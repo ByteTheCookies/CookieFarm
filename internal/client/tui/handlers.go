@@ -10,17 +10,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-// CommandHandler manages command execution and handling
-type CommandHandler struct {
-	cmdRunner *CommandRunner
-}
-
-// NewCommandHandler creates a new command handler
-func NewCommandHandler() *CommandHandler {
-	return &CommandHandler{
-		cmdRunner: NewCommandRunner(),
-	}
-}
+// ========== CommandHandler handles command execution and form processing ==========
 
 // HandleCommand processes a command and returns appropriate tea.Cmd
 func (h *CommandHandler) HandleCommand(command string, formData *FormData) tea.Cmd {
@@ -105,6 +95,8 @@ func (h *CommandHandler) executeFormCommand(command string, formData *FormData) 
 		},
 	)
 }
+
+// ========== Single Command Handlers ==========
 
 // handleLogin processes login command
 func (h *CommandHandler) handleLogin(formData *FormData) (string, error) {
@@ -204,6 +196,8 @@ func (h *CommandHandler) handleExploitStop(selectedProcess *ExploitProcess) (str
 	return fmt.Sprintf("Successfully stopped exploit: %s (PID: %d)\n\n%s",
 		selectedProcess.Name, selectedProcess.PID, result), nil
 }
+
+// ========== Utility Handling for navigation and forms ==========
 
 // HandleNavigation processes navigation commands
 func (*CommandHandler) HandleNavigation(command string, model *Model) (*Model, tea.Cmd) {
