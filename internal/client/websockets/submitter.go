@@ -8,16 +8,6 @@ import (
 	gorilla "github.com/gorilla/websocket"
 )
 
-type EventWS struct {
-	Type    string `json:"type"`
-	Payload []byte `json:"payload"`
-}
-
-type EventWSFlag struct {
-	Type    string            `json:"type"`
-	Payload models.ClientData `json:"payload"`
-}
-
 // Start initializes the submission loop to the cookiefarm server.
 func Start(flagsChan <-chan models.ClientData) error {
 	logger.Log.Info().Msg("Starting submission loop to the cookiefarm server with websockets (websockets) ...")
@@ -54,5 +44,3 @@ func Start(flagsChan <-chan models.ClientData) error {
 	logger.Log.Info().Msg("Submission loop finished")
 	return nil
 }
-
-// TODO: Sistema di accumulo in caso di non connesione fino a 2 minuti

@@ -2,7 +2,6 @@ package websockets
 
 import (
 	"errors"
-	"sync"
 	"time"
 
 	"github.com/ByteTheCookies/CookieFarm/pkg/logger"
@@ -22,17 +21,6 @@ const (
 	resetTimeout     = 30 * time.Second // Time to wait before switching to half-open state
 	halfOpenMaxRetry = 1                // Try one more time in half-open state
 )
-
-// CircuitState state of the circuit breaker
-type CircuitState int
-
-// CircuitBreaker is a struct that implements the circuit breaker pattern
-type CircuitBreaker struct {
-	state           CircuitState
-	failureCount    int
-	lastFailureTime time.Time
-	mutex           sync.Mutex
-}
 
 // CircuitBreaker methods
 

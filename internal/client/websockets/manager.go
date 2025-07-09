@@ -32,16 +32,6 @@ const (
 	pongWait = 60 * time.Second // pongWait is the time to wait for a pong response
 )
 
-type Event struct {
-	Type    string          `json:"type"`
-	Payload json.RawMessage `json:"payload"`
-}
-
-// NewMessageEvent represents a new message event
-type NewMessageEvent struct {
-	Sent time.Time `json:"sent"`
-}
-
 // bad handshake (401)
 // connection refused (503)
 func GetConnection() (*websocket.Conn, error) {

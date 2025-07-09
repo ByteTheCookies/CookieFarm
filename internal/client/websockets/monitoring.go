@@ -9,57 +9,6 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// ConnectionStatus represents the current status of the WebSocket connection
-type ConnectionStatus int
-
-const (
-	StatusDisconnected ConnectionStatus = iota
-	StatusConnecting
-	StatusConnected
-	StatusReconnecting
-	StatusFailed
-)
-
-// ConnectionStats holds statistics about the WebSocket connection
-type ConnectionStats struct {
-	// Connection tracking
-	ConnectionAttempts int
-	SuccessfulConnects int
-	FailedConnects     int
-	LastConnectTime    time.Time
-	LastDisconnectTime time.Time
-
-	// Message tracking
-	MessagesSent     int
-	MessagesReceived int
-	LastSendTime     time.Time
-	LastReceiveTime  time.Time
-
-	// Error tracking
-	LastError       error
-	ConsecutiveErrs int
-
-	// Status
-	CurrentStatus ConnectionStatus
-
-	// Latency tracking
-	LastPingTime     time.Time
-	LastPongTime     time.Time
-	CurrentLatency   time.Duration
-	AverageLatency   time.Duration
-	totalLatencySum  time.Duration
-	latencyDataCount int
-}
-
-// ConnectionMonitor monitors WebSocket connections and provides statistics
-type ConnectionMonitor struct {
-	stats        ConnectionStats
-	mutex        sync.RWMutex
-	conn         *websocket.Conn
-	isMonitoring bool
-	stopChan     chan struct{}
-}
-
 // Global instance of the connection monitor
 var (
 	monitor *ConnectionMonitor
