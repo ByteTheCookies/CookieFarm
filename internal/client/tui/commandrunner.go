@@ -153,9 +153,9 @@ func (*CommandRunner) ExecuteConfigUpdate(host, port, username string, useHTTPS 
 	return "Configuration updated successfully. File saved at:" + path, nil
 }
 
-func (r *CommandRunner) ExecuteExploitTest(
+func (*CommandRunner) ExecuteExploitTest(
 	exploitPath, servicePort string,
-	tickTime, threadCount string,
+	tickTime, threadCount string, submitValue bool,
 ) (string, error) {
 	tickTimeInt := 120  // default
 	threadCountInt := 5 // default
@@ -179,48 +179,28 @@ func (r *CommandRunner) ExecuteExploitTest(
 		return "", errors.New("service port is required")
 	}
 
-	result, err := exploit.Run(
+	err = exploit.Run(
 		exploitPath,
 		tickTimeInt,
 		threadCountInt,
 		servicePort,
 		false,
+		submitValue,
 	)
 	if err != nil {
 		return "", err
 	}
 
-	r.currentExploitPID = result.PID
-
-	go func() {
-		for line := range result.OutputChan {
-			select {
-			case r.exploitOutputChan <- ExploitOutput{Content: line, PID: result.PID}:
-			default:
-			}
-		}
-	}()
-
-	go func() {
-		for err := range result.ErrorChan {
-			select {
-			case r.exploitOutputChan <- ExploitOutput{Error: err, PID: result.PID}:
-			default:
-			}
-		}
-	}()
-
 	var initialOutput strings.Builder
-	initialOutput.WriteString(fmt.Sprintf("Exploit started with PID: %d\n", result.PID))
 	initialOutput.WriteString(fmt.Sprintf("Running with %d threads, tick time %d seconds\n", threadCountInt, tickTimeInt))
 	initialOutput.WriteString("Output streaming started. Live updates will appear below...\n")
 
 	return initialOutput.String(), nil
 }
 
-func (r *CommandRunner) ExecuteExploitRun(
+func (*CommandRunner) ExecuteExploitRun(
 	exploitPath, serviceName string,
-	tickTime, threadCount string,
+	tickTime, threadCount string, submitValue bool,
 ) (string, error) {
 	tickTimeInt := 120  // default
 	threadCountInt := 5 // default
@@ -244,39 +224,19 @@ func (r *CommandRunner) ExecuteExploitRun(
 		return "", errors.New("service port is required")
 	}
 
-	result, err := exploit.Run(
+	err = exploit.Run(
 		exploitPath,
 		tickTimeInt,
 		threadCountInt,
 		serviceName,
 		false,
+		submitValue,
 	)
 	if err != nil {
 		return "", err
 	}
 
-	r.currentExploitPID = result.PID
-
-	go func() {
-		for line := range result.OutputChan {
-			select {
-			case r.exploitOutputChan <- ExploitOutput{Content: line, PID: result.PID}:
-			default:
-			}
-		}
-	}()
-
-	go func() {
-		for err := range result.ErrorChan {
-			select {
-			case r.exploitOutputChan <- ExploitOutput{Error: err, PID: result.PID}:
-			default:
-			}
-		}
-	}()
-
 	var initialOutput strings.Builder
-	initialOutput.WriteString(fmt.Sprintf("Exploit started with PID: %d\n", result.PID))
 	initialOutput.WriteString(fmt.Sprintf("Running with %d threads, tick time %d seconds\n", threadCountInt, tickTimeInt))
 	initialOutput.WriteString("Output streaming started. Live updates will appear below...\n")
 

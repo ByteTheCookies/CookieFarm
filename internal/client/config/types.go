@@ -10,9 +10,9 @@ import (
 // values passed at runtime to control the exploit manager behavior.
 type ArgsAttack struct {
 	ExploitPath string `json:"exploit_path"` // Path to the exploit to run
+	ServiceName string `json:"service_name"` // Service Port
 	TickTime    int    `json:"tick_time"`    // Optional custom tick time
 	ThreadCount int    `json:"thread_count"` // Optional number of concurrent threads (coroutine) to use
-	ServiceName string `json:"service_name"` // Service Port
 	Detach      bool   `json:"detach"`       // Run in background if true
 }
 

@@ -136,12 +136,15 @@ func (h *CommandHandler) handleExploitRun(formData *FormData) (string, error) {
 	servicePort := formData.Fields["Service Port"]
 	tickTime := formData.Fields["Tick Time (seconds)"]
 	threadCount := formData.Fields["Thread Count"]
+	submitValueStr := formData.Fields["Submit Value (true/false)"]
 
 	if exploitPath == "" || servicePort == "" {
 		return "", errors.New("exploit path and service port are required")
 	}
 
-	return h.cmdRunner.ExecuteExploitRun(exploitPath, servicePort, tickTime, threadCount)
+	submitValue := strings.ToLower(submitValueStr) == "true"
+
+	return h.cmdRunner.ExecuteExploitRun(exploitPath, servicePort, tickTime, threadCount, submitValue)
 }
 
 // handleExploitRun processes exploit test command
@@ -150,12 +153,15 @@ func (h *CommandHandler) handleExploitTest(formData *FormData) (string, error) {
 	servicePort := formData.Fields["Service Port"]
 	tickTime := formData.Fields["Tick Time (seconds)"]
 	threadCount := formData.Fields["Thread Count"]
+	submitValueStr := formData.Fields["Submit Value (true/false)"]
 
 	if exploitPath == "" || servicePort == "" {
 		return "", errors.New("exploit path and service port are required")
 	}
 
-	return h.cmdRunner.ExecuteExploitTest(exploitPath, servicePort, tickTime, threadCount)
+	submitValue := strings.ToLower(submitValueStr) == "true"
+
+	return h.cmdRunner.ExecuteExploitTest(exploitPath, servicePort, tickTime, threadCount, submitValue)
 }
 
 // handleExploitCreate processes exploit create command

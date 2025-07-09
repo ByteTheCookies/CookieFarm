@@ -182,6 +182,15 @@ func createExploitRunForm() ([]textinput.Model, []string) {
 	inputs = append(inputs, threadCountInput)
 	labels = append(labels, "Thread Count")
 
+	// Submit value input
+	submitValueInput := textinput.New()
+	submitValueInput.Placeholder = "false"
+	submitValueInput.CharLimit = 5
+	submitValueInput.Width = 10
+	submitValueInput.SetValue("false")
+	inputs = append(inputs, submitValueInput)
+	labels = append(labels, "Submit Value (true/false)")
+
 	return inputs, labels
 }
 

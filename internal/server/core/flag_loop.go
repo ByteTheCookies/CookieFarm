@@ -65,27 +65,19 @@ func StartFlagProcessingLoop(ctx context.Context) {
 	}
 }
 
-// UpdateFlags updates the status of flags in the database.
 func UpdateFlags(flags []protocols.ResponseProtocol) {
+	statusCounts := map[string]int{
+		models.StatusAccepted: 0,
+		models.StatusDenied:   0,
+		models.StatusError:    0,
+	}
+
 	valid := flags[:0]
 
-	accepted, denied, errored := 0, 0, 0
 	for _, f := range flags {
-		switch f.Status {
-		case models.StatusAccepted:
-			accepted++
+		if _, exists := statusCounts[f.Status]; exists {
+			statusCounts[f.Status]++
 			valid = append(valid, f)
-
-		case models.StatusDenied:
-			denied++
-			valid = append(valid, f)
-
-		case models.StatusError:
-			errored++
-			valid = append(valid, f)
-
-		default:
-			continue
 		}
 	}
 
@@ -95,11 +87,11 @@ func UpdateFlags(flags []protocols.ResponseProtocol) {
 			Msg("Failed to update flags")
 	}
 
-	total := accepted + denied + errored
+	total := statusCounts[models.StatusAccepted] + statusCounts[models.StatusDenied] + statusCounts[models.StatusError]
 	logger.Log.Info().
-		Int("accepted", accepted).
-		Int("denied", denied).
-		Int("errored", errored).
+		Int("accepted", statusCounts[models.StatusAccepted]).
+		Int("denied", statusCounts[models.StatusDenied]).
+		Int("errored", statusCounts[models.StatusError]).
 		Int("total", total).
 		Msg("Flags update summary")
 }
