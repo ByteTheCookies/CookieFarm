@@ -14,8 +14,8 @@ import (
 var (
 	Password    string
 	cliHost     string
-	cliPort     uint16
 	cliUsername string
+	cliPort     uint16
 	cliHTTPS    bool
 )
 
@@ -69,6 +69,28 @@ var showConfigCmd = &cobra.Command{
 	Run:   show,
 }
 
+// ===== COMMAND INITIALIZATION =====
+
+func init() {
+	ConfigCmd.AddCommand(resetConfigCmd)
+	ConfigCmd.AddCommand(editConfigCmd)
+	ConfigCmd.AddCommand(loginConfigCmd)
+	ConfigCmd.AddCommand(logoutConfigCmd)
+	ConfigCmd.AddCommand(showConfigCmd)
+
+	editConfigCmd.Flags().StringVarP(&cliHost, "host", "H", "localhost", "Server host to connect to")
+	editConfigCmd.Flags().Uint16VarP(&cliPort, "port", "p", 8080, "Server port to connect to")
+	editConfigCmd.Flags().StringVarP(&cliUsername, "username", "u", "cookieguest", "Username for authenticating to the server")
+	editConfigCmd.Flags().BoolVarP(&cliHTTPS, "https", "s", false, "Use HTTPS for secure communication with the server")
+
+	loginConfigCmd.Flags().StringVarP(&cliHost, "host", "H", "localhost", "Server host to connect to")
+	loginConfigCmd.Flags().Uint16VarP(&cliPort, "port", "p", 8080, "Server port to connect to")
+	loginConfigCmd.Flags().StringVarP(&cliUsername, "username", "u", "cookieguest", "Username for authenticating to the server")
+	loginConfigCmd.Flags().BoolVarP(&cliHTTPS, "https", "s", false, "Use HTTPS for secure communication with the server")
+	loginConfigCmd.Flags().StringVarP(&Password, "password", "P", "", "Password for authenticating to the server")
+	loginConfigCmd.MarkFlagRequired("password")
+}
+
 // ===== CONFIG COMMAND FUNCTIONS =====
 
 // reset resets the configuration to defaults
@@ -95,8 +117,7 @@ func update(cmd *cobra.Command, args []string) {
 		Username: cliUsername,
 		HTTPS:    cliHTTPS,
 	}
-	cm.SetLocalConfig(localConfig)
-	configPath, err := cm.UpdateLocalConfigToFile(localConfig)
+	configPath, err := cm.SetLocalConfig(localConfig)
 	if err != nil {
 		logger.Log.Error().Err(err).Msg("Update configuration failed")
 		return
@@ -134,28 +155,6 @@ func show(cmd *cobra.Command, args []string) {
 		return
 	}
 	logger.Log.Info().Msg("Current configuration: \n```yaml\n" + content + "```")
-}
-
-// ===== COMMAND INITIALIZATION =====
-
-func init() {
-	ConfigCmd.AddCommand(resetConfigCmd)
-	ConfigCmd.AddCommand(editConfigCmd)
-	ConfigCmd.AddCommand(loginConfigCmd)
-	ConfigCmd.AddCommand(logoutConfigCmd)
-	ConfigCmd.AddCommand(showConfigCmd)
-
-	editConfigCmd.Flags().StringVarP(&cliHost, "host", "H", "localhost", "Server host to connect to")
-	editConfigCmd.Flags().Uint16VarP(&cliPort, "port", "p", 8080, "Server port to connect to")
-	editConfigCmd.Flags().StringVarP(&cliUsername, "username", "u", "cookieguest", "Username for authenticating to the server")
-	editConfigCmd.Flags().BoolVarP(&cliHTTPS, "https", "s", false, "Use HTTPS for secure communication with the server")
-
-	loginConfigCmd.Flags().StringVarP(&cliHost, "host", "H", "localhost", "Server host to connect to")
-	loginConfigCmd.Flags().Uint16VarP(&cliPort, "port", "p", 8080, "Server port to connect to")
-	loginConfigCmd.Flags().StringVarP(&cliUsername, "username", "u", "cookieguest", "Username for authenticating to the server")
-	loginConfigCmd.Flags().BoolVarP(&cliHTTPS, "https", "s", false, "Use HTTPS for secure communication with the server")
-	loginConfigCmd.Flags().StringVarP(&Password, "password", "P", "", "Password for authenticating to the server")
-	loginConfigCmd.MarkFlagRequired("password")
 }
 
 // LoginHandler handles user login

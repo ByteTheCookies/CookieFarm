@@ -4,12 +4,14 @@ package logger
 import (
 	_ "embed"
 	"fmt"
+	"image/color"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/charmbracelet/fang"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/rs/zerolog"
 )
@@ -143,6 +145,12 @@ func GetBanner(data string) string {
 	return bannerStyle.Render(formattedBanner)
 }
 
+func PrintBanner(useBanner bool, data string) {
+	if useBanner {
+		fmt.Println(GetBanner(data))
+	}
+}
+
 // IsCompletionCommand checks if the command line arguments indicate a completion command.
 func IsCompletionCommand() bool {
 	for _, arg := range os.Args {
@@ -151,4 +159,23 @@ func IsCompletionCommand() bool {
 		}
 	}
 	return false
+}
+
+var CookieCLIColorSchema = fang.ColorScheme{
+	Base:           color.RGBA{0xe9, 0xe9, 0xe9, 0xe9},
+	Title:          color.RGBA{0xCD, 0xA1, 0x57, 0xff},
+	Description:    color.RGBA{0xD9, 0xD9, 0xD9, 0xff},
+	Codeblock:      color.RGBA{0x0a, 0x0c, 0x0d, 0xff},
+	Program:        color.RGBA{0xCD, 0xA1, 0x57, 0xff},
+	DimmedArgument: color.RGBA{0x88, 0x88, 0x88, 0xff},
+	Comment:        color.RGBA{0x88, 0x88, 0x88, 0xff},
+	Flag:           color.RGBA{0x21, 0x96, 0xF3, 0xff},
+	FlagDefault:    color.RGBA{0xD9, 0xD9, 0xD9, 0xff},
+	Command:        color.RGBA{0xCD, 0xA1, 0x57, 0xff},
+	QuotedString:   color.RGBA{0x21, 0x9B, 0x54, 0xff},
+	Argument:       color.RGBA{0xED, 0xED, 0xED, 0xff},
+	Help:           color.RGBA{0x88, 0x88, 0x88, 0xff},
+	Dash:           color.RGBA{0x88, 0x88, 0x88, 0xff},
+	ErrorHeader:    [2]color.Color{color.RGBA{0xED, 0xED, 0xED, 0xff}, color.RGBA{0xE7, 0x4C, 0x3C, 0xff}},
+	ErrorDetails:   color.RGBA{0xE7, 0x4C, 0x3C, 0xff},
 }

@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"image/color"
 	"os"
 
 	"github.com/ByteTheCookies/CookieFarm/internal/client/config"
@@ -12,46 +11,25 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	debug     bool
-	useBanner bool
-)
-
 // RootCmd represents the base command when called without any subcommands
 // Exported for TUI usage
 var RootCmd = &cobra.Command{
-	Use:   "ckc",
-	Short: "The client cli for CookieFarm",
-	Long: `CookieFarm is a exploiter writed by the team ByteTheCookies for CyberChallenge
-competition. This is the client cli for the CookieFarm server for attack the teams with exploits.`,
+	Use:     "ckc",
+	Short:   "CLI client for interacting with the CookieFarm exploit framework",
+	Long:    `CookieFarm is an automated exploitation framework developed by the ByteTheCookies team for the CyberChallenge competition. This CLI client connects to the CookieFarm server to deploy and manage exploits against target teams. To launch the terminal-based user interface (TUI), simply run the command "ckc" without any arguments.`, //nolint:revive
 	Version: models.VERSION,
 }
 
 func Execute() {
-	theme := fang.ColorScheme{
-		Base:           color.RGBA{0xe9, 0xe9, 0xe9, 0xe9},
-		Title:          color.RGBA{0xCD, 0xA1, 0x57, 0xff},
-		Description:    color.RGBA{0xD9, 0xD9, 0xD9, 0xff},
-		Codeblock:      color.RGBA{0x0a, 0x0c, 0x0d, 0xff},
-		Program:        color.RGBA{0xCD, 0xA1, 0x57, 0xff},
-		DimmedArgument: color.RGBA{0x88, 0x88, 0x88, 0xff},
-		Comment:        color.RGBA{0x88, 0x88, 0x88, 0xff},
-		Flag:           color.RGBA{0x21, 0x96, 0xF3, 0xff},
-		FlagDefault:    color.RGBA{0xD9, 0xD9, 0xD9, 0xff},
-		Command:        color.RGBA{0xCD, 0xA1, 0x57, 0xff},
-		QuotedString:   color.RGBA{0x21, 0x9B, 0x54, 0xff},
-		Argument:       color.RGBA{0xED, 0xED, 0xED, 0xff},
-		Help:           color.RGBA{0x88, 0x88, 0x88, 0xff},
-		Dash:           color.RGBA{0x88, 0x88, 0x88, 0xff},
-		ErrorHeader:    [2]color.Color{color.RGBA{0xED, 0xED, 0xED, 0xff}, color.RGBA{0xE7, 0x4C, 0x3C, 0xff}},
-		ErrorDetails:   color.RGBA{0xE7, 0x4C, 0x3C, 0xff},
-	}
+	theme := logger.CookieCLIColorSchema
 	if err := fang.Execute(context.TODO(), RootCmd, fang.WithVersion(models.VERSION), fang.WithTheme(theme)); err != nil {
 		os.Exit(1)
 	}
 }
 
 func init() {
+	var debug, useBanner bool
+
 	RootCmd.AddCommand(ConfigCmd)
 	RootCmd.PersistentFlags().BoolVarP(&debug, "debug", "D", false, "Enable debug logging")
 	RootCmd.PersistentFlags().BoolVarP(&useBanner, "no-banner", "B", false, "Remove banner on startup")

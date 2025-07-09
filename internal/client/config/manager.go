@@ -60,10 +60,14 @@ func (cm *ConfigManager) GetLocalConfig() ConfigLocal {
 	return cm.localConfig
 }
 
-func (cm *ConfigManager) SetLocalConfig(config ConfigLocal) {
+func (cm *ConfigManager) SetLocalConfig(config ConfigLocal) (string, error) {
+	configPath, err := cm.UpdateLocalConfigToFile(config)
+
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 	cm.localConfig = config
+
+	return configPath, err
 }
 
 // UpdateLocalConfig the value empty are not setted except for https
@@ -113,6 +117,7 @@ func (cm *ConfigManager) SetUseTUI(useTUI bool) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 	cm.useTUI = useTUI
+	logger.SetTUI(useTUI)
 }
 
 // PID methods

@@ -9,13 +9,13 @@ import (
 var SharedConfig models.ConfigShared // Initialize the config struct
 
 var (
-	Debug      bool                                                                 // Global debug flag
-	ConfigFile bool                                                                 // Use configuration file instead of web config
-	Password   string                                                               // Password for authentication
-	ServerPort string                                                               // Port for server
-	Secret     = make([]byte, 32)                                                   // JWT secret key
-	Submit     func(string, string, []string) ([]protocols.ResponseProtocol, error) // Function to submit data
-	Cache      = true                                                               // Cache static file like css/js/image (If cache is enable more ram is used [default:true])
+	Debug         bool                                                                 // Global debug flag
+	UseConfigFile bool                                                                 // Use configuration file instead of web config
+	Password      string                                                               // Password for authentication
+	ServerPort    string                                                               // Port for server
+	Secret        = make([]byte, 32)                                                   // JWT secret key
+	Submit        func(string, string, []string) ([]protocols.ResponseProtocol, error) // Function to submit data
+	Cache         = true                                                               // Cache static file like css/js/image (If cache is enable more ram is used [default:true])
 )
 
 const (

@@ -1,7 +1,6 @@
 package server
 
 import (
-	"context"
 	"os"
 	"path/filepath"
 	"strings"
@@ -239,16 +238,7 @@ func HandlePostConfig(c *fiber.Ctx) error {
 
 	config.SharedConfig = payload.Config
 
-	if shutdownCancel != nil {
-		shutdownCancel()
-	}
-	ctx, cancel := context.WithCancel(context.Background())
-	shutdownCancel = cancel
-
-	go core.StartFlagProcessingLoop(ctx)
-	if config.SharedConfig.ConfigServer.FlagTTL > 0 {
-		go core.ValidateFlagTTL(ctx, config.SharedConfig.ConfigServer.FlagTTL, config.SharedConfig.ConfigServer.TickTime)
-	}
+	core.Run()
 
 	cfgJSON, err := json.Marshal(config.SharedConfig)
 	if err != nil {

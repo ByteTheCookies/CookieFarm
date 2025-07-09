@@ -118,8 +118,10 @@ func (*CommandRunner) ExecuteLogin(password, host, username string, port uint16,
 		Port:     port,
 		HTTPS:    https,
 	}
-	cm.SetLocalConfig(configuration)
-	cm.WriteLocalConfigToFile()
+	_, err := cm.SetLocalConfig(configuration)
+	if err != nil {
+		return "", fmt.Errorf("error during update of config in the file: %s", err)
+	}
 	cmd.Password = password
 	pathSession, err := cmd.LoginHandler(password)
 	if err != nil {
@@ -144,8 +146,7 @@ func (*CommandRunner) ExecuteConfigUpdate(host, port, username string, useHTTPS 
 		}
 	}
 
-	cm.SetLocalConfig(configuration)
-	path, err := cm.UpdateLocalConfigToFile(configuration)
+	path, err := cm.SetLocalConfig(configuration)
 	if err != nil {
 		return "", fmt.Errorf("error during update of config in the file: %s", err)
 	}
@@ -319,8 +320,8 @@ func (*CommandRunner) GetRunningExploits() ([]ExploitProcess, error) {
 
 	localConfig := cm.GetLocalConfig()
 	localConfig.Exploits = filtered
-	cm.SetLocalConfig(localConfig)
-	if err := cm.WriteLocalConfigToFile(); err != nil {
+
+	if _, err := cm.SetLocalConfig(localConfig); err != nil {
 		logger.Log.Error().Err(err).Msg("Failed to write configuration after filtering exploits")
 	}
 	return processes, nil

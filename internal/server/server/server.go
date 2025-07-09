@@ -3,7 +3,6 @@
 package server
 
 import (
-	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -15,9 +14,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 )
-
-// shutdownCancel is used to gracefully shut down the server from external signals (if implemented).
-var shutdownCancel context.CancelFunc
 
 // newConfig returns a configured Fiber config struct.
 // It adapts settings depending on the debug mode (e.g. logging, strict routing).
