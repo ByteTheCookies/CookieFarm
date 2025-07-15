@@ -42,3 +42,10 @@
 - Test con infra reale
 - Team separato
 - Exploit dai writeup
+
+
+## QUESTIONE PAZZA DB
+
+- Sqlite
+- Turso
+- Redis
