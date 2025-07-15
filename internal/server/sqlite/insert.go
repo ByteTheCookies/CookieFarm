@@ -6,9 +6,34 @@ import (
 	"fmt"
 	"time"
 
+	"crawshaw.io/sqlite"
 	"crawshaw.io/sqlite/sqlitex"
 	"github.com/ByteTheCookies/CookieFarm/pkg/models"
 )
+
+const MaxBatchSizeSQLite = 999
+
+func InsertBatch(ctx context.Context, conn *sqlite.Conn, flags []models.ClientData, stmt *sqlite.Stmt) error {
+	for _, f := range flags {
+		stmt.Reset()
+		stmt.ClearBindings()
+		stmt.BindText(1, f.FlagCode)
+		stmt.BindText(2, f.ServiceName)
+		stmt.BindInt64(3, int64(f.PortService))
+		stmt.BindInt64(4, int64(f.SubmitTime))
+		stmt.BindInt64(5, int64(f.ResponseTime))
+		stmt.BindText(6, f.Status)
+		stmt.BindInt64(7, int64(f.TeamID))
+		stmt.BindText(8, f.Msg)
+		stmt.BindText(9, f.Username)
+		stmt.BindText(10, f.ExploitName)
+
+		if _, err := stmt.Step(); err != nil {
+			return fmt.Errorf("insert step: %w", err)
+		}
+	}
+	return nil
+}
 
 // AddFlagsWithContext adds a batch of flags to the database with a custom context.
 // It divides the flags into batches to insert in chunks, helping avoid hitting query parameter limits.
@@ -42,30 +67,30 @@ func AddFlagsWithContext(ctx context.Context, flags []models.ClientData) error {
 	}
 	defer stmt.Finalize()
 
-	for _, f := range flags {
-		stmt.Reset()
-		stmt.ClearBindings()
-		stmt.BindText(1, f.FlagCode)
-		stmt.BindText(2, f.ServiceName)
-		stmt.BindInt64(3, int64(f.PortService))
-		stmt.BindInt64(4, int64(f.SubmitTime))
-		stmt.BindInt64(5, int64(f.ResponseTime))
-		stmt.BindText(6, f.Status)
-		stmt.BindInt64(7, int64(f.TeamID))
-		stmt.BindText(8, f.Msg)
-		stmt.BindText(9, f.Username)
-		stmt.BindText(10, f.ExploitName)
-
-		if hasRow, err := stmt.Step(); err != nil {
-			return fmt.Errorf("insert step: %w", err)
-		} else if hasRow {
-			return errors.New("unexpected row returned during insert")
+	const batchSize = 1000 / 10
+	for i := 0; i < len(flags); i += batchSize {
+		end := i + batchSize
+		if end > len(flags) {
+			end = len(flags)
+		}
+		err := InsertBatch(ctx, conn, flags[i:end], stmt)
+		if err != nil {
+			return err
 		}
 	}
+
+	committed := false
+	defer func() {
+		if !committed {
+			_ = sqlitex.Exec(conn, "ROLLBACK TO addflags", nil)
+		}
+	}()
 
 	if err := sqlitex.Exec(conn, "RELEASE addflags", nil); err != nil {
 		return fmt.Errorf("release: %w", err)
 	}
+	committed = true
+
 	return nil
 }
 
