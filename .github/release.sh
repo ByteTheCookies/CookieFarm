@@ -5,7 +5,7 @@
 type=$1       # release o hotfix
 version=$2    # es. 1.2.0 o 1.2.1-hotfix
 
-FILES_TO_REMOVE="tests/ scripts/ monitoring/ RELEASE_TEMPLATE.md NOTES.md BENCHMARKS.md"
+FILES_TO_REMOVE="tests/ scripts/ monitoring/ dev_docs/"
 
 if [ -z "$type" ] || [ -z "$version" ]; then
   echo "Usage: $0 <release|hotfix> <version> (e.g., release 1.2.0)"
