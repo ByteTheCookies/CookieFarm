@@ -17,20 +17,6 @@ services:
     networks:
       - cookiefarm-network
 
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    environment:
-      - NEXT_PUBLIC_BACKEND_URL=${BACKEND_URL}
-    depends_on:
-      - server
-    networks:
-      - cookiefarm-network
-
   redis:
     image: redis:8-alpine
     restart: unless-stopped
@@ -38,14 +24,6 @@ services:
       - redis_data:/data
     ports:
       - "6379:6379"
-    networks:
-      - cookiefarm-network
-
-  redis-insights:
-    image: redis/redisinsight:latest
-    restart: unless-stopped
-    ports:
-      - "5540:5540"
     networks:
       - cookiefarm-network
 
