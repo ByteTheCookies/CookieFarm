@@ -13,12 +13,15 @@ Create the file in the `server/protocols` directory and use the following templa
 
 package main
 
-import (
-	"github.com/ByteTheCookies/cookieserver/internal/models"
-)
+import "github.com/ByteTheCookies/CookieFarm/pkg/protocols"
+
 
 // Submit function sends flags to the Flag Checker service and returns a response.
 func Submit(host string, team_token string, flags []string) ([]protocols.ResponseProtocol, error) {
+	jsonData, err := json.Marshal(flags)
+	if err != nil {
+		return nil, fmt.Errorf("error during marshalling: %w", err)
+	}
 	// Your implementation here
 	return nil, nil
 }
