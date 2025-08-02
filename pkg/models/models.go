@@ -1,5 +1,7 @@
 package models
 
+import json "github.com/bytedance/sonic"
+
 // Service represents a single vulnerable service as defined in the configuration.
 type Service struct {
 	Name string `json:"name" yaml:"name"` // Name identifier of the service
@@ -60,6 +62,14 @@ type ClientData struct {
 	ResponseTime uint64 `json:"response_time"` // UNIX timestamp when a response was received
 	PortService  uint16 `json:"port_service"`  // Port of the vulnerable service
 	TeamID       uint16 `json:"team_id"`       // ID of the team the flag was captured from
+}
+
+func (c ClientData) MarshalBinary() ([]byte, error) {
+	return json.Marshal(c)
+}
+
+func (c *ClientData) UnmarshalBinary(data []byte) error {
+	return json.Unmarshal(data, c)
 }
 
 // SubmitFlagsRequest the struct for the requests from the client to server
