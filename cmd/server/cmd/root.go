@@ -15,6 +15,7 @@ import (
 	"github.com/ByteTheCookies/CookieFarm/internal/server/sqlite"
 	"github.com/ByteTheCookies/CookieFarm/pkg/logger"
 	"github.com/ByteTheCookies/CookieFarm/pkg/models"
+	cnats "github.com/ByteTheCookies/CookieFarm/pkg/nats"
 	"github.com/charmbracelet/fang"
 	fiberLogger "github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/spf13/cobra"
@@ -116,6 +117,12 @@ func Run(cmd *cobra.Command, args []string) {
 
 	sqlite.DBPool = sqlite.New()
 	defer sqlite.Close()
+
+	_, err = cnats.SetupNATS()
+	if err != nil {
+		logger.Log.Fatal().Err(err).Msg("Failed to set up NATS server")
+	}
+	// defer ns.ShutdownEmbeddedServer()
 
 	app, err := server.NewApp()
 	if err != nil {

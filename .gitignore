@@ -137,3 +137,6 @@ yarn-error.log*
 next-env.d.ts
 .next
 !frontend/src/app/logs
+
+# NATS
+nats-data

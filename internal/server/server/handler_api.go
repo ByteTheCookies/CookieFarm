@@ -1,19 +1,18 @@
 package server
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
-
-	json "github.com/bytedance/sonic"
 
 	"github.com/ByteTheCookies/CookieFarm/internal/server/config"
 	"github.com/ByteTheCookies/CookieFarm/internal/server/controllers"
 	"github.com/ByteTheCookies/CookieFarm/internal/server/core"
 	"github.com/ByteTheCookies/CookieFarm/internal/server/sqlite"
-	"github.com/ByteTheCookies/CookieFarm/internal/server/websockets"
 	"github.com/ByteTheCookies/CookieFarm/pkg/logger"
 	"github.com/ByteTheCookies/CookieFarm/pkg/models"
+	cnats "github.com/ByteTheCookies/CookieFarm/pkg/nats"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -249,21 +248,11 @@ func HandlePostConfig(c *fiber.Ctx) error {
 		})
 	}
 
-	event := websockets.Event{
-		Type:    websockets.ConfigMessage,
-		Payload: cfgJSON,
-	}
-	msg, err := json.Marshal(event)
-	if err != nil {
-		logger.Log.Error().Err(err).Msg("Failed to marshal websocket event")
-		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{
-			Error: "Failed to marshal config event",
-		})
-	}
+	nc := cnats.NewNATSClient()
+	nc.Connect(config.NATSToken)
+	defer nc.Disconnect()
 
-	for client := range websockets.GlobalManager.Clients {
-		client.Egress <- msg
-	}
+	nc.Publish("cookiefarm.config", cfgJSON)
 
 	return c.JSON(ResponseSuccess{Message: "Configuration updated successfully"})
 }

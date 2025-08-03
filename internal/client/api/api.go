@@ -96,18 +96,16 @@ func Login(password string) (string, error) {
 	for _, c := range cookies {
 		if c.Name == "token" {
 			logger.Log.Debug().Str("token", c.Value).Msg("Token found")
-			logger.Log.Info().Msg("Login successfully")
 			return c.Value, nil
 		}
 	}
 
-	logger.Log.Warn().Msg("Token not found in Set-Cookie")
 	return "", errors.New("token not found in Set-Cookie")
 }
 
 // SubmitBatchDirect sends a batch of flags directly to the CookieFarm server API.
 //
-// @IMPORTANT: I do not raccomend using this function, use websockets instead.
+// @IMPORTANT: I do not raccomend using this function, use NATS instead.
 func SubmitBatchDirect(flags []models.ClientData) (string, error) {
 	cm := config.GetConfigManager()
 	localConfig := cm.GetLocalConfig()
@@ -207,4 +205,39 @@ func SubmitDirect(flag models.ClientData) (string, error) {
 		logger.Log.Error().Msgf("Unexpected response status: %d, body: %s", resp.StatusCode, body)
 		return "", fmt.Errorf("unexpected response status: %d, body: %s", resp.StatusCode, body)
 	}
+}
+
+func GetNATSToken() (string, error) {
+	cm := config.GetConfigManager()
+	localConfig := cm.GetLocalConfig()
+
+	serverURL, err := parseURL(localConfig.Host, strconv.Itoa(int(localConfig.Port)), "/api/v1/nats-token")
+	if err != nil {
+		return "", fmt.Errorf("invalid base URL in config: %w", err)
+	}
+
+	req, err := http.NewRequest(http.MethodGet, serverURL, nil)
+	if err != nil {
+		return "", fmt.Errorf("error creating NATS token request: %w", err)
+	}
+	req.Header.Set("Cookie", "token="+cm.GetToken())
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("error sending NATS token request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return "", fmt.Errorf("error fetching NATS token: %s", body)
+	}
+
+	token, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("error reading NATS token response: %w", err)
+	}
+
+	return string(token), nil
 }

@@ -170,6 +170,7 @@ func LoginHandler(password string) (string, error) {
 		return "", err
 	} else {
 		cm.SetToken(token)
+		logger.Log.Info().Msg("Login successful, session token and NATS token set.")
 	}
 
 	sessionPath := filepath.Join(config.DefaultConfigPath, "session")

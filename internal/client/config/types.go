@@ -36,6 +36,7 @@ type ConfigManager struct {
 	localConfig        ConfigLocal
 	sharedConfig       models.ConfigShared
 	token              string
+	natsToken          string
 	pid                int
 	useTUI             bool
 	useBanner          bool

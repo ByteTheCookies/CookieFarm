@@ -125,7 +125,13 @@ func HandleLogin(c *fiber.Ctx) error {
 		SameSite: "Strict",
 	})
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Login successful",
+	})
+}
+
+func HandleNATSToken(c *fiber.Ctx) error {
+	return c.Status(fiber.StatusOK).SendString(config.NATSToken)
 }
 
 func HandleVerify(c *fiber.Ctx) error {

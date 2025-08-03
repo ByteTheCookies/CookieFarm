@@ -55,7 +55,7 @@ func InitDB() error {
 // It opens a connection to the SQLite database and initializes the schema by calling InitDB.
 // Returns the database connection object.
 func New() *sqlitex.Pool {
-	uri := fmt.Sprintf("file:%s?_busy_timeout=5000&_foreign_keys=on", dbPath)
+	uri := fmt.Sprintf("file:%s?_busy_timeout=5000&_foreign_keys=off", dbPath)
 	flags := sqlite.SQLITE_OPEN_READWRITE | sqlite.SQLITE_OPEN_CREATE | sqlite.SQLITE_OPEN_URI
 
 	db, err := sqlitex.Open(uri, flags, PoolSize)

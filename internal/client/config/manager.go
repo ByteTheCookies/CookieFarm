@@ -106,6 +106,18 @@ func (cm *ConfigManager) SetSharedConfig(config models.ConfigShared) {
 	cm.sharedConfig = config
 }
 
+func (cm *ConfigManager) GetNATSToken() string {
+	cm.mu.RLock()
+	defer cm.mu.RUnlock()
+	return cm.natsToken
+}
+
+func (cm *ConfigManager) SetNATSToken(token string) {
+	cm.mu.Lock()
+	defer cm.mu.Unlock()
+	cm.natsToken = token
+}
+
 // TUI methods
 func (cm *ConfigManager) GetUseTUI() bool {
 	cm.mu.RLock()
