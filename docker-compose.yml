@@ -16,6 +16,7 @@ services:
       - sqlite_bp:/app/database
     networks:
       - cookiefarm-network
+
   frontend:
     build:
       context: ./frontend
@@ -23,6 +24,7 @@ services:
     restart: unless-stopped
     ports:
       - "3000:3000"
+    profiles: ["full"]
     environment:
       - NEXT_PUBLIC_BACKEND_URL=${BACKEND_URL}
     depends_on:
