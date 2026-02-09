@@ -10,7 +10,7 @@ CYAN := \033[36m
 
 # === SERVER VARIABLES ===
 SERVER_BIN_DIR := ./bin
-SERVER_CMD_DIR := ./cmd/server/
+SERVER_CMD_DIR := ./server
 SERVER_LOGS_DIR := ./logs
 SERVER_MAIN_FILE := main.go
 SERVER_BINARY_NAME := cks
@@ -19,7 +19,7 @@ GOARCH ?= amd64
 
 # === CLIENT VARIABLES ===
 CLIENT_BIN_DIR := ./bin
-CLIENT_CMD_DIR := ./cmd/client/
+CLIENT_CMD_DIR := ./client
 CLIENT_LOGS_DIR := ./logs
 CLIENT_MAIN_FILE := main.go
 
@@ -129,7 +129,7 @@ server-watch:
 client-build:
 	@$(ECHO_CMD) "$(CYAN)[*] Building client...$(RESET)"
 	@$(MKDIR_CMD) $(CLIENT_BIN_DIR)
-	@go build  -o $(CLIENT_BIN_DIR)$(PATHSEP)$(CLIENT_BINARY_NAME) $(CLIENT_CMD_DIR)$(CLIENT_MAIN_FILE)
+	@go build  -o $(CLIENT_BIN_DIR)$(PATHSEP)$(CLIENT_BINARY_NAME) $(CLIENT_CMD_DIR)/$(CLIENT_MAIN_FILE)
 	@$(ECHO_CMD) "$(GREEN)[+] Client build complete!$(RESET)"
 
 client-build-windows:
