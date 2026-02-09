@@ -175,13 +175,13 @@ client-test:
 # === SHARED TOOLS ===
 
 tailwindcss-build:
-	./tools/tailwindcss -c ./internal/server/tailwind.config.js -i ./internal/server/assets/css/global.css -o ./internal/server/public/css/output.css --minify
+	./tools/tailwindcss -c ./server/tailwind.config.js -i ./server/assets/css/global.css -o ./server/public/css/output.css --minify
 
 tailwindcss-watch:
-	./tools/tailwindcss -c ./internal/server/tailwind.config.js -i ./internal/server/assets/css/global.css -o ./internal/server/public/css/output.css --watch
+	./tools/tailwindcss -c ./server/tailwind.config.js -i ./server/assets/css/global.css -o ./server/public/css/output.css --watch
 
 minify:
-	@uglifyjs ./internal/server/assets/js/*.js -o ./internal/server/public/js/output.min.js -c -m
+	@uglifyjs ./server/assets/js/*.js -o ./server/public/js/output.min.js -c -m
 
 lint:
 	@if ! golangci-lint run; then exit 1; fi

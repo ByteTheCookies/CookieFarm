@@ -16,19 +16,6 @@ services:
       - sqlite_bp:/app/database
     networks:
       - cookiefarm-network
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    environment:
-      - NEXT_PUBLIC_BACKEND_URL=${BACKEND_URL}
-    depends_on:
-      - server
-    networks:
-      - cookiefarm-network
 
 volumes:
   sqlite_bp:

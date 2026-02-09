@@ -67,9 +67,12 @@ func RegisterRoutes(app *fiber.App) {
 	privateAPI.Post("/submit-flags-standalone", HandlePostFlagsStandalone)
 	privateAPI.Delete("/delete-flag", HandleDeleteFlag)
 
-	websocketsAPI := app.Group("/ws")
 	websockets.GlobalManager = websockets.NewManager()
-	websocketsAPI.Get("/", websockets.GlobalManager.ServeWS)
+	app.Use("/ws",
+		websockets.CookieAuthMiddleware,
+		websockets.WebSocketUpgrade,
+	)
+	app.Get("/ws", websockets.GlobalManager.ServeWS())
 }
 
 // GetStatus is a simple public endpoint used to check if the server is online.

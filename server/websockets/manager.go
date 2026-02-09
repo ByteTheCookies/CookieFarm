@@ -4,27 +4,19 @@ import (
 	"errors"
 	"fmt"
 	"logger"
-	"net/http"
 	"time"
 
 	"server/config"
 
+	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/adaptor"
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/gorilla/websocket"
 )
 
 var (
 	ErrEventNotSupported = errors.New("this event type is not supported")
 	ErrConnectionTimeout = errors.New("connection timeout exceeded")
-
-	websocketUpgrader = websocket.Upgrader{
-		ReadBufferSize:  1024,
-		WriteBufferSize: 1024,
-	}
-
-	GlobalManager *Manager // WebSocket manager
+	GlobalManager        *Manager // WebSocket manager
 )
 
 const (
@@ -43,7 +35,6 @@ func NewManager() *Manager {
 func (m *Manager) GetNextClientNumber() int {
 	m.Lock()
 	defer m.Unlock()
-
 	clientNumber := len(m.Clients) + 1
 	return clientNumber
 }
@@ -74,50 +65,52 @@ func VerifyToken(token string) error {
 	return err
 }
 
+// CookieAuthMiddleware verifica il token JWT dal cookie
 func CookieAuthMiddleware(c *fiber.Ctx) error {
 	token := c.Cookies("token")
 	if token == "" || VerifyToken(token) != nil {
 		return fiber.ErrUnauthorized
 	}
-	return nil
+	return c.Next()
 }
 
-func (m *Manager) ServeWS(c *fiber.Ctx) error {
-	if err := CookieAuthMiddleware(c); err != nil {
-		logger.Log.Error().Err(err).Msg("Failed to authenticate user")
-		return err
+// WebSocketUpgrade middleware per l'upgrade della connessione
+func WebSocketUpgrade(c *fiber.Ctx) error {
+	// IsWebSocketUpgrade controlla se è una richiesta di upgrade WebSocket
+	if websocket.IsWebSocketUpgrade(c) {
+		return c.Next()
 	}
+	return fiber.ErrUpgradeRequired
+}
 
-	handler := adaptor.HTTPHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		conn, err := websocketUpgrader.Upgrade(w, r, nil)
-		if err != nil {
-			logger.Log.Error().Err(err).Msg("Failed to upgrade connection")
-			return
-		}
+// ServeWS gestisce le connessioni WebSocket con il nuovo middleware di Fiber
+func (m *Manager) ServeWS() fiber.Handler {
+	return websocket.New(func(conn *websocket.Conn) {
 		logger.Log.Debug().Msg("New WebSocket connection")
 
 		client := NewClient(conn, m)
 		m.AddClient(client)
 
+		// Imposta il timer per la durata della connessione
 		connectionTimer := time.AfterFunc(ConnectionLifetime, func() {
 			logger.Log.Info().Int("client", client.Number).Msg("Connection lifetime exceeded, closing")
-			client.Connection.WriteControl(
-				websocket.CloseMessage,
-				websocket.FormatCloseMessage(websocket.CloseNormalClosure, "Connection timeout"),
-				time.Now().Add(time.Second),
-			)
 			client.CloseConnection("Connection lifetime exceeded")
 		})
-
 		client.ConnectionTimer = connectionTimer
 
+		// Avvia le goroutine per lettura e scrittura
 		go client.ReadMessages()
 		go client.WriteMessages()
-		logger.Log.Debug().Msg("Started reading messages")
-	}))
 
-	handler(c)
-	return nil
+		logger.Log.Debug().Msg("Started reading messages")
+	}, websocket.Config{
+		RecoverHandler: func(conn *websocket.Conn) {
+			if err := recover(); err != nil {
+				logger.Log.Error().Interface("error", err).Msg("WebSocket panic recovered")
+				conn.Close()
+			}
+		},
+	})
 }
 
 func (m *Manager) AddClient(client *Client) {
@@ -129,15 +122,16 @@ func (m *Manager) AddClient(client *Client) {
 func (m *Manager) RemoveClient(client *Client) {
 	m.Lock()
 	defer m.Unlock()
+
 	if _, ok := m.Clients[client]; ok {
 		if client.ConnectionTimer != nil {
 			client.ConnectionTimer.Stop()
 		}
 
-		err := client.Connection.WriteControl(
+		// Chiudi la connessione
+		err := client.Connection.WriteMessage(
 			websocket.CloseMessage,
 			websocket.FormatCloseMessage(websocket.CloseNormalClosure, "Server closing connection"),
-			time.Now().Add(time.Second),
 		)
 		if err != nil {
 			logger.Log.Debug().Err(err).Int("client", client.Number).Msg("Failed to send close message")

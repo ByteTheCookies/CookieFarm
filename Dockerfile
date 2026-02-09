@@ -1,11 +1,10 @@
-FROM golang:1.24.4-alpine AS build
+FROM golang:1.25.7-alpine AS build
 
 RUN apk add --no-cache alpine-sdk make
 
 WORKDIR /app
 
-COPY go.sum go.mod Makefile ./
-RUN go mod download
+COPY Makefile ./
 
 COPY . .
 
@@ -20,10 +19,10 @@ WORKDIR /app
 RUN apk add --no-cache libc6-compat
 
 COPY --from=build /app/bin/cks /app/bin/cks
-COPY --from=build /app/internal/server/public /app/internal/server/public
+COPY --from=build /app/server/public /app/server/public
 COPY --from=build /app/config.yml /app/config.yml
 COPY --from=build /app/pkg/protocols /app/pkg/protocols
-COPY --from=build /app/internal/server/ui/views /app/internal/server/ui/views
+COPY --from=build /app/server/ui/views /app/server/ui/views
 
 RUN touch ./cookiefarm.db
 

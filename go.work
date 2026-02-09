@@ -21,6 +21,6 @@ use (
 
 replace (
 	./pkg/logger => ../pkg/logger
-	github.com/bytedance/sonic v1.3.0 => github.com/bytedance/sonic v1.3.0
+	github.com/bytedance/sonic v1.15.0 => github.com/bytedance/sonic v1.15.0
 	github.com/gorilla/websocket v1.5.1 => github.com/gorilla/websocket v1.5.1
 )

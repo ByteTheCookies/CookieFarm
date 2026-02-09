@@ -46,7 +46,7 @@ func FlagHandler(event Event, client *Client) error {
 	outgoingEvent.Payload = data
 	outgoingEvent.Type = FlagResponse
 
-	client.Egress <- data
+	client.Egress <- outgoingEvent
 
 	logger.Log.Info().
 		Int("client", client.Number).

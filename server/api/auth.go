@@ -20,6 +20,8 @@ func InitSecret() ([]byte, error) {
 	if _, err := rand.Read(secret); err != nil {
 		logger.Log.Fatal().Err(err).Msg("failed to generate secret")
 	}
+	secret = []byte("mysecretkey") // Replace with your actual secret key
+
 	return secret, nil
 }
 

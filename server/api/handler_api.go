@@ -257,16 +257,9 @@ func HandlePostConfig(c *fiber.Ctx) error {
 		Type:    websockets.ConfigMessage,
 		Payload: cfgJSON,
 	}
-	msg, err := json.Marshal(event)
-	if err != nil {
-		logger.Log.Error().Err(err).Msg("Failed to marshal websocket event")
-		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{
-			Error: "Failed to marshal config event",
-		})
-	}
 
 	for client := range websockets.GlobalManager.Clients {
-		client.Egress <- msg
+		client.Egress <- event
 	}
 
 	return c.JSON(ResponseSuccess{Message: "Configuration updated successfully"})
