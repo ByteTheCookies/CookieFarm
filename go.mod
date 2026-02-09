@@ -3,45 +3,51 @@ module github.com/ByteTheCookies/CookieFarm
 go 1.24.4
 
 require (
-	crawshaw.io/sqlite v0.3.2
-	github.com/bytedance/sonic v1.13.2
-	github.com/charmbracelet/bubbles v0.21.0
-	github.com/charmbracelet/bubbletea v1.3.4
+	// Both
 	github.com/charmbracelet/fang v0.1.0
-	github.com/charmbracelet/lipgloss v1.1.0
-	github.com/gofiber/fiber/v2 v2.52.7
-	github.com/gofiber/jwt/v3 v3.3.10
-	github.com/gofiber/template/html/v2 v2.1.3
-	github.com/golang-jwt/jwt/v4 v4.5.2
 	github.com/gorilla/websocket v1.5.3
 	github.com/joho/godotenv v1.5.1
 	github.com/rs/zerolog v1.34.0
 	github.com/spf13/cobra v1.9.1
-	go.uber.org/automaxprocs v1.6.0
-	golang.org/x/crypto v0.37.0
 	golang.org/x/sys v0.33.0
 	gopkg.in/yaml.v3 v3.0.1
+
+	// Server
+	crawshaw.io/sqlite v0.3.3-0.20220618202545-d1964889ea3c
+	github.com/bytedance/sonic v1.15.0
+	github.com/gofiber/fiber/v2 v2.52.7
+	github.com/gofiber/jwt/v3 v3.3.10
+	github.com/gofiber/template/html/v2 v2.1.3
+	github.com/golang-jwt/jwt/v4 v4.5.2
+	go.uber.org/automaxprocs v1.6.0
+	golang.org/x/crypto v0.37.0
+
+	//Client
+	github.com/charmbracelet/bubbles v0.21.0
+	github.com/charmbracelet/bubbletea v1.3.4
+	github.com/charmbracelet/lipgloss v1.1.0
 )
 
 require (
 	github.com/andybalholm/brotli v1.1.1 // indirect
 	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
-	github.com/bytedance/sonic/loader v0.2.4 // indirect
+	github.com/bytedance/gopkg v0.1.3 // indirect
+	github.com/bytedance/sonic/loader v0.5.0 // indirect
 	github.com/charmbracelet/colorprofile v0.3.0 // indirect
 	github.com/charmbracelet/lipgloss/v2 v2.0.0-beta.1 // indirect
 	github.com/charmbracelet/x/ansi v0.8.0 // indirect
 	github.com/charmbracelet/x/cellbuf v0.0.13 // indirect
 	github.com/charmbracelet/x/exp/charmtone v0.0.0-20250603201427-c31516f43444 // indirect
 	github.com/charmbracelet/x/term v0.2.1 // indirect
-	github.com/cloudwego/base64x v0.1.5 // indirect
+	github.com/cloudwego/base64x v0.1.6 // indirect
 	github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f // indirect
 	github.com/gofiber/template v1.8.3 // indirect
 	github.com/gofiber/utils v1.1.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
-	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
+	github.com/klauspost/cpuid/v2 v2.2.9 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
