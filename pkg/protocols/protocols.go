@@ -3,11 +3,10 @@ package protocols
 import (
 	"errors"
 	"fmt"
+	"logger"
 	"os"
 	"path"
 	"plugin"
-
-	"github.com/ByteTheCookies/CookieFarm/pkg/logger"
 )
 
 type SubmitFunc = func(string, string, []string) ([]ResponseProtocol, error)
