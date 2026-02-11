@@ -2,8 +2,9 @@ package api
 
 import (
 	"logger"
-	"server/config"
 	"time"
+
+	"server/config"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/limiter"

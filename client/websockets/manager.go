@@ -2,13 +2,14 @@
 package websockets
 
 import (
-	"client/config"
 	"encoding/json"
 	"logger"
 	"models"
 	"net/http"
 	"strconv"
 	"time"
+
+	"client/config"
 
 	"github.com/gorilla/websocket"
 )
@@ -36,7 +37,6 @@ const (
 // connection refused (503)
 func GetConnection() (*websocket.Conn, error) {
 	cm := config.GetConfigManager()
-	var conn *websocket.Conn
 	var err error
 
 	monitor := GetMonitor()
@@ -58,9 +58,14 @@ func GetConnection() (*websocket.Conn, error) {
 	}
 
 	for attempts := 0; attempts < maxAttempts; attempts++ {
-		conn, _, err = dialer.Dial("ws://"+cm.GetLocalConfig().Host+":"+strconv.Itoa(int(cm.GetLocalConfig().Port))+"/ws/", http.Header{
+		conn, resp, err := dialer.Dial("ws://"+cm.GetLocalConfig().Host+":"+strconv.Itoa(int(cm.GetLocalConfig().Port))+"/ws/", http.Header{
 			"Cookie": []string{"token=" + cm.GetToken()},
 		})
+
+		// Close response body to avoid resource leak (per staticcheck bodyclose)
+		if resp != nil && resp.Body != nil {
+			_ = resp.Body.Close()
+		}
 
 		if err == nil {
 			circuitBreaker.RecordSuccess()

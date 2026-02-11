@@ -47,27 +47,22 @@ func (c *Client) WriteMessages() {
 		c.Manager.RemoveClient(c)
 	}()
 
-	for {
-		select {
-		case message, ok := <-c.Egress:
-			if !ok {
-				if err := c.Connection.WriteMessage(websocket.CloseMessage, []byte{}); err != nil {
-					logger.Log.Error().Err(err).Int("client", c.Number).Msg("Connection closed")
-				}
-				return
-			}
-
-			data, err := json.Marshal(message)
-			if err != nil {
-				logger.Log.Error().Err(err).Int("client", c.Number).Msg("Failed to marshal message")
-				continue
-			}
-
-			if err := c.Connection.WriteMessage(websocket.TextMessage, data); err != nil {
-				logger.Log.Error().Err(err).Int("client", c.Number).Msg("Failed to send message")
-				return
-			}
+	for message := range c.Egress {
+		data, err := json.Marshal(message)
+		if err != nil {
+			logger.Log.Error().Err(err).Int("client", c.Number).Msg("Failed to marshal message")
+			continue
 		}
+
+		if err := c.Connection.WriteMessage(websocket.TextMessage, data); err != nil {
+			logger.Log.Error().Err(err).Int("client", c.Number).Msg("Failed to send message")
+			return
+		}
+	}
+
+	// Channel closed; try to send a close message
+	if err := c.Connection.WriteMessage(websocket.CloseMessage, []byte{}); err != nil {
+		logger.Log.Error().Err(err).Int("client", c.Number).Msg("Connection closed")
 	}
 }
 

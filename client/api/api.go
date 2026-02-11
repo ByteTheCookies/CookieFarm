@@ -3,7 +3,6 @@ package api
 
 import (
 	"bytes"
-	"client/config"
 	"errors"
 	"fmt"
 	"io"
@@ -12,6 +11,8 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+
+	"client/config"
 
 	json "github.com/bytedance/sonic"
 )
@@ -81,7 +82,7 @@ func Login(password string) (string, error) {
 
 	logger.Log.Debug().Str("url", serverURL).Msg("Login attempt")
 
-	resp, err := http.Post(
+	resp, err := http.Post( //nolint:gosec
 		serverURL,
 		"application/x-www-form-urlencoded",
 		bytes.NewBufferString("username="+cm.GetLocalConfig().Username+"&password="+password),

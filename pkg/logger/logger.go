@@ -147,7 +147,7 @@ func GetBanner(data string) string {
 
 func PrintBanner(useBanner bool, data string) {
 	if useBanner {
-		fmt.Println(GetBanner(data))
+		fmt.Fprintln(os.Stdout, GetBanner(data))
 	}
 }
 

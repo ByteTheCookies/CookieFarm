@@ -4,6 +4,7 @@ package main
 import (
 	_ "embed"
 	"logger"
+
 	"server/cmd"
 
 	_ "go.uber.org/automaxprocs"

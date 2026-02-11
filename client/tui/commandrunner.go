@@ -2,9 +2,6 @@ package tui
 
 import (
 	"bytes"
-	"client/cmd"
-	"client/config"
-	"client/exploit"
 	"errors"
 	"fmt"
 	"logger"
@@ -15,6 +12,10 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	"client/cmd"
+	"client/config"
+	"client/exploit"
 
 	tea "github.com/charmbracelet/bubbletea"
 )

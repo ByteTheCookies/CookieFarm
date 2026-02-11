@@ -1,13 +1,13 @@
 package main
 
 import (
+	_ "embed"
+	"logger"
+	"os"
+
 	"client/cmd"
 	"client/config"
 	"client/tui"
-	_ "embed"
-	"fmt"
-	"logger"
-	"os"
 )
 
 func main() {
@@ -27,7 +27,7 @@ func main() {
 
 	if cm.GetUseTUI() {
 		if err := tui.StartTUI(logger.GetBanner("client")); err != nil {
-			fmt.Printf("Error starting TUI: %v\nFalling back to CLI mode\n", err)
+			logger.Log.Error().Err(err).Msg("Error starting TUI")
 			if !logger.IsCompletionCommand() {
 				logger.PrintBanner(cm.GetUseBanner(), "client")
 			}

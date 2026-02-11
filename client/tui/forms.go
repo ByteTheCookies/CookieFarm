@@ -1,10 +1,11 @@
 package tui
 
 import (
-	"client/config"
 	"errors"
 	"strconv"
 	"strings"
+
+	"client/config"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -14,8 +15,8 @@ import (
 
 // CreateForm creates input fields for a specific command
 func CreateForm(command string) ([]textinput.Model, []string) {
-	var inputs []textinput.Model
-	var labels []string
+	inputs := make([]textinput.Model, 0, 5)
+	labels := make([]string, 0, 5)
 
 	switch command {
 	case "config login":
@@ -40,8 +41,8 @@ func CreateForm(command string) ([]textinput.Model, []string) {
 // createLoginForm creates form for login command
 func createLoginForm() ([]textinput.Model, []string) {
 	cm := config.GetConfigManager()
-	var inputs []textinput.Model
-	var labels []string
+	inputs := make([]textinput.Model, 0, 5)
+	labels := make([]string, 0, 5)
 
 	passwordInput := textinput.New()
 	passwordInput.Placeholder = "Password"
@@ -97,8 +98,8 @@ func createLoginForm() ([]textinput.Model, []string) {
 // createConfigUpdateForm creates form for config update command
 func createConfigUpdateForm() ([]textinput.Model, []string) {
 	cm := config.GetConfigManager()
-	var inputs []textinput.Model
-	var labels []string
+	inputs := make([]textinput.Model, 0, 5)
+	labels := make([]string, 0, 5)
 
 	// Host input
 	hostInput := textinput.New()
@@ -145,8 +146,8 @@ func createConfigUpdateForm() ([]textinput.Model, []string) {
 
 // createExploitRunForm creates form for exploit run command
 func createExploitRunForm() ([]textinput.Model, []string) {
-	var inputs []textinput.Model
-	var labels []string
+	inputs := make([]textinput.Model, 0, 5)
+	labels := make([]string, 0, 5)
 
 	// Exploit path input
 	exploitPathInput := textinput.New()
@@ -196,8 +197,8 @@ func createExploitRunForm() ([]textinput.Model, []string) {
 
 // createExploitNameForm creates form for exploit create/remove commands
 func createExploitNameForm() ([]textinput.Model, []string) {
-	var inputs []textinput.Model
-	var labels []string
+	inputs := make([]textinput.Model, 0, 1)
+	labels := make([]string, 0, 1)
 
 	// Exploit name input
 	nameInput := textinput.New()
@@ -212,8 +213,8 @@ func createExploitNameForm() ([]textinput.Model, []string) {
 
 // createExploitStopForm creates form for exploit stop command
 func createExploitStopForm() ([]textinput.Model, []string) {
-	var inputs []textinput.Model
-	var labels []string
+	inputs := make([]textinput.Model, 0, 1)
+	labels := make([]string, 0, 1)
 
 	pidInput := textinput.New()
 	pidInput.Placeholder = "Select from list"

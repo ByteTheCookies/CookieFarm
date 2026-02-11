@@ -1,10 +1,11 @@
 package tui
 
 import (
-	"client/config"
 	"logger"
 	"strconv"
 	"time"
+
+	"client/config"
 
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/spinner"

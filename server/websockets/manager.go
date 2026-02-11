@@ -4,8 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"logger"
-	"server/config"
 	"time"
+
+	"server/config"
 
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
