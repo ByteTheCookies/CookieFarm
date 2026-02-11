@@ -1,16 +1,14 @@
-// Package server initializes and configures the HTTP server for CookieFarm,
+// Package api initializes and configures the HTTP server for CookieFarm,
 // including routing, static file serving, and debug settings.
 package api
 
 import (
 	"fmt"
 	"logger"
+	"server/config"
+	"server/ui"
 	"strings"
 	"time"
-
-	"server/config"
-
-	"server/ui"
 
 	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"

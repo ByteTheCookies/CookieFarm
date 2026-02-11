@@ -1,16 +1,13 @@
 package main
 
 import (
+	"client/cmd"
+	"client/config"
+	"client/tui"
 	_ "embed"
 	"fmt"
 	"logger"
 	"os"
-
-	"client/cmd"
-
-	"client/config"
-
-	"client/tui"
 )
 
 func main() {

@@ -3,9 +3,7 @@ package api
 import (
 	"logger"
 	"math"
-
 	"server/config"
-
 	"server/sqlite"
 
 	"github.com/gofiber/fiber/v2"

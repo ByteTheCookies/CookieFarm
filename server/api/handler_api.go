@@ -5,18 +5,14 @@ import (
 	"models"
 	"os"
 	"path/filepath"
+	"server/config"
+	"server/controllers"
+	"server/core"
+	"server/sqlite"
+	"server/websockets"
 	"strings"
 
 	json "github.com/bytedance/sonic"
-
-	"server/config"
-	"server/controllers"
-
-	"server/core"
-
-	"server/sqlite"
-
-	"server/websockets"
 
 	"github.com/gofiber/fiber/v2"
 )

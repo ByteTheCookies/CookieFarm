@@ -2,14 +2,13 @@
 package websockets
 
 import (
+	"client/config"
 	"encoding/json"
 	"logger"
 	"models"
 	"net/http"
 	"strconv"
 	"time"
-
-	"client/config"
 
 	"github.com/gorilla/websocket"
 )

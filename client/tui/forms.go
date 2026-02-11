@@ -1,11 +1,10 @@
 package tui
 
 import (
+	"client/config"
 	"errors"
 	"strconv"
 	"strings"
-
-	"client/config"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"

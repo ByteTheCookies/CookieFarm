@@ -5,11 +5,9 @@ import (
 	"logger"
 	"models"
 	"protocols"
-	"time"
-
-	"server/sqlite"
-
 	"server/config"
+	"server/sqlite"
+	"time"
 )
 
 var shutdownCancel context.CancelFunc

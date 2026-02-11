@@ -3,6 +3,7 @@ package api
 
 import (
 	"bytes"
+	"client/config"
 	"errors"
 	"fmt"
 	"io"
@@ -11,8 +12,6 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
-
-	"client/config"
 
 	json "github.com/bytedance/sonic"
 )

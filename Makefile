@@ -1,5 +1,5 @@
 # === COMMON VARIABLES ===
-VERSION := 1.2.0
+VERSION := 1.2.1
 
 RESET := \033[0m
 BOLD := \033[1m
@@ -184,10 +184,10 @@ minify:
 	@uglifyjs ./server/assets/js/*.js -o ./server/public/js/output.min.js -c -m
 
 lint:
-	@if ! golangci-lint run; then exit 1; fi
+	@if ! golangci-lint run $(shell go list -f '{{.Dir}}' -m) --fix; then exit 1; fi
 
 fmt:
-	@if command -v gofumpt > /dev/null; then gofumpt -w -d .; else go list -f {{.Dir}} ./... | xargs gofmt -w -s -d; fi
+	@go list -f {{.Dir}} -m | xargs gofumpt -w -d
 
 snapshot-cpu:
 	@echo -e "$(CYAN)[*] Taking CPU snapshot...$(RESET)"
@@ -203,14 +203,3 @@ snapshot-goroutine:
 	@echo -e "$(CYAN)[*] Taking Goroutine snapshot...$(RESET)"
 	go tool pprof -http=:6063 http://localhost:6060/debug/pprof/goroutine?debug=1
 	@echo -e "$(GREEN)[+] Goroutine snapshot complete!$(RESET)"
-
-run-frontend-prod:
-	@echo -e "$(CYAN)[*] Running frontend in production mode...$(RESET)"
-	@ bun install --frozen-lockfile && \
-    rm -rf .next && \
-    bun run build && \
-    mkdir -p .next/standalone/.next/static && \
-    cp -R .next/static .next/standalone/.next/static && \
-    cp -R public .next/standalone/public && \
-    node .next/standalone/server.js
-	@echo -e "$(GREEN)[+] Frontend is running in production mode!$(RESET)"

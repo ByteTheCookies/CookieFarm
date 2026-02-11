@@ -3,9 +3,8 @@ package core
 import (
 	"context"
 	"logger"
-	"time"
-
 	"server/sqlite"
+	"time"
 )
 
 func ValidateFlagTTL(ctx context.Context, flagTTL uint64, tickTime int) {
