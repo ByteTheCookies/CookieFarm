@@ -184,9 +184,11 @@ minify:
 	@uglifyjs ./server/assets/js/*.js -o ./server/public/js/output.min.js -c -m
 
 lint:
+	@go work sync
 	@if ! golangci-lint run $(shell go list -f '{{.Dir}}' -m) --fix; then exit 1; fi
 
 fmt:
+	@go work sync
 	@go list -f {{.Dir}} -m | xargs gofumpt -w -d
 
 snapshot-cpu:

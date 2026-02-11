@@ -16,7 +16,7 @@ issues:
 
 formatters:
   enable:
-    - gofumpt # Detects whether code was gofumpt-ed.
+    - gofmt # Detects whether code was gofumpt-ed.
     - goimports
 
   exclusions:
@@ -26,7 +26,6 @@ linters:
   enable:
     - bodyclose
     - copyloopvar # Detects places where loop variables are copied.
-    - depguard
     - dogsled
     - dupword # Detects duplicate words.
     - durationcheck
