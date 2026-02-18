@@ -3,7 +3,7 @@
 set -e
 
 # === CONFIG ===
-VENV_ACTIVATE="venv/bin/activate"
+VENV_ACTIVATE=".venv/bin/activate"
 FLAGCHECKER_SCRIPT="tests/flagchecker.py"
 SCRIPTS_DIR="scripts"
 TESTS_DIR="tests"
@@ -44,7 +44,7 @@ echo "✅ Flagchecker lanciato in un terminale separato! 🎉"
 
 # === SERVER ===
 echo "🍪 Avvio CookieFarm Server..."
-kitty --title "cookieserver" bash -c "make server-build-plugins; make server-run; exec bash" &
+kitty --title "cookieserver" bash -c "just server-build-plugins; just server-run; exec bash" &
 echo "✅ Server avviato!"
 
 # === SERVIZI ===

@@ -71,12 +71,12 @@ server-clean:
 [group('build')]
 server-build-plugins:
     @for file in $(shell find ./pkg/protocols -name '*.go' ! -name 'protocols.go'); do \
-     if grep -q '^package main' "$$file"; then \
-      filename=$$(basename $$file); \
-      pluginname=$${filename%.go}; \
-      go build -buildmode=plugin -o "./pkg/protocols/$$pluginname.so" "$$file"; \
+     if grep -q '^package main' "$file"; then \
+      filename=$(basename $$file); \
+      pluginname=${filename%.go}; \
+      go build -buildmode=plugin -o "./pkg/protocols/$pluginname.so" "$file"; \
      else \
-      echo "Skipping $$file: not a main package"; \
+      echo "Skipping $file: not a main package"; \
      fi; \
     done
 
@@ -84,12 +84,12 @@ server-build-plugins:
 [group('build')]
 server-build-plugins-prod:
     @for file in $(shell find ./pkg/protocols -name '*.go' ! -name 'protocols.go'); do \
-     if grep -q '^package main' "$$file"; then \
-      filename=$$(basename $$file); \
-      pluginname=$${filename%.go}; \
-      GOOS={{ GOOS }} GOARCH={{ GOARCH }} go build -race -trimpath -gcflags="all=-m" -ldflags="-s -w" -buildmode=plugin -o "./pkg/protocols/$$pluginname.so" "$$file"; \
+     if grep -q '^package main' "$file"; then \
+      filename=$(basename $file); \
+      pluginname=${filename%.go}; \
+      GOOS={{ GOOS }} GOARCH={{ GOARCH }} go build -race -trimpath -gcflags="all=-m" -ldflags="-s -w" -buildmode=plugin -o "./pkg/protocols/$pluginname.so" "$file"; \
      else \
-      echo "Skipping $$file: not a main package"; \
+      echo "Skipping $file: not a main package"; \
      fi; \
     done
 
@@ -160,10 +160,14 @@ client-install: client-build
     @sudo cp /usr/local/bin/{{ CLIENT_BINARY_NAME }} ~/.venv/bin/{{ CLIENT_BINARY_NAME }}
 
 # Clean client binaries
-[group('dev')]
+[group('test')]
 client-test:
     @go test ./...
 
+# Start all the components for run mock tests mode for testing
+[group('test')]
+setup-tests num_containers="3" production_mode="false":
+    cd ./scripts && ./setup.sh {{ num_containers }} {{ production_mode }}
 # === SHARED TOOLS ===
 
 # Build Tailwind CSS for production
