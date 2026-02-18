@@ -12,7 +12,7 @@ const (
 	pongWait   = 60 * time.Second    // Time to wait for a pong response before closing
 	pingPeriod = (pongWait * 9) / 10 // How often to send a ping (must be < pongWait)
 	writeWait  = 10 * time.Second    // Time allowed to write a message
-	maxMsgSize = 512 * 1024       
+	maxMsgSize = 512 * 1024
 )
 
 func NewClient(conn *websocket.Conn, manager *Manager) *Client {
