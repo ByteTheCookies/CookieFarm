@@ -21,13 +21,12 @@ CLIENT_CMD_DIR := "./client"
 CLIENT_MAIN_FILE := "main.go"
 
 # CROSS PLATFORM BUILD VARIABLES
-
 PATHSEP := if os() == "windows" { "\\" } else { "/" }
 MKDIR_CMD := if os() == "windows" { "mkdir" } else { "mkdir -p" }
 ECHO_CMD := if os() == "windows" { "echo" } else { "echo -e" }
 CLIENT_BINARY_NAME := if os() == "windows" { "ckc.exe" } else { "ckc" }
 
-# === HELP ===
+# Display help information
 help:
     @just --list
 
