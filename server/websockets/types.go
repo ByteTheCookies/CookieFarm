@@ -12,6 +12,8 @@ type Client struct {
 	Connection      *websocket.Conn
 	Manager         *Manager
 	Egress          chan Event
+	done            chan struct{}
+	doneOnce        sync.Once
 	Number          int
 	ConnectionTimer *time.Timer
 }

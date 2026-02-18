@@ -73,10 +73,22 @@ func GetConnection() (*websocket.Conn, error) {
 			monitor.SetConnection(conn)
 
 			conn.SetPongHandler(func(appData string) error {
-				monitor.mutex.Lock()
-				monitor.stats.LastPongTime = time.Now()
-				monitor.mutex.Unlock()
+				if err := conn.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
+					return err
+				}
+				monitor.RecordPong()
 				return nil
+			})
+
+			conn.SetPingHandler(func(appData string) error {
+				if err := conn.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
+					return err
+				}
+				return conn.WriteControl(
+					websocket.PongMessage,
+					[]byte(appData),
+					time.Now().Add(10*time.Second),
+				)
 			})
 
 			conn.SetReadDeadline(time.Now().Add(pongWait))

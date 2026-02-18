@@ -88,7 +88,30 @@ func (m *ConnectionMonitor) RecordMessageReceived() {
 	m.stats.LastReceiveTime = time.Now()
 }
 
-// MeasureLatency sends a ping and measures the time until pong is received
+// RecordPong is called by the pong handler set in GetConnection whenever a
+// pong is received. If a ping was previously sent by MeasureLatency, it
+// computes and stores the round-trip latency.
+func (m *ConnectionMonitor) RecordPong() {
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+
+	now := time.Now()
+	m.stats.LastPongTime = now
+
+	if m.stats.LastPingTime.IsZero() {
+		return
+	}
+
+	latency := now.Sub(m.stats.LastPingTime)
+	m.stats.CurrentLatency = latency
+	m.stats.totalLatencySum += latency
+	m.stats.latencyDataCount++
+	m.stats.AverageLatency = m.stats.totalLatencySum / time.Duration(m.stats.latencyDataCount)
+}
+
+// MeasureLatency sends a ping and measures the time until pong is received.
+// The pong handler is set once in GetConnection and calls RecordPong, so we
+// must NOT override it here – doing so would lose the read-deadline reset.
 func (m *ConnectionMonitor) MeasureLatency() {
 	if m.conn == nil {
 		return
@@ -98,24 +121,8 @@ func (m *ConnectionMonitor) MeasureLatency() {
 	m.stats.LastPingTime = time.Now()
 	m.mutex.Unlock()
 
-	m.conn.SetPongHandler(func(string) error {
-		m.mutex.Lock()
-		defer m.mutex.Unlock()
-
-		m.stats.LastPongTime = time.Now()
-		latency := m.stats.LastPongTime.Sub(m.stats.LastPingTime)
-		m.stats.CurrentLatency = latency
-
-		m.stats.totalLatencySum += latency
-		m.stats.latencyDataCount++
-		m.stats.AverageLatency = m.stats.totalLatencySum / time.Duration(m.stats.latencyDataCount)
-
-		return nil
-	})
-
-	// Send ping message
-	err := m.conn.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(10*time.Second))
-	if err != nil {
+	// WriteControl is safe to call concurrently with WriteMessage.
+	if err := m.conn.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(10*time.Second)); err != nil {
 		logger.Log.Error().Err(err).Msg("Failed to send ping for latency measurement")
 	}
 }
