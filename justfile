@@ -3,12 +3,7 @@
 
 VERSION := "1.2.1"
 RESET := "\\033[0m"
-GREEN := "\\033[32m"
-CYAN := "\\033[36m"
 
-# BOLD := "\\033[1m"
-# YELLOW := "\\033[33m"
-# RED := "\\033[31m"
 # === SERVER VARIABLES ===
 
 SERVER_BIN_DIR := "./bin"
@@ -39,12 +34,14 @@ help:
 # === COMMON TARGETS ===
 
 # Build both server and client
+[group('build')]
 build: server-build client-build
     @{{ ECHO_CMD }} "{{ GREEN }}[+] Build complete for both server and client!{{ RESET }}"
 
 # === SERVER TARGETS ===
 
 # Build server for development
+[group('build')]
 server-build:
     @echo -e "{{ CYAN }}[*] Building server...{{ RESET }}"
     @mkdir -p {{ SERVER_BIN_DIR }}
@@ -52,6 +49,7 @@ server-build:
     @echo -e "{{ GREEN }}[+] Server build complete!{{ RESET }}"
 
 # Build server for production
+[group('build')]
 server-build-prod:
     @echo -e "{{ CYAN }}[*] Building server for production...{{ RESET }}"
     @mkdir -p {{ SERVER_BIN_DIR }}
@@ -60,14 +58,17 @@ server-build-prod:
     @echo -e "{{ GREEN }}[+] Production build complete!{{ RESET }}"
 
 # Run the server in development mode
+[group('build')]
 server-run: server-build server-build-plugins minify
     @{{ SERVER_BIN_DIR }}/{{ SERVER_BINARY_NAME }} -c -D
 
 # Clean server binaries and logs
+[group('dev')]
 server-clean:
     @rm -rf {{ SERVER_BIN_DIR }}/* {{ SERVER_LOGS_DIR }}/*
 
 # Build server plugins
+[group('build')]
 server-build-plugins:
     @for file in $(shell find ./pkg/protocols -name '*.go' ! -name 'protocols.go'); do \
      if grep -q '^package main' "$$file"; then \
@@ -80,6 +81,7 @@ server-build-plugins:
     done
 
 # Build server plugins for production
+[group('build')]
 server-build-plugins-prod:
     @for file in $(shell find ./pkg/protocols -name '*.go' ! -name 'protocols.go'); do \
      if grep -q '^package main' "$$file"; then \
@@ -92,12 +94,14 @@ server-build-plugins-prod:
     done
 
 # Watch server files and rebuild on changes (requires air)
+[group('dev')]
 server-watch:
     @if command -v air > /dev/null; then air; else go install github.com/air-verse/air@latest && air; fi
 
 # === CLIENT TARGETS ===
 
 # Build client for development
+[group('build')]
 client-build:
     @{{ ECHO_CMD }} "{{ CYAN }}[*] Building client...{{ RESET }}"
     @{{ MKDIR_CMD }} {{ CLIENT_BIN_DIR }}
@@ -105,6 +109,7 @@ client-build:
     @{{ ECHO_CMD }} "{{ GREEN }}[+] Client build complete!{{ RESET }}"
 
 # Build client for Windows
+[group('build')]
 client-build-windows:
     @{{ ECHO_CMD }} "{{ CYAN }}[*] Building client for Windows...{{ RESET }}"
     @{{ MKDIR_CMD }} {{ CLIENT_BIN_DIR }}
@@ -112,6 +117,7 @@ client-build-windows:
     @{{ ECHO_CMD }} "{{ GREEN }}[+] Windows build complete!{{ RESET }}"
 
 # Build client for Linux
+[group('build')]
 client-build-linux:
     @{{ ECHO_CMD }} "{{ CYAN }}[*] Building client for Linux...{{ RESET }}"
     @{{ MKDIR_CMD }} {{ CLIENT_BIN_DIR }}
@@ -119,6 +125,7 @@ client-build-linux:
     @{{ ECHO_CMD }} "{{ GREEN }}[+] Linux build complete!{{ RESET }}"
 
 # Build client for production (Linux)
+[group('build')]
 client-build-linux-prod:
     @{{ ECHO_CMD }} "{{ CYAN }}[*] Building client for Linux production...{{ RESET }}"
     @{{ MKDIR_CMD }} {{ CLIENT_BIN_DIR }}
@@ -126,6 +133,7 @@ client-build-linux-prod:
     @{{ ECHO_CMD }} "{{ GREEN }}[+] Linux production build complete!{{ RESET }}"
 
 # Build client for production (Windows)
+[group('build')]
 client-build-windows-prod:
     @{{ ECHO_CMD }} "{{ CYAN }}[*] Building client for Windows production...{{ RESET }}"
     @{{ MKDIR_CMD }} {{ CLIENT_BIN_DIR }}
@@ -133,6 +141,7 @@ client-build-windows-prod:
     @{{ ECHO_CMD }} "{{ GREEN }}[+] Windows production build complete!{{ RESET }}"
 
 # Build client for production (all platforms)
+[group('build')]
 client-build-prod:
     @{{ ECHO_CMD }} "{{ CYAN }}[*] Building client for production...{{ RESET }}"
     @just client-build-linux-prod
@@ -140,55 +149,66 @@ client-build-prod:
     @{{ ECHO_CMD }} "{{ GREEN }}[+] Production build complete!{{ RESET }}"
 
 # Run the client
+[group('dev')]
 client-run: client-build
     @{{ CLIENT_BIN_DIR }}{{ PATHSEP }}{{ CLIENT_BINARY_NAME }}
 
 # Install the client binary to /usr/local/bin and the virtual environment
+[group('dev')]
 client-install: client-build
     @sudo cp {{ CLIENT_BIN_DIR }}{{ PATHSEP }}{{ CLIENT_BINARY_NAME }} /usr/local/bin/{{ CLIENT_BINARY_NAME }}
     @sudo cp /usr/local/bin/{{ CLIENT_BINARY_NAME }} ~/.venv/bin/{{ CLIENT_BINARY_NAME }}
 
 # Clean client binaries
+[group('dev')]
 client-test:
     @go test ./...
 
 # === SHARED TOOLS ===
 
 # Build Tailwind CSS for production
+[group('tools')]
 tailwindcss-build:
     ./tools/tailwindcss -c ./server/tailwind.config.js -i ./server/assets/css/global.css -o ./server/public/css/output.css --minify
 
 # Watch Tailwind CSS files and rebuild on changes
+[group('tools')]
 tailwindcss-watch:
     ./tools/tailwindcss -c ./server/tailwind.config.js -i ./server/assets/css/global.css -o ./server/public/css/output.css --watch
 
 # Run the minify on the js files in the assets/js directory and output to public/js
+[group('tools')]
 minify:
     @uglifyjs ./server/assets/js/*.js -o ./server/public/js/output.min.js -c -m
 
 # Lint the codebase using golangci-lint and apply fixes where possible
+[group('tools')]
 lint:
     @go work sync
     @go list -f \{\{.Dir\}\} -m | xargs golangci-lint run --fix
 
 # Format the codebase using gofumpt
+[group('tools')]
 fmt:
     @go work sync
     @go list -f \{\{.Dir\}\} -m | xargs gofumpt -w -d
 
 # Do a snapshot of the CPU, RAM, and Goroutines using pprof and open the web interface for each for the server
+[group('dev')]
 snapshot-cpu:
     @echo -e "{{ CYAN }}[*] Taking CPU snapshot...{{ RESET }}"
     go tool pprof -http=:6061 http://localhost:6060/debug/pprof/profile?seconds=30
     @echo -e "{{ GREEN }}[+] CPU snapshot complete!{{ RESET }}"
 
 # Do a snapshot of the RAM using pprof and open the web interface for the server
+[group('dev')]
 snapshot-ram:
     @echo -e "{{ CYAN }}[*] Taking CPU snapshot...{{ RESET }}"
     go tool pprof -http=:6062 http://localhost:6060/debug/pprof/heap?seconds=30
     @echo -e "{{ GREEN }}[+] CPU snapshot complete!{{ RESET }}"
 
 # Do a snapshot of the Goroutines using pprof and open the web interface for the server
+[group('dev')]
 snapshot-goroutine:
     @echo -e "{{ CYAN }}[*] Taking Goroutine snapshot...{{ RESET }}"
     go tool pprof -http=:6063 http://localhost:6060/debug/pprof/goroutine?debug=1
