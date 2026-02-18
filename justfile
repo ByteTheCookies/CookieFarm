@@ -25,7 +25,7 @@ CLIENT_MAIN_FILE := "main.go"
 PATHSEP := if os() == "windows" { "\\" } else { "/" }
 MKDIR_CMD := if os() == "windows" { "mkdir" } else { "mkdir -p" }
 ECHO_CMD := if os() == "windows" { "echo" } else { "echo -e" }
-CLIENT_BINARY_NAME := if os() == "windows" { "cks.exe" } else { "cks" }
+CLIENT_BINARY_NAME := if os() == "windows" { "ckc.exe" } else { "ckc" }
 
 # === HELP ===
 help:
