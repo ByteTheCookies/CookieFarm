@@ -3,6 +3,7 @@ package websockets
 
 import (
 	"encoding/json"
+	"errors"
 	"logger"
 	"models"
 	"net/http"
@@ -33,6 +34,68 @@ const (
 	pongWait = 60 * time.Second // pongWait is the time to wait for a pong response
 )
 
+func setHandler(conn *websocket.Conn) {
+	conn.SetPongHandler(func(appData string) error {
+		if err := conn.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
+			return err
+		}
+		monitor.RecordPong()
+		return nil
+	})
+
+	conn.SetPingHandler(func(appData string) error {
+		if err := conn.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
+			return err
+		}
+		return conn.WriteControl(
+			websocket.PongMessage,
+			[]byte(appData),
+			time.Now().Add(10*time.Second),
+		)
+	})
+}
+
+func tryToConnect(cm *config.ConfigManager, maxAttempts int, dialer *websocket.Dialer) (*websocket.Conn, error) {
+	host := cm.GetLocalConfig().Host
+	port := strconv.Itoa(int(cm.GetLocalConfig().Port))
+	for attempts := range maxAttempts {
+		conn, resp, err := dialer.Dial("ws://"+host+":"+port+"/ws/", http.Header{
+			"Cookie": []string{"token=" + cm.GetToken()},
+		})
+
+		if resp != nil && resp.Body != nil {
+			_ = resp.Body.Close()
+		}
+
+		if err == nil {
+			circuitBreaker.RecordSuccess()
+			monitor.SetConnection(conn)
+			setHandler(conn)
+			conn.SetReadDeadline(time.Now().Add(pongWait))
+			return conn, nil
+		}
+
+		if websocket.ErrBadHandshake == err {
+			logger.Log.Error().Err(err).Msg("Bad handshake, retrying login...")
+			token, err := cm.GetSession()
+			if err != nil {
+				logger.Log.Error().Err(err).Msg("Failed to refresh token")
+				circuitBreaker.RecordFailure()
+				monitor.SetStatus(StatusFailed)
+				return nil, err
+			}
+			cm.SetToken(token)
+			continue
+		}
+
+		logger.Log.Warn().Err(err).Int("attempt", attempts+1).Int("maxRetries", maxAttempts).Msg("Error connecting to WebSocket, retrying...")
+		monitor.SetStatus(StatusReconnecting)
+		time.Sleep(time.Second * time.Duration(1<<attempts))
+	}
+
+	return nil, errors.New("exceeded maximum connection attempts")
+}
+
 // bad handshake (401)
 // connection refused (503)
 func GetConnection() (*websocket.Conn, error) {
@@ -57,49 +120,11 @@ func GetConnection() (*websocket.Conn, error) {
 		HandshakeTimeout: dialTimeout,
 	}
 
-	for attempts := 0; attempts < maxAttempts; attempts++ {
-		conn, resp, err := dialer.Dial("ws://"+cm.GetLocalConfig().Host+":"+strconv.Itoa(int(cm.GetLocalConfig().Port))+"/ws/", http.Header{
-			"Cookie": []string{"token=" + cm.GetToken()},
-		})
-
-		// Close response body to avoid resource leak (per staticcheck bodyclose)
-		if resp != nil && resp.Body != nil {
-			_ = resp.Body.Close()
-		}
-
-		if err == nil {
-			circuitBreaker.RecordSuccess()
-
-			monitor.SetConnection(conn)
-
-			conn.SetPongHandler(func(appData string) error {
-				monitor.mutex.Lock()
-				monitor.stats.LastPongTime = time.Now()
-				monitor.mutex.Unlock()
-				return nil
-			})
-
-			conn.SetReadDeadline(time.Now().Add(pongWait))
-
-			return conn, nil
-		}
-
-		if websocket.ErrBadHandshake == err {
-			logger.Log.Error().Err(err).Msg("Bad handshake, retrying login...")
-			token, err := cm.GetSession()
-			if err != nil {
-				logger.Log.Error().Err(err).Msg("Failed to refresh token")
-				circuitBreaker.RecordFailure()
-				monitor.SetStatus(StatusFailed)
-				return nil, err
-			}
-			cm.SetToken(token)
-			continue
-		}
-
-		logger.Log.Warn().Err(err).Int("attempt", attempts+1).Int("maxRetries", maxAttempts).Msg("Error connecting to WebSocket, retrying...")
-		monitor.SetStatus(StatusReconnecting)
-		time.Sleep(time.Second * time.Duration(1<<attempts))
+	conn, err := tryToConnect(cm, maxAttempts, dialer)
+	if err == nil {
+		logger.Log.Info().Msg("Successfully connected to WebSocket")
+		monitor.SetStatus(StatusConnected)
+		return conn, nil
 	}
 
 	circuitBreaker.RecordFailure()

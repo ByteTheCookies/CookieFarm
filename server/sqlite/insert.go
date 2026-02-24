@@ -69,10 +69,7 @@ func AddFlagsWithContext(ctx context.Context, flags []models.ClientData) error {
 
 	const batchSize = 1000 / 10
 	for i := 0; i < len(flags); i += batchSize {
-		end := i + batchSize
-		if end > len(flags) {
-			end = len(flags)
-		}
+		end := min(i+batchSize, len(flags))
 		err := InsertBatch(ctx, conn, flags[i:end], stmt)
 		if err != nil {
 			return err

@@ -22,10 +22,7 @@ func UpdateFlagsStatus(responses []protocols.ResponseProtocol) error {
 
 	batchSize := defaultBatchSize
 	for start := 0; start < len(responses); start += batchSize {
-		end := start + batchSize
-		if end > len(responses) {
-			end = len(responses)
-		}
+		end := min(start+batchSize, len(responses))
 		batch := responses[start:end]
 		if err := updateFlagsBatch(batch); err != nil {
 			return err

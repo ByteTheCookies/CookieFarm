@@ -3,12 +3,13 @@ FROM ubuntu:latest
 RUN apt update && apt install -y socat build-essential
 
 WORKDIR /app
-COPY vulnify.c vulnify.h Makefile .
+COPY vulnify.c vulnify.h justfile ./
 
 RUN mkdir data
-RUN make build
+RUN apk add --no-cache just
+RUN just build
 RUN chmod +x ./vulnify
-RUN rm -f ./vulnify.c ./vulnify.h ./Makefile
+RUN rm -f ./vulnify.c ./vulnify.h ./justfile
 
 EXPOSE 1337
 

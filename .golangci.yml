@@ -1,7 +1,7 @@
 version: "2"
 
 run:
-  go: "1.25.7"
+  go: "1.26.0"
 
   timeout: 5m
   allow-parallel-runners: true
@@ -55,6 +55,7 @@ linters:
     - usestdlibvars
     - usetesting # Reports uses of functions with replacement inside the testing package.
     - wastedassign
+    - modernize # Detects code that can be modernized to use newer Go features.
 
   disable:
     - errcheck

@@ -34,10 +34,10 @@ func (m *ConnectionMonitor) SetConnection(conn *websocket.Conn) {
 	defer m.mutex.Unlock()
 
 	m.conn = conn
-	m.stats.ConnectionAttempts++
-	m.stats.SuccessfulConnects++
+	m.stats.ConnectionTracking.ConnectionAttempts++
+	m.stats.ConnectionTracking.SuccessfulConnects++
 	m.stats.CurrentStatus = StatusConnected
-	m.stats.LastConnectTime = time.Now()
+	m.stats.ConnectionTracking.LastConnectTime = time.Now()
 	m.stats.ConsecutiveErrs = 0
 
 	if !m.isMonitoring {
@@ -54,7 +54,7 @@ func (m *ConnectionMonitor) RecordDisconnect(err error) {
 	defer m.mutex.Unlock()
 
 	m.stats.CurrentStatus = StatusDisconnected
-	m.stats.LastDisconnectTime = time.Now()
+	m.stats.ConnectionTracking.LastDisconnectTime = time.Now()
 	if err != nil {
 		m.stats.LastError = err
 		m.stats.ConsecutiveErrs++
@@ -62,11 +62,11 @@ func (m *ConnectionMonitor) RecordDisconnect(err error) {
 
 	logger.Log.Info().
 		Int("consecutive_errors", m.stats.ConsecutiveErrs).
-		Time("last_connect", m.stats.LastConnectTime).
-		Time("last_disconnect", m.stats.LastDisconnectTime).
-		Int("messages_sent", m.stats.MessagesSent).
-		Int("messages_received", m.stats.MessagesReceived).
-		Dur("average_latency", m.stats.AverageLatency).
+		Time("last_connect", m.stats.ConnectionTracking.LastConnectTime).
+		Time("last_disconnect", m.stats.ConnectionTracking.LastDisconnectTime).
+		Int("messages_sent", m.stats.MessageTracking.MessagesSent).
+		Int("messages_received", m.stats.MessageTracking.MessagesReceived).
+		Dur("average_latency", m.stats.LatencyTracking.AverageLatency).
 		Msg("WebSocket disconnected")
 }
 
@@ -75,8 +75,8 @@ func (m *ConnectionMonitor) RecordMessageSent() {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 
-	m.stats.MessagesSent++
-	m.stats.LastSendTime = time.Now()
+	m.stats.MessageTracking.MessagesSent++
+	m.stats.MessageTracking.LastSendTime = time.Now()
 }
 
 // RecordMessageReceived records statistics about received messages
@@ -84,38 +84,45 @@ func (m *ConnectionMonitor) RecordMessageReceived() {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 
-	m.stats.MessagesReceived++
-	m.stats.LastReceiveTime = time.Now()
+	m.stats.MessageTracking.MessagesReceived++
+	m.stats.MessageTracking.LastReceiveTime = time.Now()
 }
 
-// MeasureLatency sends a ping and measures the time until pong is received
+// RecordPong is called by the pong handler set in GetConnection whenever a
+// pong is received. If a ping was previously sent by MeasureLatency, it
+// computes and stores the round-trip latency.
+func (m *ConnectionMonitor) RecordPong() {
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+
+	now := time.Now()
+	m.stats.LatencyTracking.LastPongTime = now
+
+	if m.stats.LatencyTracking.LastPingTime.IsZero() {
+		return
+	}
+
+	latency := now.Sub(m.stats.LatencyTracking.LastPingTime)
+	m.stats.LatencyTracking.CurrentLatency = latency
+	m.stats.LatencyTracking.totalLatencySum += latency
+	m.stats.LatencyTracking.latencyDataCount++
+	m.stats.LatencyTracking.AverageLatency = m.stats.LatencyTracking.totalLatencySum / time.Duration(m.stats.LatencyTracking.latencyDataCount)
+}
+
+// MeasureLatency sends a ping and measures the time until pong is received.
+// The pong handler is set once in GetConnection and calls RecordPong, so we
+// must NOT override it here – doing so would lose the read-deadline reset.
 func (m *ConnectionMonitor) MeasureLatency() {
 	if m.conn == nil {
 		return
 	}
 
 	m.mutex.Lock()
-	m.stats.LastPingTime = time.Now()
+	m.stats.LatencyTracking.LastPingTime = time.Now()
 	m.mutex.Unlock()
 
-	m.conn.SetPongHandler(func(string) error {
-		m.mutex.Lock()
-		defer m.mutex.Unlock()
-
-		m.stats.LastPongTime = time.Now()
-		latency := m.stats.LastPongTime.Sub(m.stats.LastPingTime)
-		m.stats.CurrentLatency = latency
-
-		m.stats.totalLatencySum += latency
-		m.stats.latencyDataCount++
-		m.stats.AverageLatency = m.stats.totalLatencySum / time.Duration(m.stats.latencyDataCount)
-
-		return nil
-	})
-
-	// Send ping message
-	err := m.conn.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(10*time.Second))
-	if err != nil {
+	// WriteControl is safe to call concurrently with WriteMessage.
+	if err := m.conn.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(10*time.Second)); err != nil {
 		logger.Log.Error().Err(err).Msg("Failed to send ping for latency measurement")
 	}
 }
@@ -173,9 +180,9 @@ func (m *ConnectionMonitor) performHealthCheck() {
 	m.mutex.RLock()
 	conn := m.conn
 	status := m.stats.CurrentStatus
-	lastActivity := m.stats.LastReceiveTime
-	if m.stats.LastSendTime.After(lastActivity) {
-		lastActivity = m.stats.LastSendTime
+	lastActivity := m.stats.MessageTracking.LastReceiveTime
+	if m.stats.MessageTracking.LastSendTime.After(lastActivity) {
+		lastActivity = m.stats.MessageTracking.LastSendTime
 	}
 	m.mutex.RUnlock()
 
@@ -191,10 +198,10 @@ func (m *ConnectionMonitor) performHealthCheck() {
 
 		stats := m.GetStats()
 		logger.Log.Debug().
-			Int("messages_sent", stats.MessagesSent).
-			Int("messages_received", stats.MessagesReceived).
-			Dur("current_latency", stats.CurrentLatency).
-			Dur("average_latency", stats.AverageLatency).
+			Int("messages_sent", stats.MessageTracking.MessagesSent).
+			Int("messages_received", stats.MessageTracking.MessagesReceived).
+			Dur("current_latency", stats.LatencyTracking.CurrentLatency).
+			Dur("average_latency", stats.LatencyTracking.AverageLatency).
 			Msg("WebSocket connection health check")
 	}
 }

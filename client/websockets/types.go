@@ -47,7 +47,30 @@ type EventWSFlag struct {
 // ========= WebSocket Connection Monitoring =========
 
 // ConnectionStatus represents the current status of the WebSocket connection
-type ConnectionStatus int
+type (
+	ConnectionStatus   int
+	ConnectionTracking struct {
+		ConnectionAttempts int
+		SuccessfulConnects int
+		FailedConnects     int
+		LastConnectTime    time.Time
+		LastDisconnectTime time.Time
+	}
+	ConnectionMessages struct {
+		MessagesSent     int
+		MessagesReceived int
+		LastSendTime     time.Time
+		LastReceiveTime  time.Time
+	}
+	LatencyTracking struct {
+		LastPingTime     time.Time
+		LastPongTime     time.Time
+		CurrentLatency   time.Duration
+		AverageLatency   time.Duration
+		totalLatencySum  time.Duration
+		latencyDataCount int
+	}
+)
 
 const (
 	StatusDisconnected ConnectionStatus = iota
@@ -59,33 +82,12 @@ const (
 
 // ConnectionStats holds statistics about the WebSocket connection
 type ConnectionStats struct {
-	// Connection tracking
-	ConnectionAttempts int
-	SuccessfulConnects int
-	FailedConnects     int
-	LastConnectTime    time.Time
-	LastDisconnectTime time.Time
-
-	// Message tracking
-	MessagesSent     int
-	MessagesReceived int
-	LastSendTime     time.Time
-	LastReceiveTime  time.Time
-
-	// Error tracking
-	LastError       error
-	ConsecutiveErrs int
-
-	// Status
-	CurrentStatus ConnectionStatus
-
-	// Latency tracking
-	LastPingTime     time.Time
-	LastPongTime     time.Time
-	CurrentLatency   time.Duration
-	AverageLatency   time.Duration
-	totalLatencySum  time.Duration
-	latencyDataCount int
+	ConnectionTracking ConnectionTracking
+	MessageTracking    ConnectionMessages
+	LastError          error
+	ConsecutiveErrs    int
+	CurrentStatus      ConnectionStatus
+	LatencyTracking    LatencyTracking
 }
 
 // ConnectionMonitor monitors WebSocket connections and provides statistics

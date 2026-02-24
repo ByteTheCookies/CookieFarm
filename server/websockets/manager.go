@@ -65,7 +65,7 @@ func VerifyToken(token string) error {
 	return err
 }
 
-// CookieAuthMiddleware verifica il token JWT dal cookie
+// CookieAuthMiddleware verifies the JWT token from the cookie
 func CookieAuthMiddleware(c *fiber.Ctx) error {
 	token := c.Cookies("token")
 	if token == "" || VerifyToken(token) != nil {
@@ -74,16 +74,27 @@ func CookieAuthMiddleware(c *fiber.Ctx) error {
 	return c.Next()
 }
 
-// WebSocketUpgrade middleware per l'upgrade della connessione
+// WebSocketUpgrade middleware for upgrading the connection to WebSocket
 func WebSocketUpgrade(c *fiber.Ctx) error {
-	// IsWebSocketUpgrade controlla se è una richiesta di upgrade WebSocket
 	if websocket.IsWebSocketUpgrade(c) {
 		return c.Next()
 	}
 	return fiber.ErrUpgradeRequired
 }
 
-// ServeWS gestisce le connessioni WebSocket con il nuovo middleware di Fiber
+// ServeWS handles WebSocket connections.
+//
+// The handler passed to websocket.New MUST block for the entire lifetime of
+// the connection – Fiber closes the underlying *Conn as soon as the handler
+// returns. We therefore:
+//
+//  1. Spawn WriteMessages as a background goroutine.
+//  2. Call ReadMessages directly, which blocks until the peer disconnects,
+//     the read deadline fires, or CloseConnection is called.
+//
+// When ReadMessages returns it closes client.done, which wakes WriteMessages
+// so it can send the WebSocket close frame, close the TCP connection, and
+// remove the client from the manager.
 func (m *Manager) ServeWS() fiber.Handler {
 	return websocket.New(func(conn *websocket.Conn) {
 		logger.Log.Debug().Msg("New WebSocket connection")
@@ -91,18 +102,20 @@ func (m *Manager) ServeWS() fiber.Handler {
 		client := NewClient(conn, m)
 		m.AddClient(client)
 
-		// Imposta il timer per la durata della connessione
+		// Schedule automatic teardown after ConnectionLifetime.
 		connectionTimer := time.AfterFunc(ConnectionLifetime, func() {
 			logger.Log.Info().Int("client", client.Number).Msg("Connection lifetime exceeded, closing")
 			client.CloseConnection("Connection lifetime exceeded")
 		})
 		client.ConnectionTimer = connectionTimer
 
-		// Avvia le goroutine per lettura e scrittura
-		go client.ReadMessages()
+		// WriteMessages is the sole writer goroutine; it exits when client.done
+		// is closed and then calls RemoveClient.
 		go client.WriteMessages()
 
-		logger.Log.Debug().Msg("Started reading messages")
+		// Block here – Fiber keeps the *Conn alive while we're inside this
+		// handler function.
+		client.ReadMessages()
 	}, websocket.Config{
 		RecoverHandler: func(conn *websocket.Conn) {
 			if err := recover(); err != nil {
@@ -119,6 +132,10 @@ func (m *Manager) AddClient(client *Client) {
 	m.Clients[client] = true
 }
 
+// RemoveClient removes a client from the active-client map and stops its
+// lifetime timer. It intentionally does NOT write to the connection –
+// WriteMessages is the only goroutine allowed to write, and it already sends
+// the close frame before calling RemoveClient.
 func (m *Manager) RemoveClient(client *Client) {
 	m.Lock()
 	defer m.Unlock()
@@ -128,17 +145,10 @@ func (m *Manager) RemoveClient(client *Client) {
 			client.ConnectionTimer.Stop()
 		}
 
-		// Chiudi la connessione
-		err := client.Connection.WriteMessage(
-			websocket.CloseMessage,
-			websocket.FormatCloseMessage(websocket.CloseNormalClosure, "Server closing connection"),
-		)
-		if err != nil {
-			logger.Log.Debug().Err(err).Int("client", client.Number).Msg("Failed to send close message")
-		}
-
-		client.Connection.Close()
 		delete(m.Clients, client)
-		logger.Log.Debug().Int("client", client.Number).Int("active_clients", len(m.Clients)).Msg("Client removed")
+		logger.Log.Debug().
+			Int("client", client.Number).
+			Int("active_clients", len(m.Clients)).
+			Msg("Client removed")
 	}
 }

@@ -3,7 +3,7 @@
 set -e
 
 # === CONFIG ===
-VENV_ACTIVATE="venv/bin/activate"
+VENV_ACTIVATE=".venv/bin/activate"
 FLAGCHECKER_SCRIPT="tests/flagchecker.py"
 SCRIPTS_DIR="scripts"
 TESTS_DIR="tests"
@@ -19,7 +19,7 @@ fi
 
 # === CLEANUP HANDLER ===
 cleanup() {
-    echo "🧹 Pulizia in corso... Chiudo terminali e Docker..."
+    echo "🧹 Cleaning up... Closing terminals and Docker..."
     kitty @ close-window --match title:flagchecker || true
     kitty @ close-window --match title:cks || true
     kitty @ close-window --match title:service || true
@@ -32,30 +32,30 @@ trap cleanup SIGINT
 cd ..
 
 # === REQUIREMENTS ===
-echo "📦 Installazione dipendenze Python..."
+echo "📦 Installing Python dependencies..."
 pip install --upgrade pip > /dev/null
 pip install -r "$REQUIREMENTS" > /dev/null
 
 # === FLAGCHECKER ===
-echo "🚩 Avvio Flagchecker..."
+echo "🚩 Starting Flagchecker..."
 chmod +x "$FLAGCHECKER_SCRIPT"
 kitty --title "flagchecker" bash -c "source $VENV_ACTIVATE && $FLAGCHECKER_SCRIPT $1; exec bash" &
-echo "✅ Flagchecker lanciato in un terminale separato! 🎉"
+echo "✅ Flagchecker launched in a separate terminal! 🎉"
 
 # === SERVER ===
-echo "🍪 Avvio CookieFarm Server..."
-kitty --title "cookieserver" bash -c "make server-build-plugins; make server-run; exec bash" &
-echo "✅ Server avviato!"
+echo "🍪 Starting CookieFarm Server..."
+kitty --title "cookieserver" bash -c "just server-build-plugins; just server-run; exec bash" &
+echo "✅ Server started!"
 
-# === SERVIZI ===
-echo "🚀 Avvio Servizi..."
+# === SERVICES ===
+echo "🚀 Starting services..."
 cd "$TESTS_DIR"
 chmod +x ./start_containers.sh
 kitty --title "service" bash -c "./start_containers.sh $1; exec bash" &
-echo "✅ Servizi avviati!"
+echo "✅ Services started!"
 
-# === COMPLETAMENTO ===
-echo -e "\n🎯 Cookie Farm Server pronto all'uso!"
+# === COMPLETION ===
+echo -e "\n🎯 Cookie Farm Server ready to use!"
 
-read -p "🔻 Premi INVIO per chiudere tutti i terminali avviati dallo script..."
+read -p "🔻 Press ENTER to close all terminals started by this script..."
 cleanup

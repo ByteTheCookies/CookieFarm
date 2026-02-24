@@ -1,6 +1,6 @@
 module server/ui
 
-go 1.25.7
+go 1.26.0
 
 require github.com/gofiber/template/html/v2 v2.1.3
 

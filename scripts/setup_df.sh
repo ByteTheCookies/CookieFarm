@@ -6,7 +6,7 @@ if [[ $# -ne 2 ]]; then
 fi
 
 cleanup() {
-    echo "🧹 Pulizia in corso... Chiudo terminali e Docker..."
+    echo "🧹 Cleaning up... Closing terminals and Docker..."
     kitty @ close-window --match title:flagchecker
     kitty @ close-window --match title:cookieserver
     kitty @ close-window --match title:service
@@ -26,38 +26,38 @@ pip install -r ../requirements.txt > /dev/null
 activate_venv="source ../venv/bin/activate"
 
 # Run Flagchecker
-echo "🚩 Avvio Flagchecker..."
+echo "🚩 Starting Flagchecker..."
 
 chmod +x ../tests/flagchecker.py
 kitty --title "flagchecker" bash -c "${activate_venv} && ../tests/flagchecker.py; exec bash" &
 
-echo "✅ Flagchecker lanciato in un terminale separato! 🎉"
+echo "✅ Flagchecker launched in a separate terminal! 🎉"
 echo ""
 
 # Run Services
-echo "🚀 Avvio Servizi..."
+echo "🚀 Starting Services..."
 
 cd ../tests
 chmod +x ./start_containers.sh
 kitty --title "service" bash -c "./start_containers.sh $1; exec bash" &
 
-echo "🚀 Servizi avviati!"
+echo "🚀 Services started!"
 
 # Run DestructiveFarm
-echo "🚀 Avvio DestructiveFarm..."
+echo "🚀 Starting DestructiveFarm..."
 
 cd ../scripts/
 cat ./config_df.py > $2/server/config.py
 chmod +x $2/server/start_server.sh
 kitty --title "destructivefarm" bash -c "$2/server/start_server.sh; exec bash" &
 
-echo "🚀 DestructiveFarm avviato!"
+echo "🚀 DestructiveFarm started!"
 
-echo "🎯 Ambiente per DF pronto all'uso!"
+echo "🎯 DF environment is ready to use!"
 
-# Attendi input per terminare tutti i terminali kitty
-read -p "🔻 Premi INVIO per chiudere tutti i terminali avviati dallo script..."
+# Wait for input to close all kitty terminals
+read -p "🔻 Press ENTER to close all terminals started by the script..."
 
 cleanup()
 
-echo "🧹 Tutti i terminali sono stati chiusi!"
+echo "🧹 All terminals have been closed!"

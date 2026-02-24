@@ -153,54 +153,9 @@ func (*CommandRunner) ExecuteConfigUpdate(host, port, username string, useHTTPS 
 	return "Configuration updated successfully. File saved at:" + path, nil
 }
 
-func (*CommandRunner) ExecuteExploitTest(
-	exploitPath, servicePort string,
-	tickTime, threadCount string, submitValue bool,
-) (string, error) {
-	tickTimeInt := 120  // default
-	threadCountInt := 5 // default
-	var err error
-
-	if tickTime != "" {
-		tickTimeInt, err = strconv.Atoi(tickTime)
-		if err != nil {
-			return "", fmt.Errorf("invalid tick time: %s", tickTime)
-		}
-	}
-
-	if threadCount != "" {
-		threadCountInt, err = strconv.Atoi(threadCount)
-		if err != nil {
-			return "", fmt.Errorf("invalid thread count: %s", threadCount)
-		}
-	}
-
-	if servicePort == "" {
-		return "", errors.New("service port is required")
-	}
-
-	err = exploit.Run(
-		exploitPath,
-		tickTimeInt,
-		threadCountInt,
-		servicePort,
-		false,
-		submitValue,
-	)
-	if err != nil {
-		return "", err
-	}
-
-	var initialOutput strings.Builder
-	initialOutput.WriteString(fmt.Sprintf("Running with %d threads, tick time %d seconds\n", threadCountInt, tickTimeInt))
-	initialOutput.WriteString("Output streaming started. Live updates will appear below...\n")
-
-	return initialOutput.String(), nil
-}
-
-func (*CommandRunner) ExecuteExploitRun(
+func executeExploit(
 	exploitPath, serviceName string,
-	tickTime, threadCount string, submitValue bool,
+	tickTime, threadCount string, submitValue bool, isTest bool,
 ) (string, error) {
 	tickTimeInt := 120  // default
 	threadCountInt := 5 // default
@@ -229,7 +184,7 @@ func (*CommandRunner) ExecuteExploitRun(
 		tickTimeInt,
 		threadCountInt,
 		serviceName,
-		false,
+		isTest,
 		submitValue,
 	)
 	if err != nil {
@@ -237,10 +192,24 @@ func (*CommandRunner) ExecuteExploitRun(
 	}
 
 	var initialOutput strings.Builder
-	initialOutput.WriteString(fmt.Sprintf("Running with %d threads, tick time %d seconds\n", threadCountInt, tickTimeInt))
+	fmt.Fprintf(&initialOutput, "Running with %d threads, tick time %d seconds\n", threadCountInt, tickTimeInt)
 	initialOutput.WriteString("Output streaming started. Live updates will appear below...\n")
 
 	return initialOutput.String(), nil
+}
+
+func (*CommandRunner) ExecuteExploitTest(
+	exploitPath, serviceName string,
+	tickTime, threadCount string, submitValue bool,
+) (string, error) {
+	return executeExploit(exploitPath, serviceName, tickTime, threadCount, submitValue, true)
+}
+
+func (*CommandRunner) ExecuteExploitRun(
+	exploitPath, serviceName string,
+	tickTime, threadCount string, submitValue bool,
+) (string, error) {
+	return executeExploit(exploitPath, serviceName, tickTime, threadCount, submitValue, false)
 }
 
 // ExecuteExploitCreate handles creating an exploit template
