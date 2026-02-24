@@ -34,7 +34,7 @@ const (
 	pongWait = 60 * time.Second // pongWait is the time to wait for a pong response
 )
 
-func setHandler(conn *websocket.Conn) error {
+func setHandler(conn *websocket.Conn) {
 	conn.SetPongHandler(func(appData string) error {
 		if err := conn.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
 			return err
@@ -53,8 +53,6 @@ func setHandler(conn *websocket.Conn) error {
 			time.Now().Add(10*time.Second),
 		)
 	})
-
-	return nil
 }
 
 func tryToConnect(cm *config.ConfigManager, maxAttempts int, dialer *websocket.Dialer) (*websocket.Conn, error) {
@@ -72,13 +70,8 @@ func tryToConnect(cm *config.ConfigManager, maxAttempts int, dialer *websocket.D
 		if err == nil {
 			circuitBreaker.RecordSuccess()
 			monitor.SetConnection(conn)
-
-			if err := setHandler(conn); err != nil {
-				return nil, err
-			}
-
+			setHandler(conn)
 			conn.SetReadDeadline(time.Now().Add(pongWait))
-
 			return conn, nil
 		}
 
