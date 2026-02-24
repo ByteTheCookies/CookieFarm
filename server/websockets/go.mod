@@ -1,6 +1,6 @@
 module server/websockets
 
-go 1.25.7
+go 1.26.0
 
 require (
 	github.com/gofiber/contrib/websocket v1.3.4

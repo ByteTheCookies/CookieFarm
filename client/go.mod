@@ -1,6 +1,6 @@
 module client
 
-go 1.25.7
+go 1.26.0
 
 require (
 	github.com/charmbracelet/fang v0.4.4

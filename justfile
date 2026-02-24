@@ -69,9 +69,9 @@ server-clean:
 # Build server plugins
 [group('build')]
 server-build-plugins:
-    @for file in $(shell find ./pkg/protocols -name '*.go' ! -name 'protocols.go'); do \
+    @for file in $(find ./pkg/protocols -name '*.go' ! -name 'protocols.go'); do \
      if grep -q '^package main' "$file"; then \
-      filename=$(basename $$file); \
+      filename=$(basename $file); \
       pluginname=${filename%.go}; \
       go build -buildmode=plugin -o "./pkg/protocols/$pluginname.so" "$file"; \
      else \
