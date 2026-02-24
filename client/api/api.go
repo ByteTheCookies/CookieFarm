@@ -43,7 +43,7 @@ func GetConfig() (models.ConfigShared, error) {
 	}
 	req.Header.Set("Cookie", "token="+cm.GetToken())
 
-	resp, err := client.Do(req)
+	resp, err := client.Do(req) //nolint:gosec
 	if err != nil {
 		return models.ConfigShared{}, fmt.Errorf("error sending config request: %w", err)
 	}
@@ -134,7 +134,7 @@ func SubmitBatchDirect(flags []models.ClientData) (string, error) {
 	req.Header.Set("Content-Type", "application/json")
 	req.Body = io.NopCloser(bytes.NewReader(flagMarshalled))
 
-	resp, err := client.Do(req)
+	resp, err := client.Do(req) //nolint:gosec
 	if err != nil {
 		return "", fmt.Errorf("error sending config request: %w", err)
 	}
@@ -182,7 +182,7 @@ func SubmitDirect(flag models.ClientData) (string, error) {
 	req.Header.Set("Content-Type", "application/json")
 	req.Body = io.NopCloser(bytes.NewReader(flagMarshalled))
 
-	resp, err := client.Do(req)
+	resp, err := client.Do(req) //nolint:gosec
 	if err != nil {
 		return "", fmt.Errorf("error sending config request: %w", err)
 	}

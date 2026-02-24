@@ -192,7 +192,7 @@ func executeExploit(
 	}
 
 	var initialOutput strings.Builder
-	initialOutput.WriteString(fmt.Sprintf("Running with %d threads, tick time %d seconds\n", threadCountInt, tickTimeInt))
+	fmt.Fprintf(&initialOutput, "Running with %d threads, tick time %d seconds\n", threadCountInt, tickTimeInt)
 	initialOutput.WriteString("Output streaming started. Live updates will appear below...\n")
 
 	return initialOutput.String(), nil
