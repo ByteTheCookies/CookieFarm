@@ -3,6 +3,7 @@ package websockets
 
 import (
 	"encoding/json"
+	"errors"
 	"logger"
 	"models"
 	"net/http"
@@ -33,43 +34,20 @@ const (
 	pongWait = 60 * time.Second // pongWait is the time to wait for a pong response
 )
 
-// bad handshake (401)
-// connection refused (503)
-func GetConnection() (*websocket.Conn, error) {
-	cm := config.GetConfigManager()
-	var err error
-
-	monitor := GetMonitor()
-	monitor.SetStatus(StatusConnecting)
-
-	if !circuitBreaker.IsAllowed() {
-		logger.Log.Warn().Msg("Circuit breaker is open, connection attempt blocked")
-		monitor.SetStatus(StatusFailed)
-		return nil, ErrCircuitOpen
-	}
-
-	maxAttempts := maxRetries
-	if circuitBreaker.state == StateHalfOpen {
-		maxAttempts = halfOpenMaxRetry
-	}
-
-	dialer := &websocket.Dialer{
-		HandshakeTimeout: dialTimeout,
-	}
-
-	for attempts := 0; attempts < maxAttempts; attempts++ {
-		conn, resp, err := dialer.Dial("ws://"+cm.GetLocalConfig().Host+":"+strconv.Itoa(int(cm.GetLocalConfig().Port))+"/ws/", http.Header{
+func tryToConnect(cm *config.ConfigManager, maxAttempts int, dialer *websocket.Dialer) (*websocket.Conn, error) {
+	host := cm.GetLocalConfig().Host
+	port := strconv.Itoa(int(cm.GetLocalConfig().Port))
+	for attempts := range maxAttempts {
+		conn, resp, err := dialer.Dial("ws://"+host+":"+port+"/ws/", http.Header{
 			"Cookie": []string{"token=" + cm.GetToken()},
 		})
 
-		// Close response body to avoid resource leak (per staticcheck bodyclose)
 		if resp != nil && resp.Body != nil {
 			_ = resp.Body.Close()
 		}
 
 		if err == nil {
 			circuitBreaker.RecordSuccess()
-
 			monitor.SetConnection(conn)
 
 			conn.SetPongHandler(func(appData string) error {
@@ -112,6 +90,40 @@ func GetConnection() (*websocket.Conn, error) {
 		logger.Log.Warn().Err(err).Int("attempt", attempts+1).Int("maxRetries", maxAttempts).Msg("Error connecting to WebSocket, retrying...")
 		monitor.SetStatus(StatusReconnecting)
 		time.Sleep(time.Second * time.Duration(1<<attempts))
+	}
+
+	return nil, errors.New("exceeded maximum connection attempts")
+}
+
+// bad handshake (401)
+// connection refused (503)
+func GetConnection() (*websocket.Conn, error) {
+	cm := config.GetConfigManager()
+	var err error
+
+	monitor := GetMonitor()
+	monitor.SetStatus(StatusConnecting)
+
+	if !circuitBreaker.IsAllowed() {
+		logger.Log.Warn().Msg("Circuit breaker is open, connection attempt blocked")
+		monitor.SetStatus(StatusFailed)
+		return nil, ErrCircuitOpen
+	}
+
+	maxAttempts := maxRetries
+	if circuitBreaker.state == StateHalfOpen {
+		maxAttempts = halfOpenMaxRetry
+	}
+
+	dialer := &websocket.Dialer{
+		HandshakeTimeout: dialTimeout,
+	}
+
+	conn, err := tryToConnect(cm, maxAttempts, dialer)
+	if err == nil {
+		logger.Log.Info().Msg("Successfully connected to WebSocket")
+		monitor.SetStatus(StatusConnected)
+		return conn, nil
 	}
 
 	circuitBreaker.RecordFailure()
