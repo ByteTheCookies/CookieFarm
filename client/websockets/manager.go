@@ -34,6 +34,29 @@ const (
 	pongWait = 60 * time.Second // pongWait is the time to wait for a pong response
 )
 
+func setHandler(conn *websocket.Conn) error {
+	conn.SetPongHandler(func(appData string) error {
+		if err := conn.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
+			return err
+		}
+		monitor.RecordPong()
+		return nil
+	})
+
+	conn.SetPingHandler(func(appData string) error {
+		if err := conn.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
+			return err
+		}
+		return conn.WriteControl(
+			websocket.PongMessage,
+			[]byte(appData),
+			time.Now().Add(10*time.Second),
+		)
+	})
+
+	return nil
+}
+
 func tryToConnect(cm *config.ConfigManager, maxAttempts int, dialer *websocket.Dialer) (*websocket.Conn, error) {
 	host := cm.GetLocalConfig().Host
 	port := strconv.Itoa(int(cm.GetLocalConfig().Port))
@@ -50,24 +73,9 @@ func tryToConnect(cm *config.ConfigManager, maxAttempts int, dialer *websocket.D
 			circuitBreaker.RecordSuccess()
 			monitor.SetConnection(conn)
 
-			conn.SetPongHandler(func(appData string) error {
-				if err := conn.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
-					return err
-				}
-				monitor.RecordPong()
-				return nil
-			})
-
-			conn.SetPingHandler(func(appData string) error {
-				if err := conn.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
-					return err
-				}
-				return conn.WriteControl(
-					websocket.PongMessage,
-					[]byte(appData),
-					time.Now().Add(10*time.Second),
-				)
-			})
+			if err := setHandler(conn); err != nil {
+				return nil, err
+			}
 
 			conn.SetReadDeadline(time.Now().Add(pongWait))
 
