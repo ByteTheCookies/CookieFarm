@@ -1,6 +1,0 @@
-services:
-  app-nc:
-    build:
-      context: .
-    restart: unless-stopped
-    network_mode: host

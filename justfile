@@ -6,7 +6,7 @@ RESET := "\\033[0m"
 
 # === SERVER VARIABLES ===
 
-SERVER_BIN_DIR := "./bin"
+SERVER_BIN_DIR := "../../bin"
 SERVER_CMD_DIR := "./server"
 SERVER_LOGS_DIR := "./logs"
 SERVER_MAIN_FILE := "main.go"
@@ -16,11 +16,12 @@ GOARCH := "amd64"
 
 # === CLIENT VARIABLES ===
 
-CLIENT_BIN_DIR := "./bin"
+CLIENT_BIN_DIR := "../bin"
 CLIENT_CMD_DIR := "./client"
 CLIENT_MAIN_FILE := "main.go"
 
 # CROSS PLATFORM BUILD VARIABLES
+
 PATHSEP := if os() == "windows" { "\\" } else { "/" }
 MKDIR_CMD := if os() == "windows" { "mkdir" } else { "mkdir -p" }
 ECHO_CMD := if os() == "windows" { "echo" } else { "echo -e" }
@@ -41,33 +42,38 @@ build: server-build client-build
 
 # Build server for development
 [group('build')]
+[working-directory('cookiefarm')]
 server-build:
     @echo -e "{{ CYAN }}[*] Building server...{{ RESET }}"
-    @mkdir -p {{ SERVER_BIN_DIR }}
-    @go build -o {{ SERVER_BIN_DIR }}/{{ SERVER_BINARY_NAME }} {{ SERVER_CMD_DIR }}/{{ SERVER_MAIN_FILE }}
+    @{{ MKDIR_CMD }} {{ SERVER_BIN_DIR }}
+    @go build -o {{ SERVER_BIN_DIR }}{{ PATHSEP }}{{ SERVER_BINARY_NAME }} {{ SERVER_CMD_DIR }}{{ PATHSEP }}{{ SERVER_MAIN_FILE }}
     @echo -e "{{ GREEN }}[+] Server build complete!{{ RESET }}"
 
 # Build server for production
 [group('build')]
+[working-directory('cookiefarm')]
 server-build-prod:
     @echo -e "{{ CYAN }}[*] Building server for production...{{ RESET }}"
-    @mkdir -p {{ SERVER_BIN_DIR }}
+    @{{ MKDIR_CMD }} {{ SERVER_BIN_DIR }}
     @GOOS={{ GOOS }} GOARCH={{ GOARCH }} \
-      go build -race -trimpath -gcflags="github.com/ByteTheCookies/CookieFarm/...=-m" -ldflags="-s -w" -o {{ SERVER_BIN_DIR }}/{{ SERVER_BINARY_NAME }} {{ SERVER_CMD_DIR }}/{{ SERVER_MAIN_FILE }}
+      go build -race -trimpath -gcflags="github.com/ByteTheCookies/CookieFarm/...=-m" -ldflags="-s -w" -o {{ SERVER_BIN_DIR }}{{ PATHSEP }}{{ SERVER_BINARY_NAME }} {{ SERVER_CMD_DIR }}{{ PATHSEP }}{{ SERVER_MAIN_FILE }}
     @echo -e "{{ GREEN }}[+] Production build complete!{{ RESET }}"
 
 # Run the server in development mode
 [group('build')]
+[working-directory('cookiefarm/server')]
 server-run: server-build server-build-plugins minify
-    @{{ SERVER_BIN_DIR }}/{{ SERVER_BINARY_NAME }} -c -D
+    @{{ SERVER_BIN_DIR }}{{ PATHSEP }}{{ SERVER_BINARY_NAME }} -c -D
 
 # Clean server binaries and logs
 [group('dev')]
+[working-directory('cookiefarm/server')]
 server-clean:
-    @rm -rf {{ SERVER_BIN_DIR }}/* {{ SERVER_LOGS_DIR }}/*
+    @rm -rf {{ SERVER_BIN_DIR }}{{ PATHSEP }}* {{ SERVER_LOGS_DIR }}{{ PATHSEP }}*
 
 # Build server plugins
 [group('build')]
+[working-directory('cookiefarm')]
 server-build-plugins:
     @for file in $(find ./pkg/protocols -name '*.go' ! -name 'protocols.go'); do \
      if grep -q '^package main' "$file"; then \
@@ -81,6 +87,7 @@ server-build-plugins:
 
 # Build server plugins for production
 [group('build')]
+[working-directory('cookiefarm')]
 server-build-plugins-prod:
     @for file in $(shell find ./pkg/protocols -name '*.go' ! -name 'protocols.go'); do \
      if grep -q '^package main' "$file"; then \
@@ -94,6 +101,7 @@ server-build-plugins-prod:
 
 # Watch server files and rebuild on changes (requires air)
 [group('dev')]
+[working-directory('cookiefarm')]
 server-watch:
     @if command -v air > /dev/null; then air; else go install github.com/air-verse/air@latest && air; fi
 
@@ -101,46 +109,52 @@ server-watch:
 
 # Build client for development
 [group('build')]
+[working-directory('cookiefarm')]
 client-build:
     @{{ ECHO_CMD }} "{{ CYAN }}[*] Building client...{{ RESET }}"
     @{{ MKDIR_CMD }} {{ CLIENT_BIN_DIR }}
-    @go build  -o {{ CLIENT_BIN_DIR }}{{ PATHSEP }}{{ CLIENT_BINARY_NAME }} {{ CLIENT_CMD_DIR }}/{{ CLIENT_MAIN_FILE }}
+    @go build -o {{ CLIENT_BIN_DIR }}{{ PATHSEP }}{{ CLIENT_BINARY_NAME }} {{ CLIENT_CMD_DIR }}{{ PATH_SEP }}{{ CLIENT_MAIN_FILE }}
     @{{ ECHO_CMD }} "{{ GREEN }}[+] Client build complete!{{ RESET }}"
 
 # Build client for Windows
 [group('build')]
+[working-directory('cookiefarm')]
 client-build-windows:
     @{{ ECHO_CMD }} "{{ CYAN }}[*] Building client for Windows...{{ RESET }}"
     @{{ MKDIR_CMD }} {{ CLIENT_BIN_DIR }}
-    @GOOS=windows GOARCH=amd64 go build -o {{ CLIENT_BIN_DIR }}{{ PATHSEP }}{{ CLIENT_BINARY_NAME }} {{ CLIENT_CMD_DIR }}{{ CLIENT_MAIN_FILE }}
+    @GOOS=windows GOARCH=amd64 go build -o {{ CLIENT_BIN_DIR }}{{ PATHSEP }}{{ CLIENT_BINARY_NAME }} {{ CLIENT_CMD_DIR }}{{ PATH_SEP }}{{ CLIENT_MAIN_FILE }}
     @{{ ECHO_CMD }} "{{ GREEN }}[+] Windows build complete!{{ RESET }}"
 
 # Build client for Linux
 [group('build')]
+[working-directory('cookiefarm')]
 client-build-linux:
     @{{ ECHO_CMD }} "{{ CYAN }}[*] Building client for Linux...{{ RESET }}"
     @{{ MKDIR_CMD }} {{ CLIENT_BIN_DIR }}
-    @GOOS=linux GOARCH=amd64 go build -o {{ CLIENT_BIN_DIR }}{{ PATHSEP }}{{ CLIENT_BINARY_NAME }} {{ CLIENT_CMD_DIR }}{{ CLIENT_MAIN_FILE }}
+    @GOOS=linux GOARCH=amd64 go build -o {{ CLIENT_BIN_DIR }}{{ PATHSEP }}{{ CLIENT_BINARY_NAME }} {{ CLIENT_CMD_DIR }}{{ PATH_SEP }}}{{ CLIENT_MAIN_FILE }}
     @{{ ECHO_CMD }} "{{ GREEN }}[+] Linux build complete!{{ RESET }}"
 
 # Build client for production (Linux)
 [group('build')]
+[working-directory('cookiefarm')]
 client-build-linux-prod:
     @{{ ECHO_CMD }} "{{ CYAN }}[*] Building client for Linux production...{{ RESET }}"
     @{{ MKDIR_CMD }} {{ CLIENT_BIN_DIR }}
-    @GOOS=linux GOARCH=amd64 go build -race -trimpath -gcflags="-m" -ldflags="-s -w" -o {{ CLIENT_BIN_DIR }}{{ PATHSEP }}{{ CLIENT_BINARY_NAME }} {{ CLIENT_CMD_DIR }}{{ CLIENT_MAIN_FILE }}
+    @GOOS=linux GOARCH=amd64 go build -race -trimpath -gcflags="-m" -ldflags="-s -w" -o {{ CLIENT_BIN_DIR }}{{ PATHSEP }}{{ CLIENT_BINARY_NAME }} {{ CLIENT_CMD_DIR }}{{ PATH_SEP }}{{ CLIENT_MAIN_FILE }}
     @{{ ECHO_CMD }} "{{ GREEN }}[+] Linux production build complete!{{ RESET }}"
 
 # Build client for production (Windows)
 [group('build')]
+[working-directory('cookiefarm')]
 client-build-windows-prod:
     @{{ ECHO_CMD }} "{{ CYAN }}[*] Building client for Windows production...{{ RESET }}"
     @{{ MKDIR_CMD }} {{ CLIENT_BIN_DIR }}
-    @GOOS=windows GOARCH=amd64 go build -trimpath -gcflags="-m" -ldflags="-s -w" -o {{ CLIENT_BIN_DIR }}{{ PATHSEP }}{{ CLIENT_BINARY_NAME }} {{ CLIENT_CMD_DIR }}{{ CLIENT_MAIN_FILE }}
+    @GOOS=windows GOARCH=amd64 go build -trimpath -gcflags="-m" -ldflags="-s -w" -o {{ CLIENT_BIN_DIR }}{{ PATHSEP }}{{ CLIENT_BINARY_NAME }} {{ CLIENT_CMD_DIR }}{{ PATH_SEP }}{{ CLIENT_MAIN_FILE }}
     @{{ ECHO_CMD }} "{{ GREEN }}[+] Windows production build complete!{{ RESET }}"
 
 # Build client for production (all platforms)
 [group('build')]
+[working-directory('cookiefarm')]
 client-build-prod:
     @{{ ECHO_CMD }} "{{ CYAN }}[*] Building client for production...{{ RESET }}"
     @just client-build-linux-prod
@@ -149,11 +163,13 @@ client-build-prod:
 
 # Run the client
 [group('dev')]
+[working-directory('cookiefarm')]
 client-run: client-build
     @{{ CLIENT_BIN_DIR }}{{ PATHSEP }}{{ CLIENT_BINARY_NAME }}
 
 # Install the client binary to /usr/local/bin and the virtual environment
 [group('dev')]
+[working-directory('cookiefarm')]
 client-install: client-build
     @sudo cp {{ CLIENT_BIN_DIR }}{{ PATHSEP }}{{ CLIENT_BINARY_NAME }} /usr/local/bin/{{ CLIENT_BINARY_NAME }}
     @sudo cp /usr/local/bin/{{ CLIENT_BINARY_NAME }} ~/.venv/bin/{{ CLIENT_BINARY_NAME }}
@@ -167,31 +183,37 @@ client-test:
 [group('test')]
 setup-tests num_containers="3" production_mode="false":
     cd ./scripts && ./setup.sh {{ num_containers }} {{ production_mode }}
+
 # === SHARED TOOLS ===
 
 # Build Tailwind CSS for production
 [group('tools')]
+[working-directory('cookiefarm')]
 tailwindcss-build:
     ./tools/tailwindcss -c ./server/tailwind.config.js -i ./server/assets/css/global.css -o ./server/public/css/output.css --minify
 
 # Watch Tailwind CSS files and rebuild on changes
 [group('tools')]
+[working-directory('cookiefarm')]
 tailwindcss-watch:
     ./tools/tailwindcss -c ./server/tailwind.config.js -i ./server/assets/css/global.css -o ./server/public/css/output.css --watch
 
 # Run the minify on the js files in the assets/js directory and output to public/js
 [group('tools')]
+[working-directory('cookiefarm')]
 minify:
     @uglifyjs ./server/assets/js/*.js -o ./server/public/js/output.min.js -c -m
 
 # Lint the codebase using golangci-lint and apply fixes where possible
 [group('tools')]
+[working-directory('cookiefarm')]
 lint:
     @go work sync
     @go list -f \{\{.Dir\}\} -m | xargs golangci-lint run --fix
 
 # Format the codebase using gofumpt
 [group('tools')]
+[working-directory('cookiefarm')]
 fmt:
     @go work sync
     @go list -f \{\{.Dir\}\} -m | xargs gofumpt -w -d
