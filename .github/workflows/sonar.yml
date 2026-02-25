@@ -8,29 +8,16 @@ on:
   pull_request:
     branches:
       - dev
+      - main
 
 
 jobs:
-  sonar-cookiefarm:
+  sonar:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: SonarQube Scan Cookiefarm
         uses: SonarSource/sonarqube-scan-action@v6
-        with:
-          projectBaseDir: cookiefarm
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-
-  sonar-exploiter:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: SonarQube Scan Exploiter
-        uses: SonarSource/sonarqube-scan-action@v6
-        with:
-          projectBaseDir: exploiter
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
