@@ -1,0 +1,112 @@
+Un corpo rigido può essere definito come un insieme di particelle,
+eventualmente infinitesime, le cui posizioni relative sono fisse nel tempo. In realtà
+nessun corpo è realmente rigido, però il moto di un corpo reale, e in particolare
+quello dei satelliti, è usualmente descrivibile, almeno a un primo livello di
+approfondimento, con metodi basati sull'ipotesi di corpo rigido.
+Relativamente al moto di un corpo rigido libero vale il teorema di Chasle: lo
+spostamento di un corpo rigido può essere considerato come una traslazione più una
+rotazione intorno ad un punto. Quindi, in maniera equivalente, il moto di un corpo
+rigido può essere descritto come la combinazione della traslazione del suo centro di
+massa (v. appendice A) e di una rotazione intorno al centro di massa stesso. Nel
+primo caso occorre determinare la posizione e la velocità del centro di massa, nel
+secondo gli angoli, e le relative derivate, fra una terna d’assi solidali al corpo e una
+terna d’assi di riferimento.
+Nella dinamica dei satelliti il moto di traslazione causato dalla gravitazione e dalle
+altre forze esterne è oggetto della meccanica orbitale (v. appendice C). Invece, la
+rotazione intorno al centro di massa causata dalle coppie applicate va sotto il nome
+di dinamica d'assetto (v. appendice A) e su questa ci si concentrerà nel seguito. La
+dinamica orbitale e quella d’assetto non sono, ovviamente, indipendenti: ad esempio,
+nei satelliti in orbita terrestre bassa circolare o quasi circolare (LEO, Low Earth Orbit,
+v. figura C.9.2) la resistenza aerodinamica (drag) è una componente rilevante,
+soprattutto al diminuire della quota, delle perturbazioni orbitali e dipende
+sensibilmente dall'assetto del satellite, in pratica da come il satellite è orientato
+rispetto alla velocità relativa all’atmosfera. L'assetto quindi influenza l'orbita. D’altra
+parte, l'orbita, vale a dire la posizione del satellite nello spazio, determina l'entità
+della densità atmosferica che decresce con la quota e, a sua volta, può
+significativamente influenzare l'assetto. Nel seguito saranno trattate anche altre
+perturbazioni d'assetto che dipendono dall'orbita. Ciò nonostante, le equazioni
+d'equilibrio che descrivono i moti d’assetto e orbitale possono essere considerate
+disaccoppiate, nella maggioranza dei casi d’interesse applicativo o quantomeno nelle
+fasi iniziali di progetto. In altri termini, è possibile prima individuare l'orbita lungo la
+quale si sposta il centro di massa del satellite indipendentemente dalla sua dinamica
+d'assetto e dopo, per quell'orbita, studiare il moto intorno al centro di massa.
+La figura 1.1 schematizza le problematiche di controllo d’assetto dei sistemi
+aerospaziali. La struttura logica è del tutto generale, nel seguito del capitolo saranno
+date delle esemplificazioni sui vari aspetti che concorrono allo studio della dinamica
+e del controllo d’assetto dei satelliti, con particolare riferimento ai satelliti in orbita
+terrestre perché essi sono oggetto della maggioranza delle attività industriali presenti
+e programmate per il futuro nel settore spaziale. Infatti, tenendo conto di quanto
+realizzato fino ad oggi e di quanto pianificato nel breve e medio termine, le missioni
+intorno alla terra in orbita LEO rappresentano in media oltre il %60 del totale delle
+missioni spaziali, mentre i satelliti in orbita terrestre geostazionaria (GEO,
+Geostationary Orbit, v. paragrafo C.9) si pongono in media intorno al %20 . Con la
+restante parte formata dalle orbite a quota intermedia (MEO, Medium Earth Orbit),
+circolari e dalle orbite ellittiche con forte eccentricità (v. paragrafo C.6), e, in misura
+minore, da missioni interplanetarie (incluse le lunari). È opportuno rilevare che
+queste stime sono orientative, se non altro perché sulle missioni spaziali militari le
+informazioni sono note ovviamente con minore accuratezza. Inoltre, anche se queste
+Antonio Moccia 2 Sistemi Aerospaziali a.a. 2022-23
+Fig. 1.1 - Schema del controllo d’assetto di un sistema aerospaziale.
+percentuali in termini di numero di missioni non possono essere trasformate
+esattamente in percentuali in termini di costo delle missioni stesse, dipendendo i
+costi da moltissimi fattori (innanzitutto presenza d’uomini a bordo, e poi livello di
+sviluppo di nuove tecnologie oppure ampio riutilizzo di tecnologie esistenti, satellite
+destinato a fornire servizi oppure missione esclusivamente scientifica o dimostrativa,
+primo satellite di una certa classe o replica identica di satelliti già esistenti, quota e
+vita operativa, massa e volume del satellite, costo del lancio e del segmento di terra,
+ecc.), va rilevato che percentualmente gli investimenti in gioco non differiscono di
+molto da tali stime sui numeri di missione.
+Con riferimento alla figura 1.1, per assetto di progetto s’intende l'assetto che il
+satellite deve mantenere o acquisire per il raggiungimento degli obiettivi della
+missione, sia per esigenze di carattere ingegneristico (orientamento di pannelli solari,
+di antenne, di strutture articolate, assetto in fase di rientro o d’aggancio con altri
+satelliti, ecc.), che per aspetti legati al carico utile (puntamento di sistemi di
+telerilevamento, ottenimento di determinati livelli d’accelerazione, ecc.). In generale
+si parla di stabilizzazione d’assetto quando occorre mantenere un’orientazione
+esistente, e di controllo di manovra d’assetto quando occorre portarsi da un assetto
+all'altro. In pratica l'assetto di progetto costituisce il livello di riferimento del sistema di
+controllo.
+Dal punto di vista dell'assetto i satelliti possono essere suddivisi in satelliti stabilizzati
+giroscopicamente (a spin) o intorno ai tre assi. Nel primo caso il satellite, totalmente
+o in gran parte, è posto in rotazione intorno ad un asse (Fig. 1.2). La direzione di tale
+asse va controllata in modo da mantenerla (approssimativamente) fissa in un
+riferimento inerziale (definito nei paragrafi C.1 e C.5), anche per periodi
+relativamente lunghi, grazie alla conservazione del momento della quantità di moto in
+assenza di momenti esterni (v. capitolo 2). La velocità angolare di rotazione è
+notevolmente variabile in relazione agli obiettivi e alle caratteristiche della missione.
+Si può andare, ad esempio, dal centinaio di giri al minuto del Meteosat, alle frazioni
+di giri al minuto per alcune missioni interplanetarie. La stabilizzazione a spin è
+relativamente semplice da realizzarsi e, sotto certe condizioni, è stabile. Inoltre, essa
+Assetto
+di
+progetto
+Momenti
+esterni
+Attuatori
+Sensori
+Dinamica di assetto del
+sistema aerospaziale
+Antonio Moccia 3 Sistemi Aerospaziali a.a. 2022-23
+Fig. 1.2 - Configurazione schematica tipica di un satellite stabilizzato a spin di
+dimensioni piccole o medie. La superficielaterale del corpo centrale cilindrico è
+generalmente tutta ricoperta di celle solari, con piccole aperture per alloggiare ugelli
+di gas jet per spinte radiali e tangenziali esensori ottici per la misura dell’assetto.
+Sulle basi del cilindro frequentemente sono posizionati, fra l’altro, ugelli di gas jet
+assiali e altri sensori ottici. Il motoredi apogeo (apogee boost motor) ha la funzione
+di fornire la spinta necessaria per acquisire l’orbita finale (frequentemente
+geostazionaria, v. paragrafo C.9), partendo da un’orbita bassa raggiunta grazie al
+lanciatore e passando attraverso un’orbita di trasferimento (v. paragrafo C.11).
+Eventuali carichi utili possono essereanche alloggiati su strutture estese
+radialmente, oltre la superficie del cilindro, ma disposte in maniera tale da mantenere
+per quanto possibile la simmetria assiale.
+determina un miglioramento delle prestazioni dei satelliti per telecomunicazioni
+grazie all'utilizzo di antenne con pattern toroidale d’irradiazione (v. appendice A).
+Ovviamente lo spin può vincolare fortemente gli obiettivi della missione, soprattutto
+quando è l'intero satellite a ruotare.
+Nel caso della stabilizzazione intorno a tre assi va controllata l’orientazione di tre
+assi, solidali al satellite e mutuamente ortogonali, per mantenere, ad esempio, un
+asse sempre puntato verso la terra (satellite Earth pointing, Fig. 1.3, v. capitolo 12), o
+un asse verso il sole (satellite Sun pointing, v. paragrafo 3.2). Altro esempio
+interessante è il caso di un satellite inertially oriented, vale a dire con orientazione
+costante rispetto alle stelle fisse. È evidente che la stabilizzazione intorno ai tre assi
+va considerata quando gli obiettivi di missione e la progettazione della piattaform

@@ -1,0 +1,26 @@
+go 1.26.0
+
+use (
+	./client
+	./client/api
+	./client/config
+	./client/exploit
+	./client/tui
+	./client/websockets
+	./pkg/logger
+	./pkg/models
+	./pkg/protocols
+	./pkg/system
+	./server
+	./server/api
+	./server/core
+	./server/sqlite
+	./server/ui
+	./server/websockets
+)
+
+replace (
+	./pkg/logger => ../pkg/logger
+	github.com/bytedance/sonic v1.15.0 => github.com/bytedance/sonic v1.15.0
+	github.com/gorilla/websocket v1.5.1 => github.com/gorilla/websocket v1.5.1
+)

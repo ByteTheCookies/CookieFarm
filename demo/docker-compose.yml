@@ -1,0 +1,28 @@
+services:
+  service0:
+    build:
+      context: ./app
+    networks:
+      net:
+        ipv4_address: 10.10.0.1
+  service1:
+    build:
+      context: ./app
+    networks:
+      net:
+        ipv4_address: 10.10.1.1
+  service2:
+    build:
+      context: ./app
+    networks:
+      net:
+        ipv4_address: 10.10.2.1
+
+networks:
+  net:
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.10.0.0/16
+          ip_range: 10.10.0.0/16
+          gateway: 10.10.0.254

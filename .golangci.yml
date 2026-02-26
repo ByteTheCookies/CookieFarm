@@ -1,13 +1,11 @@
 version: "2"
 
 run:
-  # prevent golangci-lint from deducting the go version to lint for through go.mod,
-  # which causes it to fallback to go1.17 semantics.
-  #
-  # TODO(thaJeztah): update "usetesting" settings to enable go1.24 features once our minimum version is go1.24
-  go: "1.24.2"
+  go: "1.26.0"
 
   timeout: 5m
+  allow-parallel-runners: true
+  relative-path-mode: gomod
 
 issues:
   # Maximum issues count per one linter. Set to 0 to disable. Default is 50.
@@ -18,7 +16,7 @@ issues:
 
 formatters:
   enable:
-    - gofumpt # Detects whether code was gofumpt-ed.
+    - gofmt # Detects whether code was gofumpt-ed.
     - goimports
 
   exclusions:
@@ -28,7 +26,6 @@ linters:
   enable:
     - bodyclose
     - copyloopvar # Detects places where loop variables are copied.
-    - depguard
     - dogsled
     - dupword # Detects duplicate words.
     - durationcheck
@@ -58,36 +55,12 @@ linters:
     - usestdlibvars
     - usetesting # Reports uses of functions with replacement inside the testing package.
     - wastedassign
+    - modernize # Detects code that can be modernized to use newer Go features.
 
   disable:
     - errcheck
 
   settings:
-    depguard:
-      rules:
-        main:
-          deny:
-            - pkg: "github.com/containerd/containerd/errdefs"
-              desc: The containerd errdefs package was migrated to a separate module. Use github.com/containerd/errdefs instead.
-            - pkg: "github.com/containerd/containerd/log"
-              desc: The containerd log package was migrated to a separate module. Use github.com/containerd/log instead.
-            - pkg: "github.com/containerd/containerd/pkg/userns"
-              desc: Use github.com/moby/sys/userns instead.
-            - pkg: "github.com/containerd/containerd/platforms"
-              desc: The containerd platforms package was migrated to a separate module. Use github.com/containerd/platforms instead.
-            - pkg: "github.com/docker/docker/pkg/system"
-              desc: This package should not be used unless strictly necessary.
-            - pkg: "github.com/docker/distribution/uuid"
-              desc: Use github.com/google/uuid instead.
-            - pkg: "io/ioutil"
-              desc: The io/ioutil package has been deprecated, see https://go.dev/doc/go1.16#ioutil
-
-    forbidigo:
-      forbid:
-        - pkg: ^regexp$
-          pattern: ^regexp\.MustCompile
-          msg: Use internal/lazyregexp.New instead.
-
     gocyclo:
       min-complexity: 16
 
