@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"server/config"
-	"server/sqlite"
+	"server/database"
 )
 
 var shutdownCancel context.CancelFunc
@@ -38,7 +38,7 @@ func StartFlagProcessingLoop(ctx context.Context) {
 			logger.Log.Info().Msg("Flag processing loop terminated")
 			return
 		case <-ticker.C:
-			flags, err := sqlite.GetUnsubmittedFlagCodeList(config.SharedConfig.ConfigServer.MaxFlagBatchSize)
+			flags, err := database.GetUnsubmittedFlagCodeList(config.SharedConfig.ConfigServer.MaxFlagBatchSize)
 			if err != nil {
 				logger.Log.Error().Err(err).Msg("Failed to get unsubmitted flags")
 				continue
@@ -81,7 +81,7 @@ func UpdateFlags(flags []protocols.ResponseProtocol) {
 		}
 	}
 
-	if err := sqlite.UpdateFlagsStatus(valid); err != nil {
+	if err := database.UpdateFlagsStatus(valid); err != nil {
 		logger.Log.Error().
 			Err(err).
 			Msg("Failed to update flags")

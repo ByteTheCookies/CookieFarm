@@ -5,7 +5,7 @@ import (
 	"math"
 
 	"server/config"
-	"server/sqlite"
+	"server/database"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -76,7 +76,7 @@ func HandlePartialsPagination(c *fiber.Ctx) error {
 	}
 	logger.Log.Debug().Int("limit", limit).Msg("Paginated flags request")
 
-	totalFlags, err := sqlite.FlagsNumber(c.Context())
+	totalFlags, err := database.FlagsNumber(c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString("Error retrieving flag count")
 	}
@@ -116,7 +116,7 @@ func HandlePartialsFlags(c *fiber.Ctx) error {
 	offset := c.QueryInt("offset", config.DefaultOffset)
 	logger.Log.Debug().Int("offset", offset).Int("limit", limit).Msg("Paginated flags request")
 
-	flags, err := sqlite.GetPagedFlags(uint(limit), uint(offset))
+	flags, err := database.GetPagedFlags(uint(limit), uint(offset))
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString("Error retrieving flags: " + err.Error())
 	}

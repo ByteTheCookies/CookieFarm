@@ -5,7 +5,7 @@ import (
 	"logger"
 	"time"
 
-	"server/sqlite"
+	"server/database"
 )
 
 func ValidateFlagTTL(ctx context.Context, flagTTL uint64, tickTime int) {
@@ -20,7 +20,7 @@ func ValidateFlagTTL(ctx context.Context, flagTTL uint64, tickTime int) {
 		select {
 		case <-ticker.C:
 			logger.Log.Info().Msgf("Checking for flags older than %d seconds", totalSecond)
-			affectedRows, err := sqlite.DeleteTTLFlag(ctx, totalSecond)
+			affectedRows, err := database.DeleteTTLFlag(ctx, totalSecond)
 			if err != nil {
 				logger.Log.Error().Err(err).Msg("Failed to delete TTL flags")
 			}

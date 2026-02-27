@@ -1,4 +1,4 @@
-package sqlite
+package database
 
 // FilterOptions represents query filter options
 type FilterOptions struct {
@@ -11,12 +11,4 @@ type FilterOptions struct {
 	SortDir     string
 	Limit       uint
 	Offset      uint
-}
-
-// QueryBuilder for building safe SQL queries with parameter binding
-type QueryBuilder struct {
-	query      string
-	params     []any
-	conditions []string
-	hasWhere   bool
 }

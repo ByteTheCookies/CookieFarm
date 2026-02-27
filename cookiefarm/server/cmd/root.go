@@ -12,12 +12,12 @@ import (
 	"time"
 
 	"server/config"
-
 	"server/core"
+	"server/database"
+
+	_ "modernc.org/sqlite"
 
 	"server/api"
-
-	"server/sqlite"
 
 	"github.com/charmbracelet/fang"
 	fiberLogger "github.com/gofiber/fiber/v2/middleware/logger"
@@ -118,8 +118,16 @@ func Run(cmd *cobra.Command, args []string) {
 	}
 	logger.Log.Debug().Str("hashed", config.Password).Msg("Password after hashing")
 
-	sqlite.DBPool = sqlite.New()
-	defer sqlite.Close()
+	cfg := database.Config{
+		DSN:             "file:db?cache=shared&_journal=WAL",
+		MaxOpenConns:    25,
+		MaxIdleConns:    5,
+		ConnMaxLifetime: 5 * time.Minute,
+		ConnMaxIdleTime: 1 * time.Minute,
+	}
+
+	db, _ := database.NewDB(cfg)
+	_ = database.NewStore(db)
 
 	app, err := api.NewApp()
 	if err != nil {

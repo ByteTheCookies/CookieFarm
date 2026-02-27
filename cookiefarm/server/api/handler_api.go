@@ -10,7 +10,7 @@ import (
 	"server/config"
 	"server/controllers"
 	"server/core"
-	"server/sqlite"
+	"server/database"
 	"server/websockets"
 
 	json "github.com/bytedance/sonic"
@@ -27,7 +27,7 @@ func HandleGetConfig(c *fiber.Ctx) error {
 
 // HandleGetAllFlags retrieves and returns all the stored flags.
 func HandleGetAllFlags(c *fiber.Ctx) error {
-	flags, err := sqlite.GetAllFlags()
+	flags, err := database.GetAllFlags()
 	if err != nil {
 		logger.Log.Error().Err(err).Msg("Failed to fetch all flags")
 		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{Error: err.Error()})
@@ -62,7 +62,7 @@ func HandleGetPaginatedFlags(c *fiber.Ctx) error {
 	}
 
 	// Build filter options from query parameters
-	opts := sqlite.FilterOptions{
+	opts := database.FilterOptions{
 		Status:      c.Query("status", ""),
 		ServiceName: c.Query("service", ""),
 		TeamID:      c.Query("team", ""),
@@ -74,14 +74,14 @@ func HandleGetPaginatedFlags(c *fiber.Ctx) error {
 		Offset:      uint(offset),
 	}
 
-	flags, err := sqlite.GetFilteredFlagList(opts)
+	flags, err := database.GetFilteredFlagList(opts)
 	if err != nil {
 		logger.Log.Error().Err(err).Msg("Failed to fetch filtered flags")
 		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{Error: err.Error()})
 	}
 
 	// Get filtered count for accurate pagination
-	nFlags, err := sqlite.CountFilteredFlags(opts)
+	nFlags, err := database.CountFilteredFlags(opts)
 	if err != nil {
 		logger.Log.Error().Err(err).Msg("Failed to count filtered flags")
 		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{Error: err.Error()})
@@ -138,7 +138,7 @@ func HandlePostFlags(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(ResponseError{Error: err.Error()})
 	}
 
-	if err := sqlite.AddFlags(payload.Flags); err != nil {
+	if err := database.AddFlags(payload.Flags); err != nil {
 		logger.Log.Error().Err(err).Msg("Failed to insert flags")
 		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{Error: err.Error()})
 	}
@@ -154,7 +154,7 @@ func HandlePostFlag(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(ResponseError{Error: err.Error()})
 	}
 
-	if err := sqlite.AddFlag(payload.Flag); err != nil {
+	if err := database.AddFlag(payload.Flag); err != nil {
 		logger.Log.Error().Err(err).Msg("Failed to insert single flag")
 		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{Error: err.Error()})
 	}
@@ -189,7 +189,7 @@ func HandlePostFlagsStandalone(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(ResponseError{Error: err.Error()})
 	}
 
-	if err := sqlite.AddFlags(payload.Flags); err != nil {
+	if err := database.AddFlags(payload.Flags); err != nil {
 		logger.Log.Error().Err(err).Msg("Failed to insert single flag")
 		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{Error: err.Error()})
 	}
@@ -271,7 +271,7 @@ func HandleDeleteFlag(c *fiber.Ctx) error {
 		})
 	}
 
-	if err := sqlite.DeleteFlag(c.Context(), flagID); err != nil {
+	if err := database.DeleteFlag(c.Context(), flagID); err != nil {
 		logger.Log.Error().Err(err).Msg("Failed to delete flag")
 		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{
 			Error: "Failed to delete flag",
