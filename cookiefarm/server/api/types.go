@@ -1,13 +1,13 @@
 package api
 
 import (
-	"models"
+	"server/database"
 )
 
 // ResponseFlags represents the response for the flags api
 type ResponseFlags struct {
-	Flags  []models.ClientData `json:"flags"`
-	Nflags int                 `json:"n_flags"`
+	Flags  []database.Flag `json:"flags"`
+	Nflags int             `json:"n_flags"`
 }
 
 // SigninRequest from the client to the server
@@ -38,7 +38,7 @@ type ViewParamsPagination struct {
 
 // ViewParamsFlags represents the parameters for the flags view
 type ViewParamsFlags struct {
-	Flags []models.ClientData `json:"flags"` // List of flags to display
+	Flags []database.Flag `json:"flags"` // List of flags to display
 }
 
 // ResponseSuccess represents the response for the success api
@@ -50,4 +50,14 @@ type ResponseSuccess struct {
 type ResponseError struct {
 	Error   string `json:"error"`   // Error message for the error response
 	Details string `json:"details"` // Details for the error response
+}
+
+// SubmitFlagsRequest the struct for the requests from the client to server
+type SubmitFlagsRequest struct {
+	Flags []database.Flag `json:"flags"` // Flags to submit
+}
+
+// SubmitFlagRequest the struct for the requests from the client to server
+type SubmitFlagRequest struct {
+	Flag database.Flag `json:"flag"` // Flag to submit
 }

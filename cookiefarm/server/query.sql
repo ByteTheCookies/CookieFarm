@@ -1,57 +1,110 @@
 -- name: GetFlagByCode :one
-SELECT flag_code, service_name, port_service, submit_time, response_time, status, team_id, msg, username, exploit_name
+SELECT *
 FROM flags
 WHERE flag_code = ?
 LIMIT 1;
 
--- name: ListFlagsByTeam :many
-SELECT flag_code, service_name, port_service, submit_time, response_time, status, team_id, msg, username, exploit_name
+-- name: GetFlagsByTeam :many
+SELECT *
 FROM flags
 WHERE team_id = ?
 ORDER BY submit_time DESC
 LIMIT ? OFFSET ?;
 
--- name: ListAllFlags :many
-SELECT flag_code, service_name, port_service, submit_time, response_time, status, team_id, msg, username, exploit_name
+-- name: GetAllFlags :many
+SELECT *
 FROM flags
 ORDER BY submit_time DESC;
 
--- name: ListFirstNFlags :many
-SELECT flag_code, service_name, port_service, submit_time, response_time, status, team_id, msg, username, exploit_name
+-- name: GetFirstNFlags :many
+SELECT *
 FROM flags
 ORDER BY submit_time DESC
 LIMIT ?;
 
--- name: ListUnsubmittedFlags :many
-SELECT flag_code, service_name, port_service, submit_time, response_time, status, team_id, msg, username, exploit_name
+-- name: GetUnsubmittedFlags :many
+SELECT *
 FROM flags
 WHERE status = 'UNSUBMITTED'
 ORDER BY submit_time ASC
 LIMIT ?;
 
--- name: ListPagedFlags :many
-SELECT flag_code, service_name, port_service, submit_time, response_time, status, team_id, msg, username, exploit_name
+-- name: GetPagedFlags :many
+SELECT *
 FROM flags
 ORDER BY submit_time DESC
 LIMIT ? OFFSET ?;
 
--- name: ListAllFlagCodes :many
+-- name: GetAllFlagCodes :many
 SELECT flag_code FROM flags;
 
--- name: ListFirstNFlagCodes :many
+-- name: GetFirstNFlagCodes :many
 SELECT flag_code FROM flags
 LIMIT ?;
 
--- name: ListUnsubmittedFlagCodes :many
+-- name: GetUnsubmittedFlagCodes :many
 SELECT flag_code FROM flags
 WHERE status = 'UNSUBMITTED'
 LIMIT ?;
 
--- name: ListPagedFlagCodes :many
+-- name: GetFilteredFlags :many
+SELECT * FROM flags
+WHERE
+    (team_id = sqlc.narg('team_id') OR sqlc.narg('team_id') IS NULL)
+    AND (status = sqlc.narg('status') OR sqlc.narg('status') IS NULL)
+    AND (
+        sqlc.narg('search') IS NULL
+        OR (
+            (sqlc.narg('search_field') = 'flag_code' AND flag_code LIKE sqlc.narg('search_like'))
+            OR (sqlc.narg('search_field') = 'service_name' AND service_name LIKE sqlc.narg('search_like'))
+            OR (sqlc.narg('search_field') = 'exploit_name' AND exploit_name LIKE sqlc.narg('search_like'))
+            OR (sqlc.narg('search_field') = 'msg' AND msg LIKE sqlc.narg('search_like'))
+            OR (sqlc.narg('search_field') = 'all' AND (
+                flag_code LIKE sqlc.narg('search_like')
+                OR service_name LIKE sqlc.narg('search_like')
+                OR exploit_name LIKE sqlc.narg('search_like')
+                OR msg LIKE sqlc.narg('search_like')
+                OR CAST(team_id AS TEXT) LIKE sqlc.narg('search_like')
+            ))
+            OR (sqlc.narg('search_field') IS NULL AND flag_code LIKE sqlc.narg('search_like'))
+            OR (sqlc.narg('search_field') NOT IN ('flag_code','service_name','exploit_name','msg','all') AND flag_code LIKE sqlc.narg('search_like'))
+        )
+    )
+ORDER BY submit_time DESC
+LIMIT ? OFFSET ?;
+
+
+-- name: CountFilteredFlags :many
+SELECT COUNT(*) FROM flags
+WHERE
+    (team_id = sqlc.narg('team_id') OR sqlc.narg('team_id') IS NULL)
+    AND (status = sqlc.narg('status') OR sqlc.narg('status') IS NULL)
+    AND (
+        sqlc.narg('search') IS NULL
+        OR (
+            (sqlc.narg('search_field') = 'flag_code' AND flag_code LIKE sqlc.narg('search_like'))
+            OR (sqlc.narg('search_field') = 'service_name' AND service_name LIKE sqlc.narg('search_like'))
+            OR (sqlc.narg('search_field') = 'exploit_name' AND exploit_name LIKE sqlc.narg('search_like'))
+            OR (sqlc.narg('search_field') = 'msg' AND msg LIKE sqlc.narg('search_like'))
+            OR (sqlc.narg('search_field') = 'all' AND (
+                flag_code LIKE sqlc.narg('search_like')
+                OR service_name LIKE sqlc.narg('search_like')
+                OR exploit_name LIKE sqlc.narg('search_like')
+                OR msg LIKE sqlc.narg('search_like')
+                OR CAST(team_id AS TEXT) LIKE sqlc.narg('search_like')
+            ))
+            OR (sqlc.narg('search_field') IS NULL AND flag_code LIKE sqlc.narg('search_like'))
+            OR (sqlc.narg('search_field') NOT IN ('flag_code','service_name','exploit_name','msg','all') AND flag_code LIKE sqlc.narg('search_like'))
+        )
+    )
+ORDER BY submit_time DESC
+LIMIT ? OFFSET ?;
+
+-- name: GetPagedFlagCodes :many
 SELECT flag_code FROM flags
 LIMIT ? OFFSET ?;
 
--- name: AddFlags :exec
+-- name: AddFlag :exec
 INSERT OR IGNORE INTO flags(
 	flag_code, service_name, port_service,
 	submit_time, response_time, status,

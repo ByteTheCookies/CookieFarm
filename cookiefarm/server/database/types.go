@@ -12,3 +12,11 @@ type FilterOptions struct {
 	Limit       uint
 	Offset      uint
 }
+
+// QueryBuilder for building safe SQL queries with parameter binding
+type QueryBuilder struct {
+	query      string
+	params     []any
+	conditions []string
+	hasWhere   bool
+}

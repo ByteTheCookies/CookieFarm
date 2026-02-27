@@ -4,19 +4,15 @@
 
 package database
 
-import (
-	"database/sql"
-)
-
 type Flag struct {
-	FlagCode     string
-	ServiceName  string
-	PortService  int64
-	SubmitTime   sql.NullInt64
-	ResponseTime sql.NullInt64
-	Msg          string
-	Status       string
-	TeamID       int64
-	Username     string
-	ExploitName  string
+	FlagCode     string `json:"flag_code"`
+	ServiceName  string `json:"service_name"`
+	PortService  uint16 `json:"port_service"`
+	SubmitTime   uint64 `json:"submit_time"`
+	ResponseTime uint64 `json:"response_time"`
+	Msg          string `json:"msg"`
+	Status       string `json:"status"`
+	TeamID       uint16 `json:"team_id"`
+	Username     string `json:"username"`
+	ExploitName  string `json:"exploit_name"`
 }

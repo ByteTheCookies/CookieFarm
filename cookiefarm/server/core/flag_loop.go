@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"server/config"
-	"server/database"
 )
 
 var shutdownCancel context.CancelFunc
@@ -16,7 +15,7 @@ var shutdownCancel context.CancelFunc
 // ----------- END FLAG GROUPS ------------
 
 // StartFlagProcessingLoop starts the flag processing loop.
-func StartFlagProcessingLoop(ctx context.Context) {
+func (s *Runner) StartFlagProcessingLoop(ctx context.Context) {
 	interval := time.Duration(config.SharedConfig.ConfigServer.SubmitFlagCheckerTime) * time.Second
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
@@ -38,7 +37,7 @@ func StartFlagProcessingLoop(ctx context.Context) {
 			logger.Log.Info().Msg("Flag processing loop terminated")
 			return
 		case <-ticker.C:
-			flags, err := database.GetUnsubmittedFlagCodeList(config.SharedConfig.ConfigServer.MaxFlagBatchSize)
+			flags, err := s.store.Queries.GetUnsubmittedFlagCodes(ctx, config.SharedConfig.ConfigServer.MaxFlagBatchSize)
 			if err != nil {
 				logger.Log.Error().Err(err).Msg("Failed to get unsubmitted flags")
 				continue
@@ -60,12 +59,12 @@ func StartFlagProcessingLoop(ctx context.Context) {
 				continue
 			}
 
-			UpdateFlags(responses)
+			s.UpdateFlags(responses)
 		}
 	}
 }
 
-func UpdateFlags(flags []protocols.ResponseProtocol) {
+func (s *Runner) UpdateFlags(flags []protocols.ResponseProtocol) {
 	statusCounts := map[string]int{
 		models.StatusAccepted: 0,
 		models.StatusDenied:   0,
@@ -80,8 +79,8 @@ func UpdateFlags(flags []protocols.ResponseProtocol) {
 			valid = append(valid, f)
 		}
 	}
-
-	if err := database.UpdateFlagsStatus(valid); err != nil {
+	ctx := context.Background()
+	if err := s.store.Queries.UpdateFlagStatusByCode(ctx, valid); err != nil {
 		logger.Log.Error().
 			Err(err).
 			Msg("Failed to update flags")

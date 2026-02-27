@@ -10,6 +10,7 @@ import (
 	"models"
 	"net/http"
 	"net/url"
+	"server/database"
 	"strconv"
 
 	"client/config"
@@ -109,7 +110,7 @@ func Login(password string) (string, error) {
 // SubmitBatchDirect sends a batch of flags directly to the CookieFarm server API.
 //
 // @IMPORTANT: I do not raccomend using this function, use websockets instead.
-func SubmitBatchDirect(flags []models.ClientData) (string, error) {
+func SubmitBatchDirect(flags []database.Flag) (string, error) {
 	cm := config.GetConfigManager()
 	localConfig := cm.GetLocalConfig()
 	client := &http.Client{}
@@ -120,7 +121,7 @@ func SubmitBatchDirect(flags []models.ClientData) (string, error) {
 	}
 	logger.Log.Debug().Str("url", serverURL).Msg("Login attempt")
 
-	flagMarshalled, err := json.Marshal(models.SubmitFlagsRequest{Flags: flags})
+	flagMarshalled, err := json.Marshal(SubmitFlagsRequest{Flags: flags})
 	if err != nil {
 		logger.Log.Error().Err(err).Msg("error marshalling flags")
 		return "", err
@@ -157,7 +158,7 @@ func SubmitBatchDirect(flags []models.ClientData) (string, error) {
 }
 
 // SubmitDirect sends a single flag directly to the CookieFarm server API.
-func SubmitDirect(flag models.ClientData) (string, error) {
+func SubmitDirect(flag database.Flag) (string, error) {
 	cm := config.GetConfigManager()
 	localConfig := cm.GetLocalConfig()
 	client := &http.Client{}
@@ -168,7 +169,7 @@ func SubmitDirect(flag models.ClientData) (string, error) {
 	}
 	logger.Log.Debug().Str("url", serverURL).Msg("Login attempt")
 
-	flagMarshalled, err := json.Marshal(models.SubmitFlagRequest{Flag: flag})
+	flagMarshalled, err := json.Marshal(SubmitFlagRequest{Flag: flag})
 	if err != nil {
 		logger.Log.Error().Err(err).Msg("error marshalling flags")
 		return "", err

@@ -6,27 +6,36 @@ import (
 	"os"
 
 	"server/config"
+	"server/database"
 
 	"gopkg.in/yaml.v3"
 )
 
-func Run() {
+type Runner struct {
+	store *database.Store
+}
+
+func NewRunner(s *database.Store) *Runner {
+	return &Runner{store: s}
+}
+
+func (s *Runner) Run() {
 	ctx, cancel := context.WithCancel(context.Background())
 	if shutdownCancel != nil {
 		shutdownCancel()
 	}
 	shutdownCancel = cancel
 
-	go StartFlagProcessingLoop(ctx)
+	go s.StartFlagProcessingLoop(ctx)
 
 	if config.SharedConfig.ConfigServer.FlagTTL != 0 {
 		logger.Log.Warn().Msgf("Flag TTL is set to %d seconds, starting validation loop", config.SharedConfig.ConfigServer.FlagTTL)
-		go ValidateFlagTTL(ctx, config.SharedConfig.ConfigServer.FlagTTL, config.SharedConfig.ConfigServer.TickTime)
+		go s.ValidateFlagTTL(ctx, config.SharedConfig.ConfigServer.FlagTTL, config.SharedConfig.ConfigServer.TickTime)
 	}
 }
 
 // LoadConfigAndRun loads the configuration from the given path.
-func LoadConfigAndRun(path string) error {
+func LoadConfigAndRun(path string, store *database.Store) error {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		logger.Log.Error().Err(err).Msg("Configuration file does not exist")
 		return err
@@ -48,7 +57,8 @@ func LoadConfigAndRun(path string) error {
 		config.SharedConfig.Configured = true
 	}
 
-	Run()
+	runner := NewRunner(store)
+	runner.Run()
 
 	return nil
 }

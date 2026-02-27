@@ -9,7 +9,6 @@ import (
 
 	"server/config"
 	"server/controllers"
-	"server/core"
 	"server/database"
 	"server/websockets"
 
@@ -18,22 +17,37 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+func MapFromDBParamsToFlag(params database.Flag) database.AddFlagParams {
+	return database.AddFlagParams{
+		FlagCode:     params.FlagCode,
+		ServiceName:  params.ServiceName,
+		TeamID:       params.TeamID,
+		Username:     params.Username,
+		ExploitName:  params.ExploitName,
+		Status:       params.Status,
+		Msg:          params.Msg,
+		ResponseTime: params.ResponseTime,
+		SubmitTime:   params.SubmitTime,
+		PortService:  params.PortService,
+	}
+}
+
 // ---------- GET ----------------
 
 // HandleGetConfig returns the current configuration of the server.
-func HandleGetConfig(c *fiber.Ctx) error {
+func (h *Handler) HandleGetConfig(c *fiber.Ctx) error {
 	return c.JSON(config.SharedConfig)
 }
 
 // HandleGetAllFlags retrieves and returns all the stored flags.
-func HandleGetAllFlags(c *fiber.Ctx) error {
-	flags, err := database.GetAllFlags()
+func (h *Handler) HandleGetAllFlags(c *fiber.Ctx) error {
+	flags, err := h.store.Queries.GetAllFlags(c.Context())
 	if err != nil {
 		logger.Log.Error().Err(err).Msg("Failed to fetch all flags")
 		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{Error: err.Error()})
 	}
 	if flags == nil {
-		flags = []models.ClientData{}
+		flags = []database.Flag{}
 	}
 	data := ResponseFlags{
 		Nflags: len(flags),
@@ -44,12 +58,12 @@ func HandleGetAllFlags(c *fiber.Ctx) error {
 
 // HandleGetStats returns statistics about the server state.
 // Currently returns placeholders for flags and users.
-func HandleGetStats(c *fiber.Ctx) error {
+func (h *Handler) HandleGetStats(c *fiber.Ctx) error {
 	n := controllers.NewStatsController()
 	return n.GetFlagStats(c)
 }
 
-func HandleGetPaginatedFlags(c *fiber.Ctx) error {
+func (h *Handler) HandleGetPaginatedFlags(c *fiber.Ctx) error {
 	limit, err := c.ParamsInt("limit", config.DefaultLimit)
 	if err != nil || limit <= 0 {
 		logger.Log.Warn().Msg("Invalid or missing limit parameter")
@@ -74,21 +88,21 @@ func HandleGetPaginatedFlags(c *fiber.Ctx) error {
 		Offset:      uint(offset),
 	}
 
-	flags, err := database.GetFilteredFlagList(opts)
+	flags, err := h.store.Queries.GetFilteredFlags(c.Context(), opts)
 	if err != nil {
 		logger.Log.Error().Err(err).Msg("Failed to fetch filtered flags")
 		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{Error: err.Error()})
 	}
 
 	// Get filtered count for accurate pagination
-	nFlags, err := database.CountFilteredFlags(opts)
+	nFlags, err := h.store.Queries.CountFilteredFlags(c.Context(), opts)
 	if err != nil {
 		logger.Log.Error().Err(err).Msg("Failed to count filtered flags")
 		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{Error: err.Error()})
 	}
 
 	if flags == nil {
-		flags = []models.ClientData{}
+		flags = []database.Flag{}
 	}
 
 	return c.JSON(ResponseFlags{
@@ -98,7 +112,7 @@ func HandleGetPaginatedFlags(c *fiber.Ctx) error {
 }
 
 // HandleGetFlag retrieves a single flag by its ID.
-func HandleGetProtocols(c *fiber.Ctx) error {
+func (h *Handler) HandleGetProtocols(c *fiber.Ctx) error {
 	searchPaths := []string{
 		"pkg/protocols",
 		"protocols",
@@ -131,30 +145,31 @@ func HandleGetProtocols(c *fiber.Ctx) error {
 // ---------- POST ----------------
 
 // HandlePostFlags processes a batch of flags submitted in the request.
-func HandlePostFlags(c *fiber.Ctx) error {
-	var payload models.SubmitFlagsRequest
+func (h *Handler) HandlePostFlags(c *fiber.Ctx) error {
+	var payload SubmitFlagsRequest
 	if err := c.BodyParser(&payload); err != nil {
 		logger.Log.Error().Err(err).Msg("Invalid SubmitFlags payload")
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(ResponseError{Error: err.Error()})
 	}
-
-	if err := database.AddFlags(payload.Flags); err != nil {
-		logger.Log.Error().Err(err).Msg("Failed to insert flags")
-		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{Error: err.Error()})
+	for _, flag := range payload.Flags {
+		if err := h.store.Queries.AddFlag(c.Context(), MapFromDBParamsToFlag(flag)); err != nil {
+			logger.Log.Error().Err(err).Msg("Failed to insert flags")
+			return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{Error: err.Error()})
+		}
 	}
 
 	return c.JSON(ResponseSuccess{Message: "Flags submitted successfully"})
 }
 
 // HandlePostFlag processes a single flag and optionally submits it to an external checker.
-func HandlePostFlag(c *fiber.Ctx) error {
-	var payload models.SubmitFlagRequest
+func (h *Handler) HandlePostFlag(c *fiber.Ctx) error {
+	var payload SubmitFlagRequest
 	if err := c.BodyParser(&payload); err != nil {
 		logger.Log.Error().Err(err).Msg("Invalid SubmitFlag payload")
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(ResponseError{Error: err.Error()})
 	}
 
-	if err := database.AddFlag(payload.Flag); err != nil {
+	if err := h.store.Queries.AddFlag(c.Context(), MapFromDBParamsToFlag(payload.Flag)); err != nil {
 		logger.Log.Error().Err(err).Msg("Failed to insert single flag")
 		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{Error: err.Error()})
 	}
@@ -176,22 +191,24 @@ func HandlePostFlag(c *fiber.Ctx) error {
 		})
 	}
 
-	core.UpdateFlags(response)
+	h.runner.UpdateFlags(response)
 
 	return c.JSON(ResponseSuccess{Message: "Flag submitted successfully"})
 }
 
 // HandlePostFlag processes a single flag and optionally submits it to an external checker.
-func HandlePostFlagsStandalone(c *fiber.Ctx) error {
-	var payload models.SubmitFlagsRequest
+func (h *Handler) HandlePostFlagsStandalone(c *fiber.Ctx) error {
+	var payload SubmitFlagsRequest
 	if err := c.BodyParser(&payload); err != nil {
 		logger.Log.Error().Err(err).Msg("Invalid SubmitFlag payload")
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(ResponseError{Error: err.Error()})
 	}
 
-	if err := database.AddFlags(payload.Flags); err != nil {
-		logger.Log.Error().Err(err).Msg("Failed to insert single flag")
-		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{Error: err.Error()})
+	for _, flag := range payload.Flags {
+		if err := h.store.Queries.AddFlag(c.Context(), MapFromDBParamsToFlag(flag)); err != nil {
+			logger.Log.Error().Err(err).Msg("Failed to insert single flag")
+			return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{Error: err.Error()})
+		}
 	}
 
 	if config.SharedConfig.ConfigServer.URLFlagChecker == "" {
@@ -219,13 +236,13 @@ func HandlePostFlagsStandalone(c *fiber.Ctx) error {
 		})
 	}
 
-	core.UpdateFlags(response)
+	h.runner.UpdateFlags(response)
 
 	return c.JSON(ResponseSuccess{Message: "Flag submitted successfully"})
 }
 
 // HandlePostConfig updates the server configuration and restarts the flag processing loop.
-func HandlePostConfig(c *fiber.Ctx) error {
+func (h *Handler) HandlePostConfig(c *fiber.Ctx) error {
 	var payload struct {
 		Config models.ConfigShared `json:"config"`
 	}
@@ -239,7 +256,7 @@ func HandlePostConfig(c *fiber.Ctx) error {
 
 	config.SharedConfig = payload.Config
 
-	core.Run()
+	h.runner.Run()
 
 	cfgJSON, err := json.Marshal(config.SharedConfig)
 	if err != nil {
@@ -263,7 +280,7 @@ func HandlePostConfig(c *fiber.Ctx) error {
 }
 
 // HandleDeleteFlag deletes a flag by its ID.
-func HandleDeleteFlag(c *fiber.Ctx) error {
+func (h *Handler) HandleDeleteFlag(c *fiber.Ctx) error {
 	flagID := c.Query("flag")
 	if flagID == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(ResponseError{
@@ -271,7 +288,7 @@ func HandleDeleteFlag(c *fiber.Ctx) error {
 		})
 	}
 
-	if err := database.DeleteFlag(c.Context(), flagID); err != nil {
+	if err := h.store.Queries.DeleteFlagByCode(c.Context(), flagID); err != nil {
 		logger.Log.Error().Err(err).Msg("Failed to delete flag")
 		return c.Status(fiber.StatusInternalServerError).JSON(ResponseError{
 			Error: "Failed to delete flag",

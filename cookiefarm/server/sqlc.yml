@@ -7,3 +7,22 @@ sql:
       go:
         package: "database"
         out: "database"
+        emit_json_tags: true
+        json_tags_case_style: "snake"
+        overrides:
+          - column: "flags.team_id"
+            go_type:
+              import: ""
+              type: "uint16"
+          - column: "flags.port_service"
+            go_type:
+              import: ""
+              type: "uint16"
+          - column: "flags.submit_time"
+            go_type:
+              import: ""
+              type: "uint64"
+          - column: "flags.response_time"
+            go_type:
+              import: ""
+              type: "uint64"
