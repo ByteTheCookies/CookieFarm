@@ -22,6 +22,7 @@ Need to install:
 - golangci-lint (For linting Go code)
 - gofumpt (For formatting Go code)
 - goreleaser (For building and releasing Go binaries)
+- [sqlc](https://docs.sqlc.dev/en/stable/overview/install.html) (For generating Go code from SQL queries) 
 
 ## Client
 
