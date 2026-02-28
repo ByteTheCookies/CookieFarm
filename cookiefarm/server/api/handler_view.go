@@ -65,7 +65,7 @@ func HandleLoginPage(c *fiber.Ctx) error {
 
 // HandlePartialsPagination renders only the pagination component as a partial view.
 // It computes the current page and the total number of pages based on the flags count.
-func HandlePartialsPagination(c *fiber.Ctx) error {
+func (h *Handler) HandlePartialsPagination(c *fiber.Ctx) error {
 	if err := CookieAuthMiddleware(c); err != nil {
 		return err
 	}
@@ -76,7 +76,7 @@ func HandlePartialsPagination(c *fiber.Ctx) error {
 	}
 	logger.Log.Debug().Int("limit", limit).Msg("Paginated flags request")
 
-	totalFlags, err := database.FlagsNumber(c.Context())
+	totalFlags, err := h.store.Queries.CountFlags(c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString("Error retrieving flag count")
 	}
@@ -103,7 +103,7 @@ func HandlePartialsPagination(c *fiber.Ctx) error {
 
 // HandlePartialsFlags renders only the flags rows as a partial view.
 // It fetches a limited and paginated list of flags from the database.
-func HandlePartialsFlags(c *fiber.Ctx) error {
+func (h *Handler) HandlePartialsFlags(c *fiber.Ctx) error {
 	if err := CookieAuthMiddleware(c); err != nil {
 		return err
 	}
@@ -116,7 +116,10 @@ func HandlePartialsFlags(c *fiber.Ctx) error {
 	offset := c.QueryInt("offset", config.DefaultOffset)
 	logger.Log.Debug().Int("offset", offset).Int("limit", limit).Msg("Paginated flags request")
 
-	flags, err := database.GetPagedFlags(uint(limit), uint(offset))
+	flags, err := h.store.Queries.GetPagedFlags(c.Context(), database.GetPagedFlagsParams{
+		Limit:  int64(limit),
+		Offset: int64(offset),
+	})
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString("Error retrieving flags: " + err.Error())
 	}

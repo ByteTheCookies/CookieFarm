@@ -12,7 +12,7 @@ type Flag struct {
 	ResponseTime uint64 `json:"response_time"`
 	Msg          string `json:"msg"`
 	Status       string `json:"status"`
-	TeamID       uint16 `json:"team_id"`
+	TeamID       int64  `json:"team_id"`
 	Username     string `json:"username"`
 	ExploitName  string `json:"exploit_name"`
 }

@@ -25,7 +25,7 @@ type AddFlagParams struct {
 	SubmitTime   uint64 `json:"submit_time"`
 	ResponseTime uint64 `json:"response_time"`
 	Status       string `json:"status"`
-	TeamID       uint16 `json:"team_id"`
+	TeamID       int64  `json:"team_id"`
 	Msg          string `json:"msg"`
 	Username     string `json:"username"`
 	ExploitName  string `json:"exploit_name"`
@@ -47,72 +47,65 @@ func (q *Queries) AddFlag(ctx context.Context, arg AddFlagParams) error {
 	return err
 }
 
-const countFilteredFlags = `-- name: CountFilteredFlags :many
+const countFilteredFlags = `-- name: CountFilteredFlags :one
 SELECT COUNT(*) FROM flags
 WHERE
-    (team_id = ?3 OR ?3 IS NULL)
-    AND (status = ?4 OR ?4 IS NULL)
+    (team_id = ?1 OR ?1 IS NULL)
+    AND (status = ?2 OR ?2 IS NULL)
+    AND (service_name = ?3 OR ?3 IS NULL)
     AND (
-        ?5 IS NULL
+        ?4 IS NULL
         OR (
-            (?6 = 'flag_code' AND flag_code LIKE ?7)
-            OR (?6 = 'service_name' AND service_name LIKE ?7)
-            OR (?6 = 'exploit_name' AND exploit_name LIKE ?7)
-            OR (?6 = 'msg' AND msg LIKE ?7)
-            OR (?6 = 'all' AND (
-                flag_code LIKE ?7
-                OR service_name LIKE ?7
-                OR exploit_name LIKE ?7
-                OR msg LIKE ?7
-                OR CAST(team_id AS TEXT) LIKE ?7
+            (?5 = 'flag_code'    AND flag_code    LIKE ?6)
+            OR (?5 = 'service_name' AND service_name LIKE ?6)
+            OR (?5 = 'exploit_name' AND exploit_name LIKE ?6)
+            OR (?5 = 'msg'          AND msg          LIKE ?6)
+            OR (?5 = 'all' AND (
+                flag_code    LIKE ?6
+                OR service_name  LIKE ?6
+                OR exploit_name  LIKE ?6
+                OR msg           LIKE ?6
+                OR CAST(team_id AS TEXT) LIKE ?6
             ))
-            OR (?6 IS NULL AND flag_code LIKE ?7)
-            OR (sqlc.narg('search_field') NOT IN ('flag_code','service_name','exploit_name','msg','all') AND flag_code LIKE ?7)
-        )
+            OR (?5 IS NULL AND flag_code LIKE ?6)
     )
-ORDER BY submit_time DESC
-LIMIT ? OFFSET ?
+)
 `
 
 type CountFilteredFlagsParams struct {
-	TeamID      uint16         `json:"team_id"`
+	TeamID      sql.NullInt64  `json:"team_id"`
 	Status      sql.NullString `json:"status"`
+	ServiceName sql.NullString `json:"service_name"`
 	Search      interface{}    `json:"search"`
 	SearchField interface{}    `json:"search_field"`
 	SearchLike  sql.NullString `json:"search_like"`
-	Limit       int64          `json:"limit"`
-	Offset      int64          `json:"offset"`
 }
 
-func (q *Queries) CountFilteredFlags(ctx context.Context, arg CountFilteredFlagsParams) ([]int64, error) {
-	rows, err := q.db.QueryContext(ctx, countFilteredFlags,
+func (q *Queries) CountFilteredFlags(ctx context.Context, arg CountFilteredFlagsParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countFilteredFlags,
 		arg.TeamID,
 		arg.Status,
+		arg.ServiceName,
 		arg.Search,
 		arg.SearchField,
 		arg.SearchLike,
-		arg.Limit,
-		arg.Offset,
 	)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []int64
-	for rows.Next() {
-		var count int64
-		if err := rows.Scan(&count); err != nil {
-			return nil, err
-		}
-		items = append(items, count)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countFlags = `-- name: CountFlags :one
+SELECT COUNT(*)
+FROM flags
+LIMIT 1
+`
+
+func (q *Queries) CountFlags(ctx context.Context) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countFlags)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
 }
 
 const deleteFlagByCode = `-- name: DeleteFlagByCode :exec
@@ -125,14 +118,17 @@ func (q *Queries) DeleteFlagByCode(ctx context.Context, flagCode string) error {
 	return err
 }
 
-const deleteFlagByTTL = `-- name: DeleteFlagByTTL :exec
+const deleteFlagByTTL = `-- name: DeleteFlagByTTL :execrows
 DELETE FROM flags
 WHERE response_time < strftime('%s', 'now', ?)
 `
 
-func (q *Queries) DeleteFlagByTTL(ctx context.Context, strftime interface{}) error {
-	_, err := q.db.ExecContext(ctx, deleteFlagByTTL, strftime)
-	return err
+func (q *Queries) DeleteFlagByTTL(ctx context.Context, strftime interface{}) (int64, error) {
+	result, err := q.db.ExecContext(ctx, deleteFlagByTTL, strftime)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
 }
 
 const getAllFlagCodes = `-- name: GetAllFlagCodes :many
@@ -205,38 +201,37 @@ func (q *Queries) GetAllFlags(ctx context.Context) ([]Flag, error) {
 const getFilteredFlags = `-- name: GetFilteredFlags :many
 SELECT flag_code, service_name, port_service, submit_time, response_time, msg, status, team_id, username, exploit_name FROM flags
 WHERE
-    (team_id = ?3 OR ?3 IS NULL)
-    AND (status = ?4 OR ?4 IS NULL)
+    (team_id = ?1 OR ?1 IS NULL)
+    AND (status = ?2 OR ?2 IS NULL)
     AND (
-        ?5 IS NULL
+        ?3 IS NULL
         OR (
-            (?6 = 'flag_code' AND flag_code LIKE ?7)
-            OR (?6 = 'service_name' AND service_name LIKE ?7)
-            OR (?6 = 'exploit_name' AND exploit_name LIKE ?7)
-            OR (?6 = 'msg' AND msg LIKE ?7)
-            OR (?6 = 'all' AND (
-                flag_code LIKE ?7
-                OR service_name LIKE ?7
-                OR exploit_name LIKE ?7
-                OR msg LIKE ?7
-                OR CAST(team_id AS TEXT) LIKE ?7
+            (?4 = 'flag_code'    AND flag_code    LIKE ?5)
+            OR (?4 = 'service_name' AND service_name LIKE ?5)
+            OR (?4 = 'exploit_name' AND exploit_name LIKE ?5)
+            OR (?4 = 'msg'          AND msg          LIKE ?5)
+            OR (?4 = 'all' AND (
+                flag_code    LIKE ?5
+                OR service_name  LIKE ?5
+                OR exploit_name  LIKE ?5
+                OR msg           LIKE ?5
+                OR CAST(team_id AS TEXT) LIKE ?5
             ))
-            OR (?6 IS NULL AND flag_code LIKE ?7)
-            OR (sqlc.narg('search_field') NOT IN ('flag_code','service_name','exploit_name','msg','all') AND flag_code LIKE ?7)
+            OR (?4 IS NULL AND flag_code LIKE ?5)
         )
-    )
+)
 ORDER BY submit_time DESC
-LIMIT ? OFFSET ?
+LIMIT ?7 OFFSET ?6
 `
 
 type GetFilteredFlagsParams struct {
-	TeamID      uint16         `json:"team_id"`
+	TeamID      sql.NullInt64  `json:"team_id"`
 	Status      sql.NullString `json:"status"`
 	Search      interface{}    `json:"search"`
 	SearchField interface{}    `json:"search_field"`
 	SearchLike  sql.NullString `json:"search_like"`
-	Limit       int64          `json:"limit"`
-	Offset      int64          `json:"offset"`
+	Offset      sql.NullInt64  `json:"offset"`
+	Limit       sql.NullInt64  `json:"limit"`
 }
 
 func (q *Queries) GetFilteredFlags(ctx context.Context, arg GetFilteredFlagsParams) ([]Flag, error) {
@@ -246,8 +241,8 @@ func (q *Queries) GetFilteredFlags(ctx context.Context, arg GetFilteredFlagsPara
 		arg.Search,
 		arg.SearchField,
 		arg.SearchLike,
-		arg.Limit,
 		arg.Offset,
+		arg.Limit,
 	)
 	if err != nil {
 		return nil, err
@@ -384,9 +379,9 @@ LIMIT ? OFFSET ?
 `
 
 type GetFlagsByTeamParams struct {
-	TeamID uint16 `json:"team_id"`
-	Limit  int64  `json:"limit"`
-	Offset int64  `json:"offset"`
+	TeamID int64 `json:"team_id"`
+	Limit  int64 `json:"limit"`
+	Offset int64 `json:"offset"`
 }
 
 func (q *Queries) GetFlagsByTeam(ctx context.Context, arg GetFlagsByTeamParams) ([]Flag, error) {

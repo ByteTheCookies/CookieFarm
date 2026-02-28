@@ -3,10 +3,14 @@ package database
 import (
 	"context"
 	"database/sql"
+	_ "embed"
 	"time"
 
 	_ "modernc.org/sqlite"
 )
+
+//go:embed schema.sql
+var schemaSQL string
 
 type Config struct {
 	DSN             string
@@ -32,6 +36,10 @@ func NewDB(cfg Config) (*sql.DB, error) {
 	defer cancel()
 
 	if err := db.PingContext(ctx); err != nil {
+		return nil, err
+	}
+
+	if _, err := db.Exec(schemaSQL); err != nil {
 		return nil, err
 	}
 

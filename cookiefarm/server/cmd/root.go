@@ -92,7 +92,7 @@ func Run(cmd *cobra.Command, args []string) {
 	}
 
 	cfg := database.Config{
-		DSN:             "file:db?cache=shared&_journal=WAL",
+		DSN:             "file:cookiefarm.db?cache=shared&_journal=WAL",
 		MaxOpenConns:    25,
 		MaxIdleConns:    5,
 		ConnMaxLifetime: 5 * time.Minute,
@@ -100,6 +100,7 @@ func Run(cmd *cobra.Command, args []string) {
 	}
 	db, _ := database.NewDB(cfg)
 	store := database.NewStore(db)
+	database.GetCollector().SetStore(store)
 	runner := core.NewRunner(store)
 
 	logger.Setup(level, false)

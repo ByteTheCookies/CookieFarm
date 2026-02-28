@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"server/config"
+	"server/database"
 )
 
 var shutdownCancel context.CancelFunc
@@ -37,7 +38,7 @@ func (s *Runner) StartFlagProcessingLoop(ctx context.Context) {
 			logger.Log.Info().Msg("Flag processing loop terminated")
 			return
 		case <-ticker.C:
-			flags, err := s.store.Queries.GetUnsubmittedFlagCodes(ctx, config.SharedConfig.ConfigServer.MaxFlagBatchSize)
+			flags, err := s.store.Queries.GetUnsubmittedFlagCodes(ctx, int64(config.SharedConfig.ConfigServer.MaxFlagBatchSize)) // Cast not good, but we know the value is within int64 range
 			if err != nil {
 				logger.Log.Error().Err(err).Msg("Failed to get unsubmitted flags")
 				continue
@@ -80,10 +81,12 @@ func (s *Runner) UpdateFlags(flags []protocols.ResponseProtocol) {
 		}
 	}
 	ctx := context.Background()
-	if err := s.store.Queries.UpdateFlagStatusByCode(ctx, valid); err != nil {
-		logger.Log.Error().
-			Err(err).
-			Msg("Failed to update flags")
+	for _, f := range valid {
+		if err := s.store.Queries.UpdateFlagStatusByCode(ctx, database.MapFromResponseProtocolToParamsToUpdate(f)); err != nil {
+			logger.Log.Error().
+				Err(err).
+				Msg("Failed to update flags")
+		}
 	}
 
 	total := statusCounts[models.StatusAccepted] + statusCounts[models.StatusDenied] + statusCounts[models.StatusError]

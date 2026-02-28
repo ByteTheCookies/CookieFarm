@@ -1,5 +1,7 @@
 package models
 
+import "server/database"
+
 // Service represents a single vulnerable service as defined in the configuration.
 type Service struct {
 	Name string `json:"name" yaml:"name"` // Name identifier of the service
@@ -46,3 +48,13 @@ const (
 
 	VERSION = "v1.2.0"
 )
+
+// SubmitFlagsRequest the struct for the requests from the client to server
+type SubmitFlagsRequest struct {
+	Flags []database.Flag `json:"flags"` // Flags to submit
+}
+
+// SubmitFlagRequest the struct for the requests from the client to server
+type SubmitFlagRequest struct {
+	Flag database.Flag `json:"flag"` // Flag to submit
+}

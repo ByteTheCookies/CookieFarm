@@ -47,8 +47,8 @@ func (h *Handler) RegisterRoutes(app *fiber.App) {
 	View.Get("/", HandleIndexPage)
 	View.Get("/dashboard", HandleIndexPage)
 	View.Get("/login", HandleLoginPage)
-	View.Get("/flags/:limit", HandlePartialsFlags)
-	View.Get("/pagination/:limit", HandlePartialsPagination)
+	View.Get("/flags/:limit", h.HandlePartialsFlags)
+	View.Get("/pagination/:limit", h.HandlePartialsPagination)
 
 	// ------------------ PUBLIC API ------------------
 
