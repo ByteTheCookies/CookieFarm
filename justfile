@@ -174,10 +174,14 @@ client-install: client-build
     @sudo cp {{ CLIENT_BIN_DIR }}{{ PATHSEP }}{{ CLIENT_BINARY_NAME }} /usr/local/bin/{{ CLIENT_BINARY_NAME }}
     @sudo cp /usr/local/bin/{{ CLIENT_BINARY_NAME }} ~/.venv/bin/{{ CLIENT_BINARY_NAME }}
 
-# Clean client binaries
+# Test client binaries
 [group('test')]
-client-test:
-    @go test ./...
+[working-directory('cookiefarm/server')]
+server-test:
+    @gotestsum \
+    --post-run-command "notify-send 'Test finished successfully' -a gotestsum -u normal" --format testdox \
+    work -coverprofile=coverage.out -v \
+    && go tool cover -html=coverage.out -o coverage.html && xdg-open coverage.html
 
 # Start all the components for run mock tests mode for testing
 [group('test')]
