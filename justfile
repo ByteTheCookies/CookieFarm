@@ -178,10 +178,11 @@ client-install: client-build
 [group('test')]
 [working-directory('cookiefarm/server')]
 server-test:
+    @mkdir -p ./coverage
     @gotestsum \
     --post-run-command "notify-send 'Test finished successfully' -a gotestsum -u normal" --format testname \
-    work -coverprofile=coverage.out -v \
-    && go tool cover -html=coverage.out -o coverage.html && xdg-open coverage.html
+    work -coverprofile=./coverage/coverage.out -v \
+    && go tool cover -html=./coverage/coverage.out -o ./coverage/coverage.html && xdg-open ./coverage/coverage.html
 
 # Start all the components for run mock tests mode for testing
 [group('test')]
