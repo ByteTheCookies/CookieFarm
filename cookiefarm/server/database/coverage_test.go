@@ -534,7 +534,7 @@ type rowsAffectedErrDB struct {
 	delegate DBTX
 }
 
-func (r *rowsAffectedErrDB) ExecContext(_ context.Context, _ string, _ ...any) (sql.Result, error) {
+func (*rowsAffectedErrDB) ExecContext(_ context.Context, _ string, _ ...any) (sql.Result, error) {
 	return rowsAffectedErrResult{}, nil
 }
 
@@ -783,7 +783,7 @@ type blockingFailStore struct {
 	once    bool
 }
 
-func (b *blockingFailStore) ExecContext(_ context.Context, _ string, _ ...interface{}) (sql.Result, error) {
+func (b *blockingFailStore) ExecContext(_ context.Context, _ string, _ ...any) (sql.Result, error) {
 	if !b.once {
 		b.once = true
 		close(b.onExec)
@@ -792,15 +792,15 @@ func (b *blockingFailStore) ExecContext(_ context.Context, _ string, _ ...interf
 	return nil, errors.New("injected ExecContext failure")
 }
 
-func (b *blockingFailStore) PrepareContext(_ context.Context, _ string) (*sql.Stmt, error) {
+func (*blockingFailStore) PrepareContext(_ context.Context, _ string) (*sql.Stmt, error) {
 	return nil, errors.New("injected PrepareContext failure")
 }
 
-func (b *blockingFailStore) QueryContext(_ context.Context, _ string, _ ...interface{}) (*sql.Rows, error) {
+func (*blockingFailStore) QueryContext(_ context.Context, _ string, _ ...any) (*sql.Rows, error) {
 	return nil, errors.New("injected QueryContext failure")
 }
 
-func (b *blockingFailStore) QueryRowContext(_ context.Context, _ string, _ ...interface{}) *sql.Row {
+func (*blockingFailStore) QueryRowContext(_ context.Context, _ string, _ ...any) *sql.Row {
 	return nil
 }
 
