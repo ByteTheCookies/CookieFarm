@@ -131,6 +131,7 @@ func (fc *FlagCollector) Stop() error {
 	fc.mutex.Unlock()
 
 	err := fc.FlushWithContext(ctx)
+	fc.running = false
 
 	// Take a locked snapshot of the stats so we don't race with the
 	// background goroutine that may still be writing them (Issue 4.8).
