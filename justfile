@@ -179,7 +179,7 @@ client-install: client-build
 [working-directory('cookiefarm/server')]
 server-test:
     @gotestsum \
-    --post-run-command "notify-send 'Test finished successfully' -a gotestsum -u normal" --format testdox \
+    --post-run-command "notify-send 'Test finished successfully' -a gotestsum -u normal" --format testname \
     work -coverprofile=coverage.out -v \
     && go tool cover -html=coverage.out -o coverage.html && xdg-open coverage.html
 
