@@ -1,4 +1,4 @@
-name: Sonar Qube Scan
+name: Sonar Qube Scan + tests
 
 on:
   push:
@@ -10,14 +10,39 @@ on:
       - dev
       - main
 
-
 jobs:
   sonar:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: SonarQube Scan Cookiefarm
-        uses: SonarSource/sonarqube-scan-action@v6
+        with:
+          fetch-depth: 0  # fix shallow clone warning
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
+          cache-dependency-path: cookiefarm/server/go.sum
+
+      - name: Install gocover-cobertura
+        run: go install github.com/boumenot/gocover-cobertura@latest
+
+      - name: Run tests & generate coverage
+        working-directory: cookiefarm/server
+        run: |
+          mkdir -p ./coverage
+          go test -coverprofile=./coverage/coverage.out -v ./...
+          gocover-cobertura < ./coverage/coverage.out > ./coverage/coverage.xml
+
+      - name: SonarQube Scan CookieFarm
+        uses: SonarSource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+      - name: SonarQube Quality Gate Check
+        uses: SonarSource/sonarqube-quality-gate-action@master
+        with:
+          pollingTimeoutSec: 600
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
