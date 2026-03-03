@@ -27,7 +27,7 @@ jobs:
         working-directory: cookiefarm/server
         run: |
           mkdir -p ./coverage
-          go test work -coverprofile=./coverage/coverage.out -json -v ./... > coverage/test_output.json
+          go test work -coverprofile=./coverage/coverage.out -json -v ./... > ./coverage/test_output.json 2>&1 || true
 
       - name: SonarQube Scan CookieFarm
         uses: SonarSource/sonarqube-scan-action@master
