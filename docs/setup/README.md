@@ -24,7 +24,7 @@ Need to install:
 - goreleaser (For building and releasing Go binaries)
 - [sqlc](https://docs.sqlc.dev/en/stable/overview/install.html) (For generating Go code from SQL queries) 
 - [gotestsum](https://github.com/gotestyourself/gotestsum) (For running Go tests better)
-- [gocover](go install github.com/boumenot/gocover-cobertura@latest) // For generating code coverage reports in Cobertura format for SonarQube
+
 ## Client
 
 - Python3.14

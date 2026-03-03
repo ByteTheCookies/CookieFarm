@@ -183,7 +183,6 @@ server-test:
     --post-run-command "notify-send 'Test finished successfully' -a gotestsum -u normal" --format testname \
     -- work -coverprofile=./coverage/coverage.out -v ./... \
     && go tool cover -html=./coverage/coverage.out -o ./coverage/coverage.html \
-    && gocover-cobertura < ./coverage/coverage.out > ./coverage/coverage.xml \
     && xdg-open ./coverage/coverage.html
 
 # Start all the components for run mock tests mode for testing
