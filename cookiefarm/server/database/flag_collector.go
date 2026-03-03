@@ -1,9 +1,9 @@
-package sqlite
+package database
 
 import (
 	"context"
+	"errors"
 	"logger"
-	"models"
 	"sync"
 	"time"
 )
@@ -16,13 +16,14 @@ const (
 
 // FlagCollector manages the collection and flushing of flags to the database
 type FlagCollector struct {
-	buffer     []models.ClientData // Buffer for storing flags
-	mutex      sync.Mutex          // Mutex for thread-safe access
-	flushTimer *time.Timer         // Timer for periodic flushing
-	stopChan   chan struct{}       // Channel to signal stop
-	running    bool                // Indicates if the collector is running
-	flushCond  *sync.Cond          // Condition variable for flushing
-	stats      CollectorStats      // Statistics about the collector
+	buffer     []Flag         // Buffer for storing flags
+	mutex      sync.Mutex     // Mutex for thread-safe access
+	flushTimer *time.Timer    // Timer for periodic flushing
+	stopChan   chan struct{}  // Channel to signal stop
+	running    bool           // Indicates if the collector is running
+	flushCond  *sync.Cond     // Condition variable for flushing
+	stats      CollectorStats // Statistics about the collector
+	store      *Store         // Reference to the database store
 }
 
 // CollectorStats holds statistics about the flag collector
@@ -47,13 +48,21 @@ var (
 func GetCollector() *FlagCollector {
 	once.Do(func() {
 		c := &FlagCollector{
-			buffer:   make([]models.ClientData, 0, maxBufferSize),
+			buffer:   make([]Flag, 0, maxBufferSize),
 			stopChan: make(chan struct{}),
 		}
 		c.flushCond = sync.NewCond(&c.mutex)
 		collector = c
 	})
 	return collector
+}
+
+// SetStore sets the database store on the collector.
+// This must be called before the collector flushes any flags.
+func (fc *FlagCollector) SetStore(s *Store) {
+	fc.mutex.Lock()
+	defer fc.mutex.Unlock()
+	fc.store = s
 }
 
 // Start the collector to begin collecting flags
@@ -122,24 +131,28 @@ func (fc *FlagCollector) Stop() error {
 	fc.mutex.Unlock()
 
 	err := fc.FlushWithContext(ctx)
+	fc.running = false
 
+	// Take a locked snapshot of the stats so we don't race with the
+	// background goroutine that may still be writing them (Issue 4.8).
+	stats := fc.GetStats()
 	bufferSize := fc.GetBufferSize()
 	logger.Log.Info().
-		Int("flags_processed", fc.stats.TotalFlagsFlushed).
+		Int("flags_processed", stats.TotalFlagsFlushed).
 		Int("buffer_remaining", bufferSize).
-		Int("successful_flushes", fc.stats.SuccessfulFlushes).
-		Int("failed_flushes", fc.stats.FailedFlushes).
+		Int("successful_flushes", stats.SuccessfulFlushes).
+		Int("failed_flushes", stats.FailedFlushes).
 		Msg("Flag collector stopped")
 
 	return err
 }
 
 // AddFlag adds a flag to the collector's buffer
-func (fc *FlagCollector) AddFlag(flag models.ClientData) error {
+func (fc *FlagCollector) AddFlag(flag Flag) error {
 	fc.mutex.Lock()
-	defer fc.mutex.Unlock()
 
 	if !fc.running && fc.stopChan == nil {
+		fc.mutex.Unlock()
 		return nil
 	}
 
@@ -154,13 +167,16 @@ func (fc *FlagCollector) AddFlag(flag models.ClientData) error {
 
 	if len(fc.buffer) >= maxBufferSize {
 		logger.Log.Debug().Msg("Flushing flag buffer due to size limit")
-		flagsToInsert := make([]models.ClientData, len(fc.buffer))
+		flagsToInsert := make([]Flag, len(fc.buffer))
 		copy(flagsToInsert, fc.buffer)
 		fc.buffer = fc.buffer[:0]
 
 		fc.mutex.Unlock()
 		ctx := context.Background()
-		err := AddFlagsWithContext(ctx, flagsToInsert)
+		var err error
+		for _, flag := range flagsToInsert {
+			err = fc.store.Queries.AddFlag(ctx, MapFromFlagToDBParams(flag))
+		}
 		fc.mutex.Lock()
 
 		fc.updateFlushStats(err, len(flagsToInsert))
@@ -173,10 +189,12 @@ func (fc *FlagCollector) AddFlag(flag models.ClientData) error {
 					Int("dropped_flags", len(flagsToInsert)).
 					Msg("Buffer overflow, dropped flags due to database error")
 			}
+			fc.mutex.Unlock()
 			return err
 		}
 	}
 
+	fc.mutex.Unlock()
 	return nil
 }
 
@@ -194,16 +212,25 @@ func (fc *FlagCollector) FlushWithContext(ctx context.Context) error {
 		return nil
 	}
 
-	flagsToInsert := make([]models.ClientData, len(fc.buffer))
+	flagsToInsert := make([]Flag, len(fc.buffer))
 	copy(flagsToInsert, fc.buffer)
 	fc.buffer = fc.buffer[:0]
 
 	fc.stats.TotalFlushes++
 
+	if fc.store == nil {
+		fc.buffer = append(flagsToInsert, fc.buffer...)
+		nilErr := errors.New("flag collector has no store set: call SetStore before flushing")
+		fc.updateFlushStats(nilErr, 0)
+		fc.mutex.Unlock()
+		return nilErr
+	}
+
 	fc.mutex.Unlock()
-
-	err := AddFlagsWithContext(ctx, flagsToInsert)
-
+	var err error
+	for _, flag := range flagsToInsert {
+		err = fc.store.Queries.AddFlag(ctx, MapFromFlagToDBParams(flag))
+	}
 	fc.mutex.Lock()
 	defer fc.mutex.Unlock()
 

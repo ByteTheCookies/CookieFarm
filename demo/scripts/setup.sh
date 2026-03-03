@@ -3,10 +3,9 @@
 set -e
 
 # === CONFIG ===
-VENV_ACTIVATE=".venv/bin/activate"
-FLAGCHECKER_SCRIPT="tests/flagchecker.py"
+VENV_ACTIVATE="../.venv/bin/activate"
+FLAGCHECKER_SCRIPT="flagchecker.py"
 SCRIPTS_DIR="scripts"
-TESTS_DIR="tests"
 REQUIREMENTS="requirements.txt"
 
 # === USAGE CHECK ===
@@ -39,7 +38,7 @@ pip install -r "$REQUIREMENTS" > /dev/null
 # === FLAGCHECKER ===
 echo "🚩 Starting Flagchecker..."
 chmod +x "$FLAGCHECKER_SCRIPT"
-kitty --title "flagchecker" bash -c "source $VENV_ACTIVATE && $FLAGCHECKER_SCRIPT $1; exec bash" &
+kitty --title "flagchecker" bash -c "source $VENV_ACTIVATE && ./$FLAGCHECKER_SCRIPT $1; exec bash" &
 echo "✅ Flagchecker launched in a separate terminal! 🎉"
 
 # === SERVER ===
@@ -49,7 +48,6 @@ echo "✅ Server started!"
 
 # === SERVICES ===
 echo "🚀 Starting services..."
-cd "$TESTS_DIR"
 chmod +x ./start_containers.sh
 kitty --title "service" bash -c "./start_containers.sh $1; exec bash" &
 echo "✅ Services started!"

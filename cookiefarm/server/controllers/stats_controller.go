@@ -3,7 +3,7 @@ package controllers
 import (
 	"net/http"
 
-	"server/sqlite"
+	"server/database"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -17,7 +17,7 @@ func NewStatsController() *StatsController {
 
 // GetFlagStats return the statistics of the flag collector
 func (*StatsController) GetFlagStats(ctx *fiber.Ctx) error {
-	collector := sqlite.GetCollector()
+	collector := database.GetCollector()
 	stats := collector.GetStats()
 	bufferSize := collector.GetBufferSize()
 
@@ -39,7 +39,7 @@ func (*StatsController) GetFlagStats(ctx *fiber.Ctx) error {
 
 // ForceFlushFlags force a flush of the flags in the collector
 func (*StatsController) ForceFlushFlags(ctx *fiber.Ctx) error {
-	collector := sqlite.GetCollector()
+	collector := database.GetCollector()
 
 	statsBefore := collector.GetStats()
 	bufferBefore := collector.GetBufferSize()

@@ -2,7 +2,7 @@ package websockets
 
 import (
 	"encoding/json"
-	"models"
+	"server/database"
 	"sync"
 	"time"
 
@@ -40,8 +40,8 @@ type EventWS struct {
 }
 
 type EventWSFlag struct {
-	Type    string            `json:"type"`
-	Payload models.ClientData `json:"payload"`
+	Type    string        `json:"type"`
+	Payload database.Flag `json:"payload"`
 }
 
 // ========= WebSocket Connection Monitoring =========

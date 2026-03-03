@@ -6,7 +6,7 @@ RESET := "\\033[0m"
 
 # === SERVER VARIABLES ===
 
-SERVER_BIN_DIR := "../../bin"
+SERVER_BIN_DIR := "../bin"
 SERVER_CMD_DIR := "./server"
 SERVER_LOGS_DIR := "./logs"
 SERVER_MAIN_FILE := "main.go"
@@ -61,13 +61,13 @@ server-build-prod:
 
 # Run the server in development mode
 [group('build')]
-[working-directory('cookiefarm/server')]
+[working-directory('cookiefarm')]
 server-run: server-build server-build-plugins minify
     @{{ SERVER_BIN_DIR }}{{ PATHSEP }}{{ SERVER_BINARY_NAME }} -c -D
 
 # Clean server binaries and logs
 [group('dev')]
-[working-directory('cookiefarm/server')]
+[working-directory('cookiefarm')]
 server-clean:
     @rm -rf {{ SERVER_BIN_DIR }}{{ PATHSEP }}* {{ SERVER_LOGS_DIR }}{{ PATHSEP }}*
 
@@ -174,15 +174,20 @@ client-install: client-build
     @sudo cp {{ CLIENT_BIN_DIR }}{{ PATHSEP }}{{ CLIENT_BINARY_NAME }} /usr/local/bin/{{ CLIENT_BINARY_NAME }}
     @sudo cp /usr/local/bin/{{ CLIENT_BINARY_NAME }} ~/.venv/bin/{{ CLIENT_BINARY_NAME }}
 
-# Clean client binaries
+# Test client binaries
 [group('test')]
-client-test:
-    @go test ./...
+[working-directory('cookiefarm/server')]
+server-test:
+    @mkdir -p ./coverage
+    @gotestsum \
+    --post-run-command "notify-send 'Test finished successfully' -a gotestsum -u normal" --format testname \
+    work -coverprofile=./coverage/coverage.out -v \
+    && go tool cover -html=./coverage/coverage.out -o ./coverage/coverage.html && xdg-open ./coverage/coverage.html
 
 # Start all the components for run mock tests mode for testing
 [group('test')]
 setup-tests num_containers="3" production_mode="false":
-    cd ./scripts && ./setup.sh {{ num_containers }} {{ production_mode }}
+    cd ./demo/scripts && ./setup.sh {{ num_containers }} {{ production_mode }}
 
 # === SHARED TOOLS ===
 
@@ -217,6 +222,12 @@ lint:
 fmt:
     @go work sync
     @go list -f \{\{.Dir\}\} -m | xargs gofumpt -w -d
+
+# Format the codebase using gofumpt
+[group('tools')]
+[working-directory('cookiefarm/server')]
+generate:
+    @sqlc generate
 
 # Do a snapshot of the CPU, RAM, and Goroutines using pprof and open the web interface for each for the server
 [group('dev')]

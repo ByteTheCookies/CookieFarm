@@ -7,7 +7,7 @@ import (
 	"models"
 	"time"
 
-	"server/sqlite"
+	"server/database"
 )
 
 const (
@@ -18,17 +18,17 @@ const (
 )
 
 func init() {
-	sqlite.GetCollector().Start()
+	database.GetCollector().Start()
 }
 
 // FlagHandler will send out a message to all other participants in the chat
 func FlagHandler(event Event, client *Client) error {
-	var flag models.ClientData
+	var flag database.Flag
 	if err := json.Unmarshal(event.Payload, &flag); err != nil {
 		return fmt.Errorf("bad payload in request: %v", err)
 	}
 
-	if err := sqlite.GetCollector().AddFlag(flag); err != nil {
+	if err := database.GetCollector().AddFlag(flag); err != nil {
 		logger.Log.Error().Err(err).Msg("Flag buffer add failed in flag handler")
 		return err
 	}
@@ -51,7 +51,7 @@ func FlagHandler(event Event, client *Client) error {
 	logger.Log.Info().
 		Int("client", client.Number).
 		Str("flag", flag.FlagCode).
-		Uint16("team", flag.TeamID).
+		Int64("team", flag.TeamID).
 		Str("service name", flag.ServiceName).
 		Uint16("port service", flag.PortService).
 		Msg("Flag received and sent to DB")

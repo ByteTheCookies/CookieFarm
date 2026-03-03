@@ -3,7 +3,7 @@ package websockets
 
 import (
 	"logger"
-	"models"
+	"server/database"
 
 	json "github.com/bytedance/sonic"
 	gorilla "github.com/gorilla/websocket"
@@ -17,7 +17,7 @@ func startReader(conn *gorilla.Conn) {
 }
 
 // Start initializes the submission loop to the cookiefarm server.
-func Start(flagsChan <-chan models.ClientData) error {
+func Start(flagsChan <-chan database.Flag) error {
 	logger.Log.Info().Msg("Starting submission loop to the cookiefarm server with websockets (websockets) ...")
 
 	conn, err := GetConnection()

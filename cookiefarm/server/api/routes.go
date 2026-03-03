@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"server/config"
+	"server/core"
+	"server/database"
 	"server/websockets"
 
 	"github.com/gofiber/fiber/v2"
@@ -12,9 +14,18 @@ import (
 	jwtware "github.com/gofiber/jwt/v3"
 )
 
+type Handler struct {
+	store  *database.Store
+	runner *core.Runner
+}
+
+func NewHandler(s *database.Store, r *core.Runner) *Handler {
+	return &Handler{store: s, runner: r}
+}
+
 // RegisterRoutes configures all routes and middlewares of the Fiber app,
 // including CORS policies, public and protected API endpoints, and view rendering routes.
-func RegisterRoutes(app *fiber.App) {
+func (h *Handler) RegisterRoutes(app *fiber.App) {
 	if len(config.Secret) == 0 {
 		logger.Log.Fatal().Msg("JWT secret not configured")
 	}
@@ -36,8 +47,8 @@ func RegisterRoutes(app *fiber.App) {
 	View.Get("/", HandleIndexPage)
 	View.Get("/dashboard", HandleIndexPage)
 	View.Get("/login", HandleLoginPage)
-	View.Get("/flags/:limit", HandlePartialsFlags)
-	View.Get("/pagination/:limit", HandlePartialsPagination)
+	View.Get("/flags/:limit", h.HandlePartialsFlags)
+	View.Get("/pagination/:limit", h.HandlePartialsPagination)
 
 	// ------------------ PUBLIC API ------------------
 
@@ -46,7 +57,7 @@ func RegisterRoutes(app *fiber.App) {
 	publicAPI.Get("/", GetStatus) // Simple status check
 	publicAPI.Post("/auth/login", NewLimiter(), HandleLogin)
 	publicAPI.Get("/auth/verify", HandleVerify)
-	publicAPI.Get("/protocols", HandleGetProtocols)
+	publicAPI.Get("/protocols", h.HandleGetProtocols)
 
 	// ------------------ PRIVATE API ------------------
 
@@ -56,15 +67,15 @@ func RegisterRoutes(app *fiber.App) {
 		SigningKey:  config.Secret,
 		TokenLookup: "header:Authorization,cookie:token",
 	}))
-	privateAPI.Get("/stats", HandleGetStats)
-	privateAPI.Get("/flags", HandleGetAllFlags)
-	privateAPI.Get("/flags/:limit", HandleGetPaginatedFlags)
-	privateAPI.Get("/config", HandleGetConfig)
-	privateAPI.Post("/config", HandlePostConfig)
-	privateAPI.Post("/submit-flags", HandlePostFlags)
-	privateAPI.Post("/submit-flag", HandlePostFlag)
-	privateAPI.Post("/submit-flags-standalone", HandlePostFlagsStandalone)
-	privateAPI.Delete("/delete-flag", HandleDeleteFlag)
+	privateAPI.Get("/stats", h.HandleGetStats)
+	privateAPI.Get("/flags", h.HandleGetAllFlags)
+	privateAPI.Get("/flags/:limit", h.HandleGetPaginatedFlags)
+	privateAPI.Get("/config", h.HandleGetConfig)
+	privateAPI.Post("/config", h.HandlePostConfig)
+	privateAPI.Post("/submit-flags", h.HandlePostFlags)
+	privateAPI.Post("/submit-flag", h.HandlePostFlag)
+	privateAPI.Post("/submit-flags-standalone", h.HandlePostFlagsStandalone)
+	privateAPI.Delete("/delete-flag", h.HandleDeleteFlag)
 
 	websockets.GlobalManager = websockets.NewManager()
 	app.Use("/ws",

@@ -14,7 +14,7 @@ use (
 	./server
 	./server/api
 	./server/core
-	./server/sqlite
+	./server/database
 	./server/ui
 	./server/websockets
 )

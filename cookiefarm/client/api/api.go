@@ -10,6 +10,7 @@ import (
 	"models"
 	"net/http"
 	"net/url"
+	"server/database"
 	"strconv"
 
 	"client/config"
@@ -109,7 +110,7 @@ func Login(password string) (string, error) {
 // SubmitBatchDirect sends a batch of flags directly to the CookieFarm server API.
 //
 // @IMPORTANT: I do not raccomend using this function, use websockets instead.
-func SubmitBatchDirect(flags []models.ClientData) (string, error) {
+func SubmitBatchDirect(flags []database.Flag) (string, error) {
 	cm := config.GetConfigManager()
 	localConfig := cm.GetLocalConfig()
 	client := &http.Client{}
@@ -157,7 +158,7 @@ func SubmitBatchDirect(flags []models.ClientData) (string, error) {
 }
 
 // SubmitDirect sends a single flag directly to the CookieFarm server API.
-func SubmitDirect(flag models.ClientData) (string, error) {
+func SubmitDirect(flag database.Flag) (string, error) {
 	cm := config.GetConfigManager()
 	localConfig := cm.GetLocalConfig()
 	client := &http.Client{}

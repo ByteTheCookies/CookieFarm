@@ -12,12 +12,12 @@ import (
 	"time"
 
 	"server/config"
-
 	"server/core"
+	"server/database"
+
+	_ "modernc.org/sqlite"
 
 	"server/api"
-
-	"server/sqlite"
 
 	"github.com/charmbracelet/fang"
 	fiberLogger "github.com/gofiber/fiber/v2/middleware/logger"
@@ -91,12 +91,24 @@ func Run(cmd *cobra.Command, args []string) {
 		level = "info"
 	}
 
+	cfg := database.Config{
+		DSN:             "file:cookiefarm.db?cache=shared&_journal=WAL",
+		MaxOpenConns:    25,
+		MaxIdleConns:    5,
+		ConnMaxLifetime: 5 * time.Minute,
+		ConnMaxIdleTime: 1 * time.Minute,
+	}
+	db, _ := database.NewDB(cfg)
+	store := database.NewStore(db)
+	database.GetCollector().SetStore(store)
+	runner := core.NewRunner(store)
+
 	logger.Setup(level, false)
 	defer logger.Close()
 
 	if config.UseConfigFile {
 		logger.Log.Info().Msg("Using file config...")
-		err := core.LoadConfigAndRun(config.ConfigPath)
+		err := core.LoadConfigAndRun(config.ConfigPath, store)
 		if err != nil {
 			logger.Log.Warn().Err(err).Msg("Config file not found or corrupted using web config")
 		}
@@ -118,9 +130,6 @@ func Run(cmd *cobra.Command, args []string) {
 	}
 	logger.Log.Debug().Str("hashed", config.Password).Msg("Password after hashing")
 
-	sqlite.DBPool = sqlite.New()
-	defer sqlite.Close()
-
 	app, err := api.NewApp()
 	if err != nil {
 		logger.Log.Fatal().Err(err).Msg("Failed to initialize server")
@@ -131,7 +140,8 @@ func Run(cmd *cobra.Command, args []string) {
 		TimeFormat: time.RFC3339,
 		TimeZone:   "Local",
 	}))
-	api.RegisterRoutes(app)
+	handler := api.NewHandler(store, runner)
+	handler.RegisterRoutes(app)
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	defer stop()
