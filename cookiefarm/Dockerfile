@@ -14,6 +14,11 @@ RUN just server-build-plugins-prod
 # Runtime stage
 FROM alpine:3.23.3 AS prod
 
+RUN addgroup -S vincenzino \
+    && adduser -S vincenzino -G vincenzino
+
+USER vincenzino
+
 WORKDIR /app
 
 RUN apk add --no-cache libc6-compat
