@@ -32,7 +32,7 @@ jobs:
       - name: Fix coverage paths
         run: |
           sed -i 's|^server/|cookiefarm/server/|g' \
-            cookiefarm/server/coverage/coverage.out
+            cookiefarm/coverage/coverage.out
 
       - name: SonarQube Scan CookieFarm
         uses: SonarSource/sonarqube-scan-action@master
