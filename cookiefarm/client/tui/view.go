@@ -62,7 +62,7 @@ func (r *ViewRenderer) renderExploitTable(m *Model, banner, title string) string
 	)
 
 	if m.err != nil {
-		errorMsg := ErrorStyle.Render("Error: " + m.err.Error())
+		errorMsg := ErrorStyle.Render("Error in render exploit table: " + m.err.Error())
 		content = lipgloss.JoinVertical(lipgloss.Left, content, "", errorMsg)
 	}
 
@@ -156,7 +156,7 @@ func (r *ViewRenderer) renderInputForm(m *Model) string {
 	)
 
 	if m.err != nil {
-		errorMsg := ErrorStyle.Render("Error: " + m.err.Error())
+		errorMsg := ErrorStyle.Render("Error rendering input form: " + m.err.Error())
 		content = lipgloss.JoinVertical(lipgloss.Left, content, "", errorMsg)
 	}
 
@@ -264,7 +264,7 @@ func (r *ViewRenderer) renderCommandOutput(m *Model) string {
 	)
 
 	if m.err != nil {
-		errorMsg := ErrorStyle.Render("Error: " + m.err.Error())
+		errorMsg := ErrorStyle.Render("Error in model: " + m.err.Error())
 		content = lipgloss.JoinVertical(lipgloss.Left, content, "", errorMsg)
 	}
 

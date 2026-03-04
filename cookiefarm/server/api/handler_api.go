@@ -19,6 +19,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+const flagCheckerHostNotConfigureWarnMessage = "Flagchecker host not configured"
+
 // ---------- GET ----------------
 
 // HandleGetConfig returns the current configuration of the server.
@@ -196,9 +198,9 @@ func (h *Handler) HandlePostFlag(c *fiber.Ctx) error {
 	}
 
 	if config.SharedConfig.ConfigServer.URLFlagChecker == "" {
-		logger.Log.Warn().Msg("Flagchecker host not configured")
+		logger.Log.Warn().Msg(flagCheckerHostNotConfigureWarnMessage)
 		return c.Status(fiber.StatusServiceUnavailable).JSON(ResponseError{
-			Error: "Flagchecker host not configured",
+			Error: flagCheckerHostNotConfigureWarnMessage,
 		})
 	}
 
@@ -233,9 +235,9 @@ func (h *Handler) HandlePostFlagsStandalone(c *fiber.Ctx) error {
 	}
 
 	if config.SharedConfig.ConfigServer.URLFlagChecker == "" {
-		logger.Log.Warn().Msg("Flagchecker host not configured")
+		logger.Log.Warn().Msg(flagCheckerHostNotConfigureWarnMessage)
 		return c.Status(fiber.StatusServiceUnavailable).JSON(ResponseError{
-			Error: "Flagchecker host not configured",
+			Error: flagCheckerHostNotConfigureWarnMessage,
 		})
 	}
 	flags := make([]string, len(payload.Flags))
