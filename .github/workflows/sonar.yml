@@ -24,7 +24,7 @@ jobs:
           cache-dependency-path: cookiefarm/server/go.sum
 
       - name: Run tests & generate coverage
-        working-directory: cookiefarm/server
+        working-directory: cookiefarm
         run: |
           mkdir -p ./coverage
           go test work -coverprofile=./coverage/coverage.out -json -v ./... > ./coverage/test_output.json 2>&1 || true
