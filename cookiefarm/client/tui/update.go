@@ -27,7 +27,7 @@ func (m Model) handleKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m.handleInputMode(msg)
 	}
 
-	if m.showTable && (m.activeCommand == "exploit list" || m.activeCommand == "exploit stop") {
+	if m.showTable && (m.activeCommand == exploitListCommand || m.activeCommand == exploitStopCommand) {
 		return m.handleTableKeyMsg(msg)
 	}
 
@@ -42,7 +42,7 @@ func (m Model) handleKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 func (m Model) handleTableKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch msg.String() {
 	case "enter":
-		if m.activeCommand == "exploit stop" {
+		if m.activeCommand == exploitStopCommand {
 			handler := NewCommandHandler()
 			m.SetLoading(true)
 			return handler.ProcessFormSubmission(&m)
@@ -111,11 +111,11 @@ func (m Model) handleBackAction() (tea.Model, tea.Cmd) {
 		m.showTable = false
 		m.ClearError()
 
-		if m.activeCommand == "exploit stop" {
+		if m.activeCommand == exploitStopCommand {
 			m.SetInputMode(false)
 		}
 
-		if !strings.HasPrefix(m.activeCommand, "exploit run") {
+		if !strings.HasPrefix(m.activeCommand, exploitRunCommand) {
 			m.SetRunningCommand(false)
 		}
 
@@ -148,7 +148,7 @@ func (m Model) handleInputMode(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	if keyMsg, ok := msg.(tea.KeyMsg); ok {
-		if m.IsProcessListVisible() && m.activeCommand == "exploit stop" {
+		if m.IsProcessListVisible() && m.activeCommand == exploitStopCommand {
 			switch keyMsg.Type {
 			case tea.KeyUp:
 				m.SelectPreviousProcess()
@@ -203,7 +203,7 @@ func (m Model) handleEnterAction(handler *CommandHandler) (tea.Model, tea.Cmd) {
 		m.SetLoading(true)
 		newModel, cmd := handler.ProcessFormSubmission(&m)
 
-		if strings.HasPrefix(newModel.activeCommand, "exploit run") {
+		if strings.HasPrefix(newModel.activeCommand, exploitRunCommand) {
 			return newModel, tea.Batch(cmd, newModel.GetExploitStreamCmd(), m.spinner.Tick)
 		}
 
@@ -218,10 +218,10 @@ func (m Model) handleEnterAction(handler *CommandHandler) (tea.Model, tea.Cmd) {
 	newModel, cmd := m.processMenuSelection(selectedItem, handler)
 
 	if mTyped, ok := newModel.(Model); ok && mTyped.IsRunningCommand() {
-		if strings.HasPrefix(mTyped.activeCommand, "exploit run") {
+		if strings.HasPrefix(mTyped.activeCommand, exploitRunCommand) {
 			return newModel, tea.Batch(cmd, mTyped.GetExploitStreamCmd())
 		}
-		if mTyped.activeCommand == "exploit list" {
+		if mTyped.activeCommand == exploitListCommand {
 			return newModel, tea.Batch(cmd, mTyped.SetupExploitTableCmd())
 		}
 	}
@@ -285,7 +285,7 @@ func (m Model) processMenuSelection(selectedItem menuItem, handler *CommandHandl
 		m.SetRunningCommand(true)
 		m.SetLoading(true)
 
-		if command == "exploit list" {
+		if command == exploitListCommand {
 			return m, tea.Batch(
 				handler.HandleCommand(command, nil),
 				m.SetupExploitTableCmd(),
@@ -305,7 +305,7 @@ func (m Model) processMenuSelection(selectedItem menuItem, handler *CommandHandl
 
 // GetExploitStreamCmd returns a command that periodically checks for exploit output
 func (m Model) GetExploitStreamCmd() tea.Cmd {
-	if m.IsRunningCommand() && strings.HasPrefix(m.activeCommand, "exploit run") {
+	if m.IsRunningCommand() && strings.HasPrefix(m.activeCommand, exploitRunCommand) {
 		return m.cmdRunner.GetExploitOutputCmd()
 	}
 	return nil

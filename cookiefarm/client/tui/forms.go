@@ -248,7 +248,7 @@ func ValidateForm(command string, inputs []textinput.Model) error {
 // validateLoginForm validates login form
 func validateLoginForm(inputs []textinput.Model) error {
 	if len(inputs) < 1 {
-		return errors.New("invalid form structure")
+		return errors.New("invalid form structure inputs should contain at least the password field")
 	}
 
 	password := strings.TrimSpace(inputs[0].Value())
@@ -263,7 +263,7 @@ func validateLoginForm(inputs []textinput.Model) error {
 // validateConfigUpdateForm validates config update form
 func validateConfigUpdateForm(inputs []textinput.Model) error {
 	if len(inputs) < 4 {
-		return errors.New("invalid form structure")
+		return errors.New("invalid form structure inputs should contain at least host, port, username, and HTTPS fields")
 	}
 
 	host := strings.TrimSpace(inputs[0].Value())
@@ -285,7 +285,7 @@ func validateConfigUpdateForm(inputs []textinput.Model) error {
 // validateExploitRunForm validates exploit run form
 func validateExploitRunForm(inputs []textinput.Model) error {
 	if len(inputs) < 4 {
-		return errors.New("invalid form structure")
+		return errors.New("invalid form structure inputs should contain at least exploit path and service port fields")
 	}
 
 	exploitPath := strings.TrimSpace(inputs[0].Value())
@@ -304,7 +304,7 @@ func validateExploitRunForm(inputs []textinput.Model) error {
 // validateExploitNameForm validates exploit name form
 func validateExploitNameForm(inputs []textinput.Model) error {
 	if len(inputs) < 1 {
-		return errors.New("invalid form structure")
+		return errors.New("invalid form structure inputs should contain at least the exploit name field")
 	}
 
 	name := strings.TrimSpace(inputs[0].Value())

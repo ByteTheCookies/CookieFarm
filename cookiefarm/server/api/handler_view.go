@@ -10,7 +10,10 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-const windowSize = 5
+const (
+	pathMainLayout = "layouts/main"
+	windowSize     = 5
+)
 
 // MakePagination generates a list of page numbers for pagination.
 func MakePagination(current, totalPages int) []int {
@@ -55,12 +58,12 @@ func HandleIndexPage(c *fiber.Ctx) error {
 	data := ViewParamsDashboard{
 		Limit: limit,
 	}
-	return c.Render("pages/dashboard", data, "layouts/main")
+	return c.Render("pages/dashboard", data, pathMainLayout)
 }
 
 // HandleLoginPage renders the login page.
 func HandleLoginPage(c *fiber.Ctx) error {
-	return c.Render("pages/login", map[string]any{}, "layouts/main")
+	return c.Render("pages/login", map[string]any{}, pathMainLayout)
 }
 
 // HandlePartialsPagination renders only the pagination component as a partial view.
@@ -98,7 +101,7 @@ func (h *Handler) HandlePartialsPagination(c *fiber.Ctx) error {
 		},
 	}
 
-	return c.Render("partials/pagination", data, "layouts/main")
+	return c.Render("partials/pagination", data, pathMainLayout)
 }
 
 // HandlePartialsFlags renders only the flags rows as a partial view.

@@ -18,6 +18,14 @@ import (
 	json "github.com/bytedance/sonic"
 )
 
+const (
+	invalidURLMessage          = "Invalid base URL in config"
+	cookieName                 = "token"
+	sucessMessage              = "Flags submitted successfully"
+	errorCreatingConfigRequest = "error creating config request: %w"
+	errorSendingConfigRequest  = "error sending config request: %w"
+)
+
 func parseURL(host, port, endpoint string) (string, error) {
 	URL := "http://" + host + ":" + port + endpoint
 	_, err := url.Parse(URL)
@@ -35,18 +43,18 @@ func GetConfig() (models.ConfigShared, error) {
 
 	serverURL, err := parseURL(localConfig.Host, strconv.Itoa(int(localConfig.Port)), "/api/v1/config")
 	if err != nil {
-		logger.Log.Error().Err(err).Msg("Invalid base URL in config")
+		logger.Log.Error().Err(err).Msg(invalidURLMessage)
 	}
 
 	req, err := http.NewRequest(http.MethodGet, serverURL, nil)
 	if err != nil {
-		return models.ConfigShared{}, fmt.Errorf("error creating config request: %w", err)
+		return models.ConfigShared{}, fmt.Errorf(errorCreatingConfigRequest, err)
 	}
-	req.Header.Set("Cookie", "token="+cm.GetToken())
+	req.Header.Set("Cookie", cookieName+"="+cm.GetToken())
 
 	resp, err := client.Do(req) //nolint:gosec
 	if err != nil {
-		return models.ConfigShared{}, fmt.Errorf("error sending config request: %w", err)
+		return models.ConfigShared{}, fmt.Errorf(errorSendingConfigRequest, err)
 	}
 	defer resp.Body.Close()
 
@@ -78,7 +86,7 @@ func Login(password string) (string, error) {
 
 	serverURL, err := parseURL(localConfig.Host, strconv.Itoa(int(localConfig.Port)), "/api/v1/auth/login")
 	if err != nil {
-		logger.Log.Error().Err(err).Msg("Invalid base URL in config")
+		logger.Log.Error().Err(err).Msg(invalidURLMessage)
 	}
 
 	logger.Log.Debug().Str("url", serverURL).Msg("Login attempt")
@@ -96,7 +104,7 @@ func Login(password string) (string, error) {
 
 	cookies := resp.Cookies()
 	for _, c := range cookies {
-		if c.Name == "token" {
+		if c.Name == cookieName {
 			logger.Log.Debug().Str("token", c.Value).Msg("Token found")
 			logger.Log.Info().Msg("Login successfully")
 			return c.Value, nil
@@ -117,9 +125,9 @@ func SubmitBatchDirect(flags []database.Flag) (string, error) {
 
 	serverURL, err := parseURL(localConfig.Host, strconv.Itoa(int(localConfig.Port)), "/api/v1/submit-flags-standalone")
 	if err != nil {
-		logger.Log.Error().Err(err).Msg("Invalid base URL in config")
+		logger.Log.Error().Err(err).Msg(invalidURLMessage)
 	}
-	logger.Log.Debug().Str("url", serverURL).Msg("Login attempt")
+	logger.Log.Debug().Str("url", serverURL).Msg("Submit flag attempt")
 
 	flagMarshalled, err := json.Marshal(models.SubmitFlagsRequest{Flags: flags})
 	if err != nil {
@@ -129,15 +137,15 @@ func SubmitBatchDirect(flags []database.Flag) (string, error) {
 
 	req, err := http.NewRequest(http.MethodPost, serverURL, nil)
 	if err != nil {
-		return "", fmt.Errorf("error creating config request: %w", err)
+		return "", fmt.Errorf(errorCreatingConfigRequest, err)
 	}
-	req.Header.Set("Cookie", "token="+cm.GetToken())
+	req.Header.Set("Cookie", cookieName+"="+cm.GetToken())
 	req.Header.Set("Content-Type", "application/json")
 	req.Body = io.NopCloser(bytes.NewReader(flagMarshalled))
 
 	resp, err := client.Do(req) //nolint:gosec
 	if err != nil {
-		return "", fmt.Errorf("error sending config request: %w", err)
+		return "", fmt.Errorf(errorSendingConfigRequest, err)
 	}
 	defer resp.Body.Close()
 
@@ -148,8 +156,8 @@ func SubmitBatchDirect(flags []database.Flag) (string, error) {
 	}
 
 	if resp.StatusCode == http.StatusOK {
-		logger.Log.Info().Msg("Flags submitted successfully")
-		return "Flags submitted successfully", nil
+		logger.Log.Info().Msg(sucessMessage)
+		return sucessMessage, nil
 	} else {
 		body, _ := io.ReadAll(resp.Body)
 		logger.Log.Error().Msgf("Unexpected response status: %d, body: %s", resp.StatusCode, body)
@@ -165,7 +173,7 @@ func SubmitDirect(flag database.Flag) (string, error) {
 
 	serverURL, err := parseURL(localConfig.Host, strconv.Itoa(int(localConfig.Port)), "/api/v1/submit-flag")
 	if err != nil {
-		logger.Log.Error().Err(err).Msg("Invalid base URL in config")
+		logger.Log.Error().Err(err).Msg(invalidURLMessage)
 	}
 	logger.Log.Debug().Str("url", serverURL).Msg("Login attempt")
 
@@ -177,15 +185,15 @@ func SubmitDirect(flag database.Flag) (string, error) {
 
 	req, err := http.NewRequest(http.MethodPost, serverURL, nil)
 	if err != nil {
-		return "", fmt.Errorf("error creating config request: %w", err)
+		return "", fmt.Errorf(errorCreatingConfigRequest, err)
 	}
-	req.Header.Set("Cookie", "token="+cm.GetToken())
+	req.Header.Set("Cookie", cookieName+"="+cm.GetToken())
 	req.Header.Set("Content-Type", "application/json")
 	req.Body = io.NopCloser(bytes.NewReader(flagMarshalled))
 
 	resp, err := client.Do(req) //nolint:gosec
 	if err != nil {
-		return "", fmt.Errorf("error sending config request: %w", err)
+		return "", fmt.Errorf(errorSendingConfigRequest, err)
 	}
 	defer resp.Body.Close()
 
@@ -203,7 +211,7 @@ func SubmitDirect(flag database.Flag) (string, error) {
 	}())
 
 	if resp.StatusCode == http.StatusOK {
-		return "Flags submitted successfully", nil
+		return sucessMessage, nil
 	} else {
 		body, _ := io.ReadAll(resp.Body)
 		logger.Log.Error().Msgf("Unexpected response status: %d, body: %s", resp.StatusCode, body)

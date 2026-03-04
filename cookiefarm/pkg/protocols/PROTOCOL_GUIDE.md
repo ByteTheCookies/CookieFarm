@@ -18,7 +18,7 @@ import (
 )
 
 // Submit function sends flags to the Flag Checker service and returns a response.
-func Submit(host string, team_token string, flags []string) ([]protocols.ResponseProtocol, error) {
+func Submit(host string, teamToken string, flags []string) ([]protocols.ResponseProtocol, error) {
 	// Your implementation here
 	return nil, nil
 }
@@ -99,7 +99,7 @@ import (
 	"github.com/ByteTheCookies/cookieserver/internal/models"
 )
 
-func Submit(host string, team_token string, flags []string) ([]protocols.ResponseProtocol, error) {
+func Submit(host string, teamToken string, flags []string) ([]protocols.ResponseProtocol, error) {
 	jsonData, err := json.Marshal(flags)
 	if err != nil {
 		return nil, fmt.Errorf("error during marshalling: %w", err)
@@ -112,7 +112,7 @@ func Submit(host string, team_token string, flags []string) ([]protocols.Respons
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-Team-Token", team_token)
+	req.Header.Set("X-Team-Token", teamToken)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)

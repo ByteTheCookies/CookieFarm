@@ -6,13 +6,18 @@ WORKDIR /app
 
 COPY justfile ./
 
-COPY . .
+COPY ./server .
 RUN apk add --no-cache just
 RUN just server-build-prod
 RUN just server-build-plugins-prod
 
 # Runtime stage
-FROM alpine:latest AS prod
+FROM alpine:3.23.3 AS prod
+
+RUN addgroup -S vincenzino \
+    && adduser -S vincenzino -G vincenzino
+
+USER vincenzino
 
 WORKDIR /app
 
