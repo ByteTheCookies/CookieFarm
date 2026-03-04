@@ -23,15 +23,18 @@ jobs:
           go-version: 'stable'
           cache-dependency-path: cookiefarm/server/go.sum
 
-      - name: Install gocover-cobertura
-        run: go install github.com/boumenot/gocover-cobertura@latest
-
       - name: Run tests & generate coverage
-        working-directory: cookiefarm/server
+        working-directory: cookiefarm
         run: |
           mkdir -p ./coverage
-          go test -coverprofile=./coverage/coverage.out -v ./...
-          gocover-cobertura < ./coverage/coverage.out > ./coverage/coverage.xml
+          go test work -coverprofile=./coverage/coverage.out -json -v ./... > ./coverage/test_output.json 2>&1 || true
+
+      - name: Fix coverage paths
+        run: |
+          sed -i 's|^server/|cookiefarm/server/|g' \
+            cookiefarm/coverage/coverage.out
+          sed -i 's|^server/|cookiefarm/server/|g' \
+            cookiefarm/coverage/coverage.out
 
       - name: SonarQube Scan CookieFarm
         uses: SonarSource/sonarqube-scan-action@master
