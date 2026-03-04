@@ -33,6 +33,8 @@ jobs:
         run: |
           sed -i 's|^server/|cookiefarm/server/|g' \
             cookiefarm/coverage/coverage.out
+          sed -i 's|^server/|cookiefarm/server/|g' \
+            cookiefarm/coverage/coverage.out
 
       - name: SonarQube Scan CookieFarm
         uses: SonarSource/sonarqube-scan-action@master
