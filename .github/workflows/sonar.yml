@@ -29,6 +29,11 @@ jobs:
           mkdir -p ./coverage
           go test work -coverprofile=./coverage/coverage.out -json -v ./... > ./coverage/test_output.json 2>&1 || true
 
+      - name: Fix coverage paths
+        run: |
+          sed -i 's|^server/|cookiefarm/server/|g' \
+            cookiefarm/server/coverage/coverage.out
+
       - name: SonarQube Scan CookieFarm
         uses: SonarSource/sonarqube-scan-action@master
         env:
