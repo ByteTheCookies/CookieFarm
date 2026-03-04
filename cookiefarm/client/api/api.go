@@ -19,7 +19,7 @@ import (
 )
 
 const (
-	invaldUrlMessage = "Invalid base URL in config"
+	invaldURLMessage = "Invalid base URL in config"
 	cookieName       = "token"
 	sucessMessage    = "Flags submitted successfully"
 )
@@ -41,7 +41,7 @@ func GetConfig() (models.ConfigShared, error) {
 
 	serverURL, err := parseURL(localConfig.Host, strconv.Itoa(int(localConfig.Port)), "/api/v1/config")
 	if err != nil {
-		logger.Log.Error().Err(err).Msg(invaldUrlMessage)
+		logger.Log.Error().Err(err).Msg(invaldURLMessage)
 	}
 
 	req, err := http.NewRequest(http.MethodGet, serverURL, nil)
@@ -84,7 +84,7 @@ func Login(password string) (string, error) {
 
 	serverURL, err := parseURL(localConfig.Host, strconv.Itoa(int(localConfig.Port)), "/api/v1/auth/login")
 	if err != nil {
-		logger.Log.Error().Err(err).Msg(invaldUrlMessage)
+		logger.Log.Error().Err(err).Msg(invaldURLMessage)
 	}
 
 	logger.Log.Debug().Str("url", serverURL).Msg("Login attempt")
@@ -123,7 +123,7 @@ func SubmitBatchDirect(flags []database.Flag) (string, error) {
 
 	serverURL, err := parseURL(localConfig.Host, strconv.Itoa(int(localConfig.Port)), "/api/v1/submit-flags-standalone")
 	if err != nil {
-		logger.Log.Error().Err(err).Msg(invaldUrlMessage)
+		logger.Log.Error().Err(err).Msg(invaldURLMessage)
 	}
 	logger.Log.Debug().Str("url", serverURL).Msg("Login attempt")
 
@@ -171,7 +171,7 @@ func SubmitDirect(flag database.Flag) (string, error) {
 
 	serverURL, err := parseURL(localConfig.Host, strconv.Itoa(int(localConfig.Port)), "/api/v1/submit-flag")
 	if err != nil {
-		logger.Log.Error().Err(err).Msg(invaldUrlMessage)
+		logger.Log.Error().Err(err).Msg(invaldURLMessage)
 	}
 	logger.Log.Debug().Str("url", serverURL).Msg("Login attempt")
 
