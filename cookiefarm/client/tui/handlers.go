@@ -10,6 +10,12 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+const (
+	exploitListCommand = "exploit list"
+	exploitStopCommand = "exploit stop"
+	exploitRunCommand  = "exploit run"
+)
+
 // ========== CommandHandler handles command execution and form processing ==========
 
 // HandleCommand processes a command and returns appropriate tea.Cmd
@@ -19,7 +25,7 @@ func (h *CommandHandler) HandleCommand(command string, formData *FormData) tea.C
 	}
 
 	if RequiresInput(command) && formData != nil {
-		if command == "exploit stop" {
+		if command == exploitStopCommand {
 			return nil
 		}
 		return h.executeFormCommand(command, formData)
@@ -82,7 +88,7 @@ func (h *CommandHandler) executeFormCommand(command string, formData *FormData) 
 				output, err = h.handleExploitCreate(formData)
 			case "exploit remove":
 				output, err = h.handleExploitRemove(formData)
-			case "exploit stop":
+			case exploitStopCommand:
 				output = "Exploit stop command executed"
 			default:
 				err = fmt.Errorf("unknown form command: %s", command)
@@ -243,7 +249,7 @@ func (h *CommandHandler) ProcessFormSubmission(model *Model) (*Model, tea.Cmd) {
 	model.showTable = false
 	model.ClearError()
 
-	if model.activeCommand == "exploit stop" {
+	if model.activeCommand == exploitStopCommand {
 		var selectedProcess *ExploitProcess
 
 		if model.showTable {
@@ -272,7 +278,7 @@ func (h *CommandHandler) SetupFormForCommand(model *Model, command string) {
 	model.SetInputMode(true)
 	model.ClearError()
 
-	if command == "exploit stop" {
+	if command == exploitStopCommand {
 		processes, err := h.cmdRunner.GetRunningExploits()
 		if err != nil {
 			model.SetError(err)

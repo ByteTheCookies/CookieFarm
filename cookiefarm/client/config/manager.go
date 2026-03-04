@@ -16,6 +16,8 @@ var (
 	once     sync.Once
 )
 
+const defaultConfigName = "config.yml"
+
 // GetInstance returns the singleton instance of ConfigManager
 func GetInstance() *ConfigManager {
 	once.Do(func() {
@@ -158,12 +160,12 @@ func (cm *ConfigManager) LoadLocalConfigFromFile() error {
 			return fmt.Errorf("error creating config directory: %w", err)
 		}
 
-		if _, err := os.Create(filepath.Join(DefaultConfigPath, "config.yml")); err != nil {
+		if _, err := os.Create(filepath.Join(DefaultConfigPath, defaultConfigName)); err != nil {
 			return fmt.Errorf("error creating default config file: %w", err)
 		}
 	}
 
-	configFileContent, err := os.ReadFile(filepath.Join(DefaultConfigPath, "config.yml"))
+	configFileContent, err := os.ReadFile(filepath.Join(DefaultConfigPath, defaultConfigName))
 	if err != nil {
 		if os.IsNotExist(err) {
 			return fmt.Errorf("config file does not exist at %s", DefaultConfigPath)
@@ -185,7 +187,7 @@ func (cm *ConfigManager) WriteLocalConfigToFile() error {
 	config := cm.localConfig
 	cm.mu.RUnlock()
 
-	configFilePath := filepath.Join(DefaultConfigPath, "config.yml")
+	configFilePath := filepath.Join(DefaultConfigPath, defaultConfigName)
 	configFileContent, err := yaml.Marshal(config)
 	if err != nil {
 		return fmt.Errorf("error marshalling config: %w", err)
@@ -214,7 +216,7 @@ func (cm *ConfigManager) ResetLocalConfigToDefaults() (string, error) {
 		return "", err
 	}
 
-	configPath := filepath.Join(DefaultConfigPath, "config.yml")
+	configPath := filepath.Join(DefaultConfigPath, defaultConfigName)
 
 	file, err := os.Create(configPath)
 	if err != nil {
@@ -254,7 +256,7 @@ func (cm *ConfigManager) UpdateLocalConfigToFile(configuration ConfigLocal) (str
 		return "", err
 	}
 
-	configPath := filepath.Join(DefaultConfigPath, "config.yml")
+	configPath := filepath.Join(DefaultConfigPath, defaultConfigName)
 
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		logger.Log.Warn().Msg("Configuration file does not exist, creating a new one with default settings")
@@ -312,7 +314,7 @@ func (cm *ConfigManager) Logout() (string, error) {
 // ShowLocalConfigContent displays the current local configuration file content
 func (cm *ConfigManager) ShowLocalConfigContent() (string, error) {
 	cm.mu.RLock()
-	configPath := filepath.Join(DefaultConfigPath, "config.yml")
+	configPath := filepath.Join(DefaultConfigPath, defaultConfigName)
 	cm.mu.RUnlock()
 
 	content, err := os.ReadFile(configPath)
