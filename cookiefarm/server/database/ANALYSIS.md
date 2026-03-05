@@ -146,28 +146,28 @@ Every method lives on `*Queries`.
 ## 3. Internal Dependency Graph
 
 ```
-connection.go ──────────────────────────────────────────┐
+connection.go ------------------------------------------┐
   NewDB()                                               │
-         └──► schema.sql (embedded)                     │
+         └--► schema.sql (embedded)                     │
                                                         ▼
                                                   store.go
-db.go ──────────────────────────────────────────► Store.Queries (*Queries)
+db.go ------------------------------------------► Store.Queries (*Queries)
   Queries / DBTX                                        │
          │                                              │
          ▼                                              │
   query.sql.go                                          │
   (all SQL methods)                                     │
          ▲                                              │
-         └──────────────────────────────────────────────┘
+         └----------------------------------------------┘
                                                         ▲
-flag_collector.go ──────────────────────────────────────┘
+flag_collector.go --------------------------------------┘
   FlagCollector.store (*Store)
   calls store.Queries.AddFlag()
          ▲
          │  uses
   mapper.go
   MapFromFlagToDBParams()
-  MapFromResponseProtocolToParamsToUpdate()  ◄── protocols.ResponseProtocol
+  MapFromResponseProtocolToParamsToUpdate()  ◄-- protocols.ResponseProtocol
 ```
 
 **External dependencies (inside this package)**
