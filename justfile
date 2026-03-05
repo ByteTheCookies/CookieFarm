@@ -181,7 +181,7 @@ test:
     @mkdir -p ./coverage
     @gotestsum \
     --post-run-command "notify-send 'Test finished successfully' -a gotestsum -u normal" --format testname \
-    -- work -coverprofile=./coverage/coverage.out -v ./... \
+    -- work -coverprofile=./coverage/coverage.out -v ./... -count=10 \
     && go tool cover -html=./coverage/coverage.out -o ./coverage/coverage.html \
     && xdg-open ./coverage/coverage.html
 
