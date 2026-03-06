@@ -18,6 +18,7 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.19 // indirect
 	github.com/savsgio/gotils v0.0.0-20250924091648-bce9a52d7761 // indirect
+	github.com/stretchr/testify v1.11.1 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.69.0 // indirect
 	golang.org/x/net v0.50.0 // indirect
