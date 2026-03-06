@@ -127,4 +127,4 @@ WHERE flag_code = ?;
 
 -- name: DeleteFlagByTTL :execrows
 DELETE FROM flags
-WHERE response_time < strftime('%s', 'now', ?);
+WHERE response_time < (CAST(strftime('%s', 'now') AS INTEGER) - ?);
