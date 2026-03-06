@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// ─── AddFlag ──────────────────────────────────────────────────────────────────
+// --- AddFlag ------------------------------------------------------------------
 
 func TestAddFlag_NewFlag_Inserted(t *testing.T) {
 	q := newTestQueries(t)
@@ -82,7 +82,7 @@ func TestAddFlag_MultipleFlags_AllInserted(t *testing.T) {
 	assertInt64Equal(t, int64(len(flags)), count, "flag count after multiple inserts")
 }
 
-// ─── GetFlagByCode ────────────────────────────────────────────────────────────
+// --- GetFlagByCode ------------------------------------------------------------
 
 func TestGetFlagByCode_Exists_ReturnsFlag(t *testing.T) {
 	q := newTestQueries(t)
@@ -112,7 +112,7 @@ func TestGetFlagByCode_EmptyCode_ReturnsErrNoRows(t *testing.T) {
 	}
 }
 
-// ─── GetAllFlags ──────────────────────────────────────────────────────────────
+// --- GetAllFlags --------------------------------------------------------------
 
 func TestGetAllFlags_EmptyDB_ReturnsEmptySlice(t *testing.T) {
 	q := newTestQueries(t)
@@ -160,7 +160,7 @@ func TestGetAllFlags_OrderedBySubmitTimeDesc(t *testing.T) {
 	}
 }
 
-// ─── GetAllFlagCodes ──────────────────────────────────────────────────────────
+// --- GetAllFlagCodes ----------------------------------------------------------
 
 func TestGetAllFlagCodes_EmptyDB_ReturnsEmptySlice(t *testing.T) {
 	q := newTestQueries(t)
@@ -195,7 +195,7 @@ func TestGetAllFlagCodes_ReturnsOnlyCodes(t *testing.T) {
 	}
 }
 
-// ─── GetFirstNFlags ───────────────────────────────────────────────────────────
+// --- GetFirstNFlags -----------------------------------------------------------
 
 func TestGetFirstNFlags_LimitLessThanTotal_ReturnsLimitRows(t *testing.T) {
 	q := newTestQueries(t)
@@ -231,7 +231,7 @@ func TestGetFirstNFlags_LimitGreaterThanTotal_ReturnsAll(t *testing.T) {
 	assertFlagSliceLen(t, 2, got, "GetFirstNFlags limit>total result")
 }
 
-// ─── GetFirstNFlagCodes ───────────────────────────────────────────────────────
+// --- GetFirstNFlagCodes -------------------------------------------------------
 
 func TestGetFirstNFlagCodes_LimitLessThanTotal_ReturnsLimitCodes(t *testing.T) {
 	q := newTestQueries(t)
@@ -254,7 +254,7 @@ func TestGetFirstNFlagCodes_EmptyDB_ReturnsEmpty(t *testing.T) {
 	assertStringSliceLen(t, 0, codes, "GetFirstNFlagCodes empty DB result")
 }
 
-// ─── GetPagedFlags ────────────────────────────────────────────────────────────
+// --- GetPagedFlags ------------------------------------------------------------
 
 func TestGetPagedFlags_FirstPage_ReturnsCorrectWindow(t *testing.T) {
 	q := newTestQueries(t)
@@ -291,7 +291,7 @@ func TestGetPagedFlags_OffsetBeyondTotal_ReturnsEmpty(t *testing.T) {
 	assertFlagSliceLen(t, 0, got, "GetPagedFlags offset beyond total")
 }
 
-// ─── GetPagedFlagCodes ────────────────────────────────────────────────────────
+// --- GetPagedFlagCodes --------------------------------------------------------
 
 func TestGetPagedFlagCodes_FirstPage(t *testing.T) {
 	q := newTestQueries(t)
@@ -315,7 +315,7 @@ func TestGetPagedFlagCodes_OffsetBeyondTotal_ReturnsEmpty(t *testing.T) {
 	assertStringSliceLen(t, 0, codes, "GetPagedFlagCodes offset beyond total")
 }
 
-// ─── GetFlagsByTeam ───────────────────────────────────────────────────────────
+// --- GetFlagsByTeam -----------------------------------------------------------
 
 func TestGetFlagsByTeam_ReturnsOnlyRequestedTeam(t *testing.T) {
 	q := newTestQueries(t)
@@ -372,7 +372,7 @@ func TestGetFlagsByTeam_PaginationWorks(t *testing.T) {
 	assertFlagSliceLen(t, 2, page2, "GetFlagsByTeam page2")
 }
 
-// ─── GetUnsubmittedFlags ──────────────────────────────────────────────────────
+// --- GetUnsubmittedFlags ------------------------------------------------------
 
 func TestGetUnsubmittedFlags_ReturnsOnlyUnsubmitted(t *testing.T) {
 	q := newTestQueries(t)
@@ -439,7 +439,7 @@ func TestGetUnsubmittedFlags_OrderedBySubmitTimeAsc(t *testing.T) {
 	}
 }
 
-// ─── GetUnsubmittedFlagCodes ──────────────────────────────────────────────────
+// --- GetUnsubmittedFlagCodes --------------------------------------------------
 
 func TestGetUnsubmittedFlagCodes_ReturnsOnlyUnsubmittedCodes(t *testing.T) {
 	q := newTestQueries(t)
@@ -460,7 +460,7 @@ func TestGetUnsubmittedFlagCodes_ReturnsOnlyUnsubmittedCodes(t *testing.T) {
 	}
 }
 
-// ─── UpdateFlagStatusByCode ───────────────────────────────────────────────────
+// --- UpdateFlagStatusByCode ---------------------------------------------------
 
 func TestUpdateFlagStatusByCode_ExistingFlag_UpdatesFields(t *testing.T) {
 	q := newTestQueries(t)
@@ -546,7 +546,7 @@ func TestUpdateFlagStatusByCode_ImmutableFieldsUnchanged(t *testing.T) {
 	}
 }
 
-// ─── DeleteFlagByCode ─────────────────────────────────────────────────────────
+// --- DeleteFlagByCode ---------------------------------------------------------
 
 func TestDeleteFlagByCode_ExistingFlag_Removed(t *testing.T) {
 	q := newTestQueries(t)
@@ -585,7 +585,7 @@ func TestDeleteFlagByCode_DoesNotAffectOtherRows(t *testing.T) {
 	_ = mustGetFlag(t, q, keep.FlagCode) // must still exist
 }
 
-// ─── DeleteFlagByTTL ──────────────────────────────────────────────────────────
+// --- DeleteFlagByTTL ----------------------------------------------------------
 
 func TestDeleteFlagByTTL_VeryOldFlags_Deleted(t *testing.T) {
 	q := newTestQueries(t)
@@ -635,7 +635,7 @@ func TestDeleteFlagByTTL_EmptyTable_ReturnsZero(t *testing.T) {
 	assertInt64Equal(t, 0, rowsAffected, "rows affected on empty table")
 }
 
-// ─── CountFlags ───────────────────────────────────────────────────────────────
+// --- CountFlags ---------------------------------------------------------------
 
 func TestCountFlags_EmptyDB_ReturnsZero(t *testing.T) {
 	q := newTestQueries(t)
@@ -658,7 +658,7 @@ func TestCountFlags_AfterInserts_ReturnsCorrectCount(t *testing.T) {
 	assertInt64Equal(t, 3, count, "CountFlags after 3 inserts")
 }
 
-// ─── GetFilteredFlags ─────────────────────────────────────────────────────────
+// --- GetFilteredFlags ---------------------------------------------------------
 
 // buildFilteredParams builds a GetFilteredFlagsParams with sane defaults for
 // the nullable / interface fields so callers only override what they need.
@@ -796,7 +796,7 @@ func TestGetFilteredFlags_EmptyDB_ReturnsEmpty(t *testing.T) {
 	assertFlagSliceLen(t, 0, got, "GetFilteredFlags empty DB result")
 }
 
-// ─── CountFilteredFlags ───────────────────────────────────────────────────────
+// --- CountFilteredFlags -------------------------------------------------------
 
 // buildCountFilteredParams mirrors buildFilteredParams for the count variant.
 // buildCountFilteredParams builds a CountFilteredFlagsParams with sane defaults.

@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-// ─── NewStore ─────────────────────────────────────────────────────────────────
+// --- NewStore -----------------------------------------------------------------
 
 func TestNewStore_ReturnsNonNil(t *testing.T) {
 	db := newTestDB(t)
@@ -24,7 +24,7 @@ func TestNewStore_QueriesFieldIsNonNil(t *testing.T) {
 	}
 }
 
-// ─── Store.WithTx — commit path ───────────────────────────────────────────────
+// --- Store.WithTx — commit path -----------------------------------------------
 
 func TestWithTx_FnReturnsNil_CommitsTransaction(t *testing.T) {
 	store := newTestStore(t)
@@ -89,7 +89,7 @@ func TestWithTx_FnUpdatesFlag_UpdateCommitted(t *testing.T) {
 	}
 }
 
-// ─── Store.WithTx — rollback path ─────────────────────────────────────────────
+// --- Store.WithTx — rollback path ---------------------------------------------
 
 func TestWithTx_FnReturnsError_RollsBackTransaction(t *testing.T) {
 	store := newTestStore(t)
@@ -162,7 +162,7 @@ func TestWithTx_RollbackDoesNotAffectExistingRows(t *testing.T) {
 	assertInt64Equal(t, 1, count, "row count after rollback must be 1")
 }
 
-// ─── Store.WithTx — cancelled context ────────────────────────────────────────
+// --- Store.WithTx — cancelled context ----------------------------------------
 
 func TestWithTx_CancelledContext_ReturnsError(t *testing.T) {
 	store := newTestStore(t)
@@ -184,7 +184,7 @@ func TestWithTx_CancelledContext_ReturnsError(t *testing.T) {
 	}
 }
 
-// ─── helpers local to this file ───────────────────────────────────────────────
+// --- helpers local to this file -----------------------------------------------
 
 // errNoRows returns sql.ErrNoRows via the errors package so we don't need to
 // import database/sql directly in every assertion.

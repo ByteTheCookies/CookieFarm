@@ -11,23 +11,27 @@ import (
 	"server/database"
 )
 
-var shutdownCancel context.CancelFunc
-
 // ----------- END FLAG GROUPS ------------
 
 // StartFlagProcessingLoop starts the flag processing loop.
-func (s *Runner) StartFlagProcessingLoop(ctx context.Context) {
+func (r *Runner) StartFlagProcessingLoop(ctx context.Context) {
 	interval := time.Duration(config.SharedConfig.ConfigServer.SubmitFlagCheckerTime) * time.Second
+	if interval <= 0 {
+		logger.Log.Warn().Msgf("Invalid SubmitFlagCheckerTime %d, defaulting to 60 seconds", config.SharedConfig.ConfigServer.SubmitFlagCheckerTime)
+		interval = 60 * time.Second
+	}
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 
 	logger.Log.Info().Msg("Starting flag processing loop...")
 
 	var err error
-	config.Submit, err = protocols.LoadProtocol(config.SharedConfig.ConfigServer.Protocol)
-	if err != nil {
-		logger.Log.Error().Err(err).Msg("Failed to load protocol")
-		return
+	if config.Submit == nil {
+		config.Submit, err = protocols.LoadProtocol(config.SharedConfig.ConfigServer.Protocol) // Change from config
+		if err != nil {
+			logger.Log.Error().Err(err).Msg("Failed to load protocol")
+			return
+		}
 	}
 
 	// Main loop for flag processing.
@@ -38,7 +42,7 @@ func (s *Runner) StartFlagProcessingLoop(ctx context.Context) {
 			logger.Log.Info().Msg("Flag processing loop terminated")
 			return
 		case <-ticker.C:
-			flags, err := s.store.Queries.GetUnsubmittedFlagCodes(ctx, int64(config.SharedConfig.ConfigServer.MaxFlagBatchSize)) // Cast not good, but we know the value is within int64 range
+			flags, err := r.store.Queries.GetUnsubmittedFlagCodes(ctx, int64(config.SharedConfig.ConfigServer.MaxFlagBatchSize)) // Cast not good, but we know the value is within int64 range
 			if err != nil {
 				logger.Log.Error().Err(err).Msg("Failed to get unsubmitted flags")
 				continue
@@ -49,7 +53,6 @@ func (s *Runner) StartFlagProcessingLoop(ctx context.Context) {
 			}
 
 			logger.Log.Info().Int("count", len(flags)).Msg("Submitting flags to checker")
-
 			responses, err := config.Submit(
 				config.SharedConfig.ConfigServer.URLFlagChecker,
 				config.SharedConfig.ConfigServer.TeamToken,
@@ -59,20 +62,19 @@ func (s *Runner) StartFlagProcessingLoop(ctx context.Context) {
 				logger.Log.Error().Err(err).Msg("Error submitting flags to checker")
 				continue
 			}
-
-			s.UpdateFlags(responses)
+			r.UpdateFlags(responses)
 		}
 	}
 }
 
-func (s *Runner) UpdateFlags(flags []protocols.ResponseProtocol) {
+func (r *Runner) UpdateFlags(flags []protocols.ResponseProtocol) {
 	statusCounts := map[string]int{
 		models.StatusAccepted: 0,
 		models.StatusDenied:   0,
 		models.StatusError:    0,
 	}
 
-	valid := flags[:0]
+	valid := flags[:0] // Reuse the same slice to avoid extra allocations
 
 	for _, f := range flags {
 		if _, exists := statusCounts[f.Status]; exists {
@@ -82,7 +84,7 @@ func (s *Runner) UpdateFlags(flags []protocols.ResponseProtocol) {
 	}
 	ctx := context.Background()
 	for _, f := range valid {
-		if err := s.store.Queries.UpdateFlagStatusByCode(ctx, database.MapFromResponseProtocolToParamsToUpdate(f)); err != nil {
+		if err := r.store.Queries.UpdateFlagStatusByCode(ctx, database.MapFromResponseProtocolToParamsToUpdate(f)); err != nil {
 			logger.Log.Error().
 				Err(err).
 				Msg("Failed to update flags")

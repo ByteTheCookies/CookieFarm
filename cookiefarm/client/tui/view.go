@@ -175,7 +175,7 @@ func (*ViewRenderer) renderProcessSelectionList(m *Model, banner, commandTitle s
 			lipgloss.NewStyle().Width(40).Render("Name"),
 			lipgloss.NewStyle().Width(10).Render("PID"),
 		),
-		lipgloss.NewStyle().Foreground(mutedColor).Render(strings.Repeat("─", 56)),
+		lipgloss.NewStyle().Foreground(mutedColor).Render(strings.Repeat("-", 56)),
 	)
 
 	var processViews []string
