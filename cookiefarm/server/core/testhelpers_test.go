@@ -154,7 +154,7 @@ func waitFor(t *testing.T, timeout, poll time.Duration, msg string, cond func() 
 // expected status, or fails the test after timeout.
 func waitForFlagStatus(t *testing.T, store *database.Store, code, wantStatus string, timeout time.Duration) {
 	t.Helper()
-	waitFor(t, timeout, 20*time.Millisecond,
+	waitFor(t, timeout, 21*time.Millisecond,
 		fmt.Sprintf("flag %q never reached status %q", code, wantStatus),
 		func() bool {
 			f, err := store.Queries.GetFlagByCode(context.Background(), code)

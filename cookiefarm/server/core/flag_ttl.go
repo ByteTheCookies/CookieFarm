@@ -2,7 +2,6 @@ package core
 
 import (
 	"context"
-	"fmt"
 	"logger"
 	"time"
 )
@@ -26,7 +25,6 @@ func (r *Runner) ValidateFlagTTL(ctx context.Context, flagTTL uint64, tickTime i
 		case <-ticker.C:
 			logger.Log.Info().Msgf("Checking for flags older than %d seconds", totalSecond)
 			affectedRows, err := r.store.Queries.DeleteFlagByTTL(ctx, totalSecond)
-			fmt.Printf("DeleteFlagByTTL affected %d rows\n", affectedRows)
 			if err != nil {
 				logger.Log.Error().Err(err).Msg("Failed to delete TTL flags")
 			}
