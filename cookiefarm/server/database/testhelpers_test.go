@@ -13,7 +13,7 @@ import (
 // in this package can reference it without importing database/sql themselves.
 var _sqlErrNoRows = sql.ErrNoRows
 
-// ─── DB helpers ──────────────────────────────────────────────────────────────
+// --- DB helpers --------------------------------------------------------------
 
 // newTestDB opens a unique in-memory SQLite database, applies the schema and
 // returns a ready-to-use *sql.DB.  Each call gets a completely isolated DB
@@ -54,7 +54,7 @@ func newTestQueries(t *testing.T) *Queries {
 	return New(newTestDB(t))
 }
 
-// ─── Fixture helpers ─────────────────────────────────────────────────────────
+// --- Fixture helpers ---------------------------------------------------------
 
 // sampleFlag returns a fully-populated Flag with deterministic values.
 // The caller may override individual fields after calling this function.
@@ -101,7 +101,7 @@ func mustGetFlag(t *testing.T, q *Queries, code string) Flag {
 	return f
 }
 
-// ─── Assertion helpers ────────────────────────────────────────────────────────
+// --- Assertion helpers --------------------------------------------------------
 
 // assertFlagsEqual compares two Flag structs field by field and reports all
 // mismatches via t.Errorf (non-fatal so all differences are shown at once).
@@ -171,7 +171,7 @@ func assertFlagSliceLen(t *testing.T, want int, got []Flag, label string) {
 	}
 }
 
-// ─── FlagCollector helpers ────────────────────────────────────────────────────
+// --- FlagCollector helpers ----------------------------------------------------
 
 // newTestCollector creates a brand-new FlagCollector (bypassing the singleton)
 // wired to the provided store, and registers cleanup that stops it.

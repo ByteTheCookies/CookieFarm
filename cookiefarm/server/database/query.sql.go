@@ -120,11 +120,11 @@ func (q *Queries) DeleteFlagByCode(ctx context.Context, flagCode string) error {
 
 const deleteFlagByTTL = `-- name: DeleteFlagByTTL :execrows
 DELETE FROM flags
-WHERE response_time < strftime('%s', 'now', ?)
+WHERE response_time < (CAST(strftime('%s', 'now') AS INTEGER) - ?)
 `
 
-func (q *Queries) DeleteFlagByTTL(ctx context.Context, strftime interface{}) (int64, error) {
-	result, err := q.db.ExecContext(ctx, deleteFlagByTTL, strftime)
+func (q *Queries) DeleteFlagByTTL(ctx context.Context, dollar_1 interface{}) (int64, error) {
+	result, err := q.db.ExecContext(ctx, deleteFlagByTTL, dollar_1)
 	if err != nil {
 		return 0, err
 	}

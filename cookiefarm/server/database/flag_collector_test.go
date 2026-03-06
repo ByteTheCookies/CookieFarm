@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// ─── helpers ──────────────────────────────────────────────────────────────────
+// --- helpers ------------------------------------------------------------------
 
 // newStartedCollector creates a fresh FlagCollector, starts it, and registers
 // cleanup that stops it at the end of the test.
@@ -50,7 +50,7 @@ func waitForFlagInDB(q *Queries, code string, timeout time.Duration) bool {
 	return false
 }
 
-// ─── GetCollector (singleton) ─────────────────────────────────────────────────
+// --- GetCollector (singleton) -------------------------------------------------
 
 func TestGetCollector_ReturnsSameInstance(t *testing.T) {
 	c1 := GetCollector()
@@ -67,7 +67,7 @@ func TestGetCollector_ReturnsNonNil(t *testing.T) {
 	}
 }
 
-// ─── SetStore ─────────────────────────────────────────────────────────────────
+// --- SetStore -----------------------------------------------------------------
 
 func TestSetStore_SetsStore(t *testing.T) {
 	store := newTestStore(t)
@@ -98,7 +98,7 @@ func TestSetStore_ThreadSafe_ConcurrentCallsDoNotPanic(t *testing.T) {
 	wg.Wait()
 }
 
-// ─── Start ────────────────────────────────────────────────────────────────────
+// --- Start --------------------------------------------------------------------
 
 func TestStart_SetsRunningTrue(t *testing.T) {
 	fc := newTestCollector(t, newTestStore(t))
@@ -119,7 +119,7 @@ func TestStart_Idempotent_SecondCallIsNoop(t *testing.T) {
 	}
 }
 
-// ─── Stop ─────────────────────────────────────────────────────────────────────
+// --- Stop ---------------------------------------------------------------------
 
 func TestStop_SetsRunningFalse(t *testing.T) {
 	fc := newTestCollector(t, newTestStore(t))
@@ -172,7 +172,7 @@ func TestStop_FlushesRemainingBuffer(t *testing.T) {
 	}
 }
 
-// ─── IsRunning ────────────────────────────────────────────────────────────────
+// --- IsRunning ----------------------------------------------------------------
 
 func TestIsRunning_InitiallyFalse(t *testing.T) {
 	fc := newTestCollector(t, newTestStore(t))
@@ -204,7 +204,7 @@ func TestIsRunning_TrueAfterStart_FalseAfterStop(t *testing.T) {
 	}
 }
 
-// ─── AddFlag ──────────────────────────────────────────────────────────────────
+// --- AddFlag ------------------------------------------------------------------
 
 func TestAddFlag_BuffersFlag_IncreasesBufferSize(t *testing.T) {
 	fc := newStartedCollector(t, newTestStore(t))
@@ -313,7 +313,7 @@ func TestAddFlag_WhenBufferFull_FlagsWrittenToDB(t *testing.T) {
 	}
 }
 
-// ─── Flush ────────────────────────────────────────────────────────────────────
+// --- Flush --------------------------------------------------------------------
 
 func TestFlush_EmptyBuffer_ReturnsNil(t *testing.T) {
 	fc := newStartedCollector(t, newTestStore(t))
@@ -391,7 +391,7 @@ func TestFlush_MultipleFlags_AllPersisted(t *testing.T) {
 	}
 }
 
-// ─── FlushWithContext ─────────────────────────────────────────────────────────
+// --- FlushWithContext ---------------------------------------------------------
 
 func TestFlushWithContext_EmptyBuffer_ReturnsNil(t *testing.T) {
 	fc := newStartedCollector(t, newTestStore(t))
@@ -489,7 +489,7 @@ func TestFlushWithContext_CancelledContext_ReturnsError(t *testing.T) {
 	}
 }
 
-// ─── GetBufferSize ────────────────────────────────────────────────────────────
+// --- GetBufferSize ------------------------------------------------------------
 
 func TestGetBufferSize_InitiallyZero(t *testing.T) {
 	fc := newTestCollector(t, newTestStore(t))
@@ -531,7 +531,7 @@ func TestGetBufferSize_AfterFlush_IsZero(t *testing.T) {
 	}
 }
 
-// ─── GetStats ─────────────────────────────────────────────────────────────────
+// --- GetStats -----------------------------------------------------------------
 
 func TestGetStats_InitialState_AllZero(t *testing.T) {
 	fc := newTestCollector(t, newTestStore(t))
@@ -622,7 +622,7 @@ func TestGetStats_AfterFailedFlush_FailedFlushesIncremented(t *testing.T) {
 	}
 }
 
-// ─── Timer-driven flush (integration) ─────────────────────────────────────────
+// --- Timer-driven flush (integration) -----------------------------------------
 
 func TestFlagCollector_TimerFlush_FlagAppearsInDB(t *testing.T) {
 	// This test relies on the flushInterval constant (10 s) which is too long
@@ -647,7 +647,7 @@ func TestFlagCollector_TimerFlush_FlagAppearsInDB(t *testing.T) {
 	}
 }
 
-// ─── Duplicate flag handling ──────────────────────────────────────────────────
+// --- Duplicate flag handling --------------------------------------------------
 
 func TestAddFlag_DuplicateFlag_SecondAddNoError(t *testing.T) {
 	store := newTestStore(t)
@@ -758,7 +758,7 @@ func TestAddFlag_ErrorPath_MutexNotLeaked(t *testing.T) {
 	}
 }
 
-// ─── Issue 4.8 — data race in Stop() reading stats without the mutex ─────────
+// --- Issue 4.8 — data race in Stop() reading stats without the mutex ---------
 
 // TestStop_StatsReadUnderRace verifies Issue 4.8:
 // Stop() must not read fc.stats fields without holding the mutex while a
@@ -792,7 +792,7 @@ func TestStop_StatsReadUnderRace(t *testing.T) {
 	wg.Wait()
 }
 
-// ─── package-level helpers used only in this file ────────────────────────────
+// --- package-level helpers used only in this file ----------------------------
 
 // newCondForTest creates a *sync.Cond for test-only FlagCollector instances
 // that are built outside of GetCollector() / newTestCollector().

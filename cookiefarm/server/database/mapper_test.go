@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// ─── MapFromFlagToDBParams ────────────────────────────────────────────────────
+// --- MapFromFlagToDBParams ----------------------------------------------------
 
 func TestMapFromFlagToDBParams_FullyPopulated_AllFieldsCopied(t *testing.T) {
 	input := Flag{
@@ -174,7 +174,7 @@ func TestMapFromFlagToDBParams_ReturnsValueNotReference_OriginalUnchanged(t *tes
 	}
 }
 
-// ─── MapFromResponseProtocolToParamsToUpdate ──────────────────────────────────
+// --- MapFromResponseProtocolToParamsToUpdate ----------------------------------
 
 func TestMapFromResponseProtocolToParamsToUpdate_FullyPopulated_FieldsMapped(t *testing.T) {
 	input := protocols.ResponseProtocol{

@@ -22,7 +22,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-// ─── db.go: (*Queries).WithTx ─────────────────────────────────────────────────
+// --- db.go: (*Queries).WithTx -------------------------------------------------
 //
 // Every existing test reaches the DB through Store.WithTx, leaving
 // (*Queries).WithTx at 0 %.  These tests call the method directly by
@@ -325,7 +325,7 @@ func TestQueriesWithTx_DeleteRolledBack(t *testing.T) {
 	assertFlagsEqual(t, flag, got)
 }
 
-// ─── query.sql.go: QueryContext / ExecContext error paths ─────────────────────
+// --- query.sql.go: QueryContext / ExecContext error paths ---------------------
 //
 // The multi-row query functions have 73.3% coverage because the top-level
 // `if err != nil { return nil, err }` branch returned by QueryContext is
@@ -517,7 +517,7 @@ func TestGetFlagByCode_ClosedDB_ReturnsError(t *testing.T) {
 	}
 }
 
-// ─── rowsAffectedErrDB ────────────────────────────────────────────────────────
+// --- rowsAffectedErrDB --------------------------------------------------------
 //
 // A DBTX wrapper whose ExecContext always returns a sql.Result whose
 // RowsAffected() returns an error.  Used to cover the RowsAffected error path
@@ -550,7 +550,7 @@ func (r *rowsAffectedErrDB) QueryRowContext(ctx context.Context, q string, args 
 	return r.delegate.QueryRowContext(ctx, q, args...)
 }
 
-// ─── connection.go: unreachable schema-exec error path ───────────────────────
+// --- connection.go: unreachable schema-exec error path -----------------------
 //
 // NewDB has 85.7% coverage.  The uncovered line is `db.Exec(schemaSQL)` error
 // branch which is unreachable under normal in-memory SQLite conditions (the
@@ -594,7 +594,7 @@ func TestNewDB_IdempotentSchemaApply(t *testing.T) {
 	}
 }
 
-// ─── store.go: Store.WithTx — BeginTx error path ─────────────────────────────
+// --- store.go: Store.WithTx — BeginTx error path -----------------------------
 
 // TestStoreWithTx_BeginTxError_ReturnsError verifies that if BeginTx fails
 // (closed DB), Store.WithTx propagates the error and never calls fn.
@@ -654,7 +654,7 @@ func TestStoreWithTx_BulkInsert_ThenReadInExternalTx(t *testing.T) {
 	assertInt64Equal(t, batchSize, count, "flag count after bulk insert via Store.WithTx")
 }
 
-// ─── flag_collector.go: Start — timer fires with flush error ─────────────────
+// --- flag_collector.go: Start — timer fires with flush error -----------------
 //
 // The goroutine launched by Start selects on flushTimer.C or stopChan.
 // When the timer fires and FlushWithContext returns an error, the error is
@@ -759,7 +759,7 @@ func TestStart_StopWhileTimerPending_SkipsTimerReset(t *testing.T) {
 	}
 }
 
-// ─── flag_collector.go: FlushWithContext — buffer overflow drop ───────────────
+// --- flag_collector.go: FlushWithContext — buffer overflow drop ---------------
 //
 // The "Buffer overflow, dropped flags" branch in FlushWithContext is reached
 // when a flush fails AND re-queuing the flagsToInsert would push the buffer
