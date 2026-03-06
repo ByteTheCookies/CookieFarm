@@ -8,8 +8,9 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"protocols"
 	"strings"
+
+	"protocols"
 )
 
 func Submit(url string, teamToken string, flags []string) ([]protocols.ResponseProtocol, error) {

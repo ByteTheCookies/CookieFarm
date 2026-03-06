@@ -108,10 +108,11 @@ func Run(cmd *cobra.Command, args []string) {
 
 	if config.UseConfigFile {
 		logger.Log.Info().Msg("Using file config...")
-		err := core.LoadConfigAndRun(config.ConfigPath, store)
+		err := runner.LoadConfig(config.ConfigPath)
 		if err != nil {
 			logger.Log.Warn().Err(err).Msg("Config file not found or corrupted using web config")
 		}
+		runner.Run()
 	} else {
 		logger.Log.Info().Msg("Using web config...")
 	}

@@ -12,30 +12,31 @@ import (
 )
 
 type Runner struct {
-	store *database.Store
+	store          *database.Store
+	shutdownCancel context.CancelFunc
 }
 
 func NewRunner(s *database.Store) *Runner {
 	return &Runner{store: s}
 }
 
-func (s *Runner) Run() {
+func (r *Runner) Run() {
 	ctx, cancel := context.WithCancel(context.Background())
-	if shutdownCancel != nil {
-		shutdownCancel()
+	if r.shutdownCancel != nil {
+		r.shutdownCancel()
 	}
-	shutdownCancel = cancel
+	r.shutdownCancel = cancel
 
-	go s.StartFlagProcessingLoop(ctx)
+	go r.StartFlagProcessingLoop(ctx)
 
 	if config.SharedConfig.ConfigServer.FlagTTL != 0 {
 		logger.Log.Warn().Msgf("Flag TTL is set to %d seconds, starting validation loop", config.SharedConfig.ConfigServer.FlagTTL)
-		go s.ValidateFlagTTL(ctx, config.SharedConfig.ConfigServer.FlagTTL, config.SharedConfig.ConfigServer.TickTime)
+		go r.ValidateFlagTTL(ctx, config.SharedConfig.ConfigServer.FlagTTL, config.SharedConfig.ConfigServer.TickTime)
 	}
 }
 
 // LoadConfigAndRun loads the configuration from the given path.
-func LoadConfigAndRun(path string, store *database.Store) error {
+func (*Runner) LoadConfig(path string) error {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		logger.Log.Error().Err(err).Msg("Configuration file does not exist")
 		return err
@@ -56,9 +57,6 @@ func LoadConfigAndRun(path string, store *database.Store) error {
 	if !config.SharedConfig.Configured {
 		config.SharedConfig.Configured = true
 	}
-
-	runner := NewRunner(store)
-	runner.Run()
 
 	return nil
 }
