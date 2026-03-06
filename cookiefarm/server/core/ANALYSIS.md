@@ -55,24 +55,22 @@ func (s *Runner) Run()
 
 ---
 
-### 1.4 `LoadConfigAndRun` (function — `config.go`)
+### 1.4 `LoadConfig` (function — `config.go`)
 
 **Signature:**
 ```go
-func LoadConfigAndRun(path string, store *database.Store) error
+func (r *Runner) LoadConfig(path string) error
 ```
 
 | | Type | Description |
 |---|---|---|
 | **Input** | `path string` | Filesystem path to the YAML config file |
-| **Input** | `store *database.Store` | An initialized database store |
 | **Output** | `error` | `nil` on success, error on file/parse failure |
 
 **What it does:**
 1. Checks if the file at `path` exists.
 2. Reads and YAML-unmarshals the file into `config.SharedConfig` (the global config singleton).
 3. Sets `config.SharedConfig.Configured = true`.
-4. Constructs a `Runner` and calls `Run()` on it.
 
 ---
 
@@ -188,32 +186,9 @@ core
 
 ---
 
-## 3. Consistency & Design Observations
+## 3. Test Design (Category Partitioning)
 
-### 3.1 What makes sense ✅
-
-- The package has a single, clear responsibility: **orchestrate the background flag lifecycle** (submit to checker + purge expired flags).
-- `Runner` is a clean value-object: it only carries the store and has no hidden global state in itself.
-- `Run()` being re-entrant via `shutdownCancel` is correct and necessary for hot-reload of config.
-- Separating `StartFlagProcessingLoop` and `ValidateFlagTTL` into distinct goroutines and files is logical.
-- The invalid-status filter in `UpdateFlags` is a good defensive guard.
-
----
-
-## 4. Impact Analysis (What breaks if you touch X)
-
-| Change | Impact |
-|---|---|
-| Move `shutdownCancel` into `Runner` | Only `core` package internals; no external callers affected |
-| Move file-loading out of `LoadConfigAndRun` | Callers: `server/cmd/root.go` calls `core.LoadConfigAndRun` — signature change needed there |
-| Move `submitFunc` off `config.Submit` into `Runner` | `server/api/handler_api.go` calls `config.Submit` directly in `HandlePostFlag` and `HandlePostFlagsStandalone` — those handlers would need to receive the submit function via the handler or via `Runner` |
-| Change `MaxFlagBatchSize` from `uint` to `int64` | `models.ConfigServer` in `pkg/models` — JSON/YAML serialization is unchanged; `handler_api.go` and any test that creates the struct needs updating |
-
----
-
-## 5. Test Design (Category Partitioning)
-
-### 5.1 `Runner.Run()`
+### 3.1 `Runner.Run()`
 
 | Category | Input | Expected Output |
 |---|---|---|
@@ -222,7 +197,7 @@ core
 | Re-entrant call | Call `Run()` twice | Previous context cancelled, new goroutines replace old ones |
 | Nil store | `store == nil` | No panic (goroutines fail gracefully when querying) |
 
-### 5.2 `LoadConfig()`
+### 3.2 `LoadConfig()`
 
 | Category | Input | Expected Output |
 |---|---|---|
@@ -231,7 +206,7 @@ core
 | Existent path, invalid YAML | Malformed YAML | `error` returned, config unchanged |
 | Empty path string | `""` | `error` returned (file does not exist) |
 
-### 5.3 `Runner.UpdateFlags()`
+### 3.3 `Runner.UpdateFlags()`
 
 | Category | Input | Expected Output |
 |---|---|---|
@@ -242,7 +217,7 @@ core
 | Unknown status | `Status == "SOMETHING_WEIRD"` | Entry filtered out, no DB call for it |
 | DB update failure | Store returns error on update | Error logged, loop continues for remaining flags |
 
-### 5.4 `Runner.ValidateFlagTTL()`
+### 3.4 `Runner.ValidateFlagTTL()`
 
 | Category | Input | Expected Output |
 |---|---|---|
@@ -252,7 +227,7 @@ core
 | DB error | DB returns `(0, err)` | Error logged, loop continues |
 | Context cancelled | `ctx` cancelled before tick | Loop exits cleanly, no deletion |
 
-### 5.5 `Runner.StartFlagProcessingLoop()`
+### 3.5 `Runner.StartFlagProcessingLoop()`
 
 | Category | Input | Expected Output |
 |---|---|---|

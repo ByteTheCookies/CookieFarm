@@ -200,7 +200,7 @@ flag_collector.go --------------------------------------┘
 
 ## 5. TDD Plan
 
-### 6.1 Category Partitioning
+## 6 Category Partitioning
 
 #### `NewDB`
 
