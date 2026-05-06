@@ -30,7 +30,7 @@ func sqlNullFloatToInt64(value sql.NullFloat64) int64 {
 	return int64(value.Float64)
 }
 
-func percentage(part int64, total int64) float64 {
+func percentage(part, total int64) float64 {
 	if total <= 0 {
 		return 0
 	}

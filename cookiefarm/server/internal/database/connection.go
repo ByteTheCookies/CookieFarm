@@ -3,7 +3,7 @@ package database
 import (
 	"context"
 	"database/sql"
-	_ "embed"
+	_ "embed" // Embed the SQL schema for initializing the database.
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"

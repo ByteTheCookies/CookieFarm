@@ -2,7 +2,7 @@
 package main
 
 import (
-	_ "embed"
+	_ "embed" // Embed the banner text file for display in the TUI.
 	"logger"
 
 	"server/cmd"

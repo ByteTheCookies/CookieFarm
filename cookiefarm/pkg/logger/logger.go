@@ -1,7 +1,7 @@
 package logger
 
 import (
-	_ "embed"
+	_ "embed" // Embed the banner text file for display in the TUI.
 	"fmt"
 	"image/color"
 	"os"
