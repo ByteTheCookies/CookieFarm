@@ -7,10 +7,9 @@ import (
 	"fmt"
 	"models"
 	"net"
+	"protocols"
 	"strings"
 	"time"
-
-	"protocols"
 )
 
 func Submit(url string, teamToken string, flags []string) ([]protocols.ResponseProtocol, error) {
@@ -110,7 +109,7 @@ func parseResponseLine(line string, flagIndex map[string][]int, responsesParsed 
 
 	responsesParsed[idx].Flag = matchedFlag
 	responsesParsed[idx].Msg = msg
-	responsesParsed[idx].Status = statusFromCode(code)
+	responsesParsed[idx].Status = int64(statusFromCode(code))
 	return nil
 }
 
@@ -149,7 +148,7 @@ func parseStatusAndMessage(line string, matchedFlag string) (string, string, err
 	return parts[0], strings.Join(parts[1:], " "), nil
 }
 
-func statusFromCode(code string) models.Status {
+func statusFromCode(code string) int {
 	switch code {
 	case "OK":
 		return models.StatusAccepted
