@@ -60,7 +60,7 @@ export function PageHeader({
   spacing = "base",
   className,
   children,
-}: PageHeaderProps) {
+}: Readonly<PageHeaderProps>) {
   return (
     <div className={cn(pageHeaderVariants({ spacing }), className)}>
       <div className="border-b border-kumo-line">{breadcrumbs}</div>

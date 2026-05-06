@@ -3,7 +3,7 @@ configured: true
 # Server
 server:
   url_flag_checker: "tcp://10.10.0.1:6666"
-  team_token: "c882674c6270b8293fff7f4fb5c4c249"
+  team_token: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
   submit_flag_checker_time: 30
   max_flag_batch_size: 1000
   protocol: "faust"

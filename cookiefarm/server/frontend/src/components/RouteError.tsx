@@ -29,7 +29,7 @@ export function RouteError() {
           <Button
             variant="secondary"
             onClick={() => {
-              window.location.reload();
+              globalThis.location.reload();
             }}
           >
             Retry

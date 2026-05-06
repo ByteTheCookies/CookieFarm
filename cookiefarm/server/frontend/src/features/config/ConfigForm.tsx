@@ -38,17 +38,17 @@ function fieldError(message: string | undefined): { error: string } | object {
 function parseConfigPayload(formData: FormData): Config {
   const payload = formData.get("payload");
   if (typeof payload !== "string") {
-    throw new Error("Config payload is missing.");
+    throw new TypeError("Config payload is missing.");
   }
 
   return configSchema.parse(JSON.parse(payload) as unknown);
 }
 
-export function ConfigForm(props: {
+export function ConfigForm(props: Readonly<{
   config: Config;
   protocols: string[];
   onSaved?: (config: Config) => void;
-}) {
+}>) {
   const toast = useKumoToastManager();
   const handledAtRef = useRef(0);
   const [draft, setDraft] = useState<Config>(props.config);

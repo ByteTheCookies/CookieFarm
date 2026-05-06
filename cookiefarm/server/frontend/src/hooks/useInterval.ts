@@ -22,12 +22,12 @@ export function useInterval(
       onTick();
     }
 
-    const timer = window.setInterval(() => {
+    const timer = globalThis.setInterval(() => {
       onTick();
     }, delayMs);
 
     return () => {
-      window.clearInterval(timer);
+      globalThis.clearInterval(timer);
     };
   }, [delayMs, enabled, onTick, options.immediate]);
 }

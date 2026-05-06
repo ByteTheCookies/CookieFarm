@@ -17,6 +17,24 @@ const initialState: LoginState = {
   completed: false,
 };
 
+function getFormString(formData: FormData, name: string) {
+  const value = formData.get(name);
+
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function getLoginErrorMessage(error: unknown) {
+  if (error instanceof ApiError) {
+    return error.message;
+  }
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return "Login failed.";
+}
+
 export function LoginPage() {
   const auth = useAuth();
   const navigate = useNavigate();
@@ -31,8 +49,8 @@ export function LoginPage() {
 
   const [state, submitAction, pending] = useActionState(
     async (_previousState: LoginState, formData: FormData): Promise<LoginState> => {
-      const password = String(formData.get("password") ?? "").trim();
-      const username = String(formData.get("username") ?? "").trim();
+      const password = getFormString(formData, "password");
+      const username = getFormString(formData, "username");
 
       try {
         await auth.login(password, username || undefined);
@@ -42,12 +60,7 @@ export function LoginPage() {
         };
       } catch (error) {
         return {
-          errorMessage:
-            error instanceof ApiError
-              ? error.message
-              : error instanceof Error
-                ? error.message
-                : "Login failed.",
+          errorMessage: getLoginErrorMessage(error),
           completed: false,
         };
       }

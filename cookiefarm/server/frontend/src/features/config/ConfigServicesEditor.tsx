@@ -1,11 +1,11 @@
 import { Button } from "@cloudflare/kumo/components/button";
 import { Input } from "@cloudflare/kumo/components/input";
-import { Minus, Plus } from "@phosphor-icons/react";
+import { MinusIcon, PlusIcon } from "@phosphor-icons/react";
 
-export function ConfigServicesEditor(props: {
+export function ConfigServicesEditor(props: Readonly<{
   services: Array<[string, number]>;
   onChange: (services: Array<[string, number]>) => void;
-}) {
+}>) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-3">
@@ -26,7 +26,7 @@ export function ConfigServicesEditor(props: {
             ]);
           }}
         >
-          <Plus size={16} />
+          <PlusIcon size={16} />
           Add service
         </Button>
       </div>
@@ -80,7 +80,7 @@ export function ConfigServicesEditor(props: {
                   );
                 }}
               >
-                <Minus size={16} />
+                <MinusIcon size={16} />
               </Button>
             </div>
           </div>

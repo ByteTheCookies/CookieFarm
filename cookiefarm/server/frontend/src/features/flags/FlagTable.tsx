@@ -2,7 +2,7 @@ import { useDeferredValue, useMemo, useRef, useState } from "react";
 import { ClipboardText } from "@cloudflare/kumo/components/clipboard-text";
 import { Empty } from "@cloudflare/kumo/components/empty";
 import { Table } from "@cloudflare/kumo/components/table";
-import { CaretDown, CaretUp, CaretUpDown } from "@phosphor-icons/react";
+import { CaretDownIcon, CaretUpIcon, CaretUpDownIcon } from "@phosphor-icons/react";
 import {
   flexRender,
   getCoreRowModel,
@@ -56,21 +56,21 @@ function getFlagRowId(flag: Flag): string {
 
 function SortIcon(props: { direction: false | "asc" | "desc" }) {
   if (props.direction === "asc") {
-    return <CaretUp aria-hidden="true" size={13} weight="bold" />;
+    return <CaretUpIcon aria-hidden="true" size={13} weight="bold" />;
   }
 
   if (props.direction === "desc") {
-    return <CaretDown aria-hidden="true" size={13} weight="bold" />;
+    return <CaretDownIcon aria-hidden="true" size={13} weight="bold" />;
   }
 
-  return <CaretUpDown aria-hidden="true" size={13} />;
+  return <CaretUpDownIcon aria-hidden="true" size={13} />;
 }
 
-export function FlagTable(props: {
+export function FlagTable(props: Readonly<{
   rows: Flag[];
   emptyTitle?: string;
   emptyDescription?: string;
-}) {
+}>) {
   const parentRef = useRef<HTMLDivElement | null>(null);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);

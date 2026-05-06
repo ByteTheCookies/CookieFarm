@@ -50,9 +50,9 @@ const blockFeedbackResult = z.extend(blockFeedback, {
  */
 export function Feedback({
   onSendAction,
-}: {
+}: Readonly<{
   onSendAction: (feedback: PageFeedback) => Promise<ActionResponse>;
-}) {
+}>) {
   const url = usePathname();
   const { previous, setPrevious } = useSubmissionStorage(url, (v) => {
     const result = pageFeedbackResult.safeParse(v);
@@ -199,7 +199,7 @@ export interface FeedbackBlockProps extends Remark.FeedbackBlockProps {
  *
  * See https://fumadocs.dev/docs/integrations/feedback.
  */
-export function FeedbackBlock({ children, ...rest }: FeedbackBlockProps) {
+export function FeedbackBlock({ children, ...rest }: Readonly<FeedbackBlockProps>) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -244,7 +244,7 @@ export function FeedbackBlock({ children, ...rest }: FeedbackBlockProps) {
   );
 }
 
-function FeedbackBlockContent({ id, body, onSendAction }: FeedbackBlockProps) {
+function FeedbackBlockContent({ id, body, onSendAction }: Readonly<FeedbackBlockProps>) {
   const url = usePathname();
   const blockId = `${url}-${id}`;
   const { previous, setPrevious } = useSubmissionStorage(blockId, (v) => {

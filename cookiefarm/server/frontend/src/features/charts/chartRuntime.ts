@@ -23,4 +23,4 @@ echarts.use([
   CanvasRenderer,
 ]);
 
-export { echarts };
+export * as echarts from "echarts/core";

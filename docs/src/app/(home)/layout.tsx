@@ -1,6 +1,6 @@
 import { HomeLayout } from 'fumadocs-ui/layouts/home';
 import { baseOptions } from '@/lib/layout.shared';
-import { Book, BookIcon, DownloadIcon, SyringeIcon } from 'lucide-react';
+import { BookIcon, DownloadIcon, SyringeIcon } from 'lucide-react';
 import { LinkItemType } from 'fumadocs-ui/layouts/shared';
 
 export default function Layout({ children }: LayoutProps<'/'>) {

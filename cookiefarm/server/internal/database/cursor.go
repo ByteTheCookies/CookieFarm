@@ -11,7 +11,7 @@ type Cursor struct {
 	ID   int64 `json:"i"`
 }
 
-func EncodeCursor(submitTime int64, id int64) string {
+func EncodeCursor(submitTime, id int64) string {
 	b, err := json.Marshal(Cursor{Time: submitTime, ID: id})
 	if err != nil {
 		return ""

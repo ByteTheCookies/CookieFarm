@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import SyntaxHighlighter from 'react-syntax-highlighter';
-import { arta, dracula } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import { arta } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 
 
 
-export function CodeTypewriter(props: { code: string }) {
+export function CodeTypewriter(props: Readonly<{ code: string }>) {
   const fullCode = props.code;
   const [displayed, setDisplayed] = useState('');
   const [index, setIndex] = useState(0);

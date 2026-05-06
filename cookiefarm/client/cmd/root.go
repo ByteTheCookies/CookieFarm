@@ -43,6 +43,23 @@ var rootCmd = &cobra.Command{
 	Long:  `CookieFarm is an automated exploitation framework developed by the ByteTheCookies team for the CyberChallenge competition. This CLI client connects to the CookieFarm server to deploy and manage exploits against target teams. To launch the terminal-based user interface (TUI), simply run the command "ckc" without any arguments.`, //nolint:revive
 }
 
+func syncConfig() {
+	cm := config.GetInstance()
+	cm.Read()
+	checkErr := configCheck(cm)
+	if checkErr != nil {
+		if strings.Contains(checkErr.Error(), "Shared configuration has changed") {
+			fmt.Fprintf(os.Stderr, "\n\033[1;33m[!] %v\033[0m\n", checkErr)
+		} else {
+			if strings.Contains(checkErr.Error(), "connect: connection refused") {
+				fmt.Fprintf(os.Stderr, "\n\033[1;31m[+] Error connecting to server: %v\033[0m\n", checkErr)
+				os.Exit(1)
+			}
+			fmt.Fprintf(os.Stderr, "\n\033[1;31m[+] Error checking configuration: %v\033[0m\n", checkErr)
+		}
+	}
+}
+
 func buildCmd(useTUI *bool) *cobra.Command {
 	var debug bool
 	var useBanner bool
@@ -73,20 +90,7 @@ func buildCmd(useTUI *bool) *cobra.Command {
 			return
 		}
 
-		cm := config.GetInstance()
-		cm.Read()
-		checkErr := configCheck(cm)
-		if checkErr != nil {
-			if strings.Contains(checkErr.Error(), "Shared configuration has changed") {
-				fmt.Fprintf(os.Stderr, "\n\033[1;33m[!] %v\033[0m\n", checkErr)
-			} else {
-				if strings.Contains(checkErr.Error(), "connect: connection refused") {
-					fmt.Fprintf(os.Stderr, "\n\033[1;31m[+] Error connecting to server: %v\033[0m\n", checkErr)
-					os.Exit(1)
-				}
-				fmt.Fprintf(os.Stderr, "\n\033[1;31m[+] Error checking configuration: %v\033[0m\n", checkErr)
-			}
-		}
+		syncConfig()
 	}
 
 	return rootCmd

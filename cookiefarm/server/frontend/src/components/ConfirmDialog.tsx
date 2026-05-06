@@ -1,7 +1,7 @@
 import { Button } from "@cloudflare/kumo/components/button";
 import { Dialog } from "@cloudflare/kumo/components/dialog";
 
-export function ConfirmDialog(props: {
+export function ConfirmDialog(props: Readonly<{
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
@@ -9,7 +9,7 @@ export function ConfirmDialog(props: {
   confirmLabel: string;
   isPending?: boolean;
   onConfirm: () => void | Promise<void>;
-}) {
+}>) {
   const confirmProps = props.isPending ? { loading: true } : {};
 
   return (

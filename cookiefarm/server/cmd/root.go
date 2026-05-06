@@ -15,7 +15,7 @@ import (
 	"server/core"
 	"server/database"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/mattn/go-sqlite3" // SQLite driver for database interactions
 
 	"server/api"
 
@@ -159,7 +159,7 @@ func handleShutdown(app *fiber.App, ctx context.Context, errCh <-chan error) {
 	}
 
 	// Graceful shutdown
-	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	shutdownCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 	if err := app.ShutdownWithContext(shutdownCtx); err != nil {
 		logger.Log.Error().Err(err).Msg("Error during shutdown, forcing exit")

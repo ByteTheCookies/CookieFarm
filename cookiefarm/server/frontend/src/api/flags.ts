@@ -119,7 +119,7 @@ export async function submitFlag(flag: Flag): Promise<void> {
       ),
     },
   );
-  void invalidateFlagsCache();
+  invalidateFlagsCache();
 }
 
 export async function deleteFlag(flagCode: string): Promise<void> {
@@ -129,7 +129,7 @@ export async function deleteFlag(flagCode: string): Promise<void> {
       method: "DELETE",
     },
   );
-  void invalidateFlagsCache();
+invalidateFlagsCache();
 }
 
 export function invalidateFlagsCache() {
