@@ -41,17 +41,17 @@ err_report() {
     local exit_code="${3:-$?}"
     local lineno="${1:-${BASH_LINENO[0]:-0}}"
     local command="${2:-${current_command:-${last_command:-unknown}}}"
-    [ "$exit_code" -eq 0 ] && return 0
+    [[ "$exit_code" -eq 0 ]] && return 0
     error_reported=1
     printf "%b ERROR %b %s%b (exit %d, line %d)\n" \
         "${BOLD}${C_ERROR_BG}${C_ERROR_FG}" "$RESET" \
         "${command:-unknown}" "$RESET" \
         "$exit_code" "$lineno" >&2
-    if [ -n "${failed_wrapped_command:-}" ]; then
+    if [[ -n "${failed_wrapped_command:-}" ]]; then
         printf "%b       %bSpinner task: %s\n" "$C_DIM" "$RESET" "${failed_wrapped_title:-unknown}" >&2
         printf "%b       %bWrapped command: %s\n" "$C_DIM" "$RESET" "$failed_wrapped_command" >&2
     fi
-    [ -x "${GUM_BIN:-}" ] &&
+    [[ -x "${GUM_BIN:-}" ]] &&
         "$GUM_BIN" log --structured --level error --time rfc822 \
             "Command failed" \
             exit_code "$exit_code" line "$lineno" command "${command:-unknown}" \
@@ -59,7 +59,7 @@ err_report() {
 }
 
 trap 'err_report "$LINENO" "$BASH_COMMAND"' ERR
-trap 'code=$?; [ "$code" -ne 0 ] && [ "${error_reported:-0}" -eq 0 ] && err_report "$LINENO" "${current_command:-unknown}" "$code"' EXIT
+trap 'code=$?; [[ "$code" -ne 0 ]] && [[ "${error_reported:-0}" -eq 0 ]] && err_report "$LINENO" "${current_command:-unknown}" "$code"' EXIT
 
 require_cmd() {
     local cmd="$1"
@@ -112,7 +112,7 @@ gum_bin() {
     require_cmd find
 
     version="$(curl -fsSL "$api" | sed -n 's/.*"tag_name": *"v\([^"]*\)".*/\1/p' | head -n1)"
-    if [ -z "${version:-}" ]; then
+    if [[ -z "${version:-}" ]]; then
         printf "%b ERROR %b Could not fetch gum version from GitHub\n" \
             "${BOLD}${C_ERROR_BG}${C_ERROR_FG}" "$RESET" >&2
         return 1
@@ -132,7 +132,7 @@ gum_bin() {
     tar -xzf "$tarball" -C "$tmpdir"
 
     extracted_bin="$(find "$tmpdir" -maxdepth 3 -type f -name gum -print -quit 2>/dev/null || true)"
-    if [ -z "${extracted_bin:-}" ] || [ ! -f "$extracted_bin" ]; then
+    if [[ -z "${extracted_bin:-}" || ! -f "$extracted_bin" ]]; then
         printf "%b ERROR %b gum binary not found in downloaded archive\n" \
             "${BOLD}${C_ERROR_BG}${C_ERROR_FG}" "$RESET" >&2
         return 1
@@ -145,7 +145,7 @@ gum_bin() {
 
 ensure_gum() {
     # Fast path: already cached
-    if [ -x /tmp/gum-bin/gum ]; then
+    if [[ -x /tmp/gum-bin/gum ]]; then
         printf '%s\n' /tmp/gum-bin/gum
         return 0
     fi
@@ -154,7 +154,7 @@ ensure_gum() {
     local found
     found="$(find /tmp -maxdepth 4 -type f -name gum -executable -path '/tmp/gum.*' \
         -print -quit 2>/dev/null || true)"
-    if [ -n "${found:-}" ]; then
+    if [[ -n "${found:-}" ]]; then
         mkdir -p /tmp/gum-bin
         cp "$found" /tmp/gum-bin/gum
         chmod +x /tmp/gum-bin/gum
@@ -165,7 +165,7 @@ ensure_gum() {
     # Download fresh
     local bin
     bin="$(gum_bin)"
-    if [ -z "${bin:-}" ] || [ ! -x "$bin" ]; then
+    if [[ -z "${bin:-}" || ! -x "$bin" ]]; then
         printf "%b ERROR %b gum is not available and could not be installed\n" \
             "${BOLD}${C_ERROR_BG}${C_ERROR_FG}" "$RESET" >&2
         return 1
@@ -263,14 +263,14 @@ gum_spin() {
     exit_code=$?
     set -e
 
-    if [ "$exit_code" -ne 0 ]; then
+    if [[ "$exit_code" -ne 0 ]]; then
         failed_wrapped_title="$title"
         failed_wrapped_command="${cmd_display:-<empty>}"
         printf "%b ERROR %b Spinner task failed (exit %d)\n" \
             "${BOLD}${C_ERROR_BG}${C_ERROR_FG}" "$RESET" "$exit_code" >&2
         printf "%b       %bTask: %s\n" "$C_DIM" "$RESET" "$failed_wrapped_title" >&2
         printf "%b       %bWrapped command: %s\n" "$C_DIM" "$RESET" "$failed_wrapped_command" >&2
-        [ -x "${GUM_BIN:-}" ] &&
+        [[ -x "${GUM_BIN:-}" ]] &&
             "$GUM_BIN" log --structured --level error --time rfc822 \
                 "Spinner task failed" \
                 exit_code "$exit_code" title "$failed_wrapped_title" command "$failed_wrapped_command" >&2 || true
@@ -342,7 +342,7 @@ gum_ask_basic() {
 
     if gum_confirm "Use a config file (CONFIG_FILE)?"; then
         CONFIG_FILE="$(gum_input "CONFIG_FILE path" --value "config.yml" --placeholder "config.yml")"
-        if [ -z "${CONFIG_FILE:-}" ]; then
+        if [[ -z "${CONFIG_FILE:-}" ]]; then
             CONFIG_FILE="config.yml"
         fi
     else
@@ -367,12 +367,12 @@ gum_ask_config() {
     local dest="${1:-cookiefarm/config.yml}"
 
     # Normalise: if dest is a directory or ends in /, append filename
-    if [ -d "$dest" ] || [ "${dest: -1}" = "/" ] || [ "$dest" = "." ]; then
+    if [[ -d "$dest" || "${dest: -1}" = "/" || "$dest" = "." ]]; then
         dest="${dest%/}/config.yml"
     fi
     CFG_FILE="$dest"
 
-    [ "${CONFIG_FILE}" != "false" ] || return 0
+    [[ "${CONFIG_FILE}" != "false" ]] || return 0
 
     gum_section "  CONFIGURATION FILE  "
 
@@ -380,7 +380,7 @@ gum_ask_config() {
         local cfg_path
         cfg_path="$(gum_input "Path to your existing config.yml" \
             --value "./config.yml" --placeholder "./config.yml")"
-        if [ -f "$cfg_path" ]; then
+        if [[ -f "$cfg_path" ]]; then
             mkdir -p "$(dirname "$dest")"
             cp "$cfg_path" "$dest"
             printf "%b✔%b  Copied config → %b%s%b\n" \
@@ -395,7 +395,7 @@ gum_ask_config() {
         fi
     fi
 
-    [ "$preconfigured" = "true" ] && return 0
+    [[ "$preconfigured" = "true" ]] && return 0
 
     # ── Server settings ──────────────────────────────────────────────────────
     gum_section "  SERVER SETTINGS  "
@@ -438,9 +438,9 @@ print((datetime.now(timezone.utc) + timedelta(hours=8)).strftime('%Y-%m-%dT%H:%M
     num_services="$(gum_input_int "How many services to configure?" "3")"
 
     services_yaml=""
-    if [ "$num_services" -gt 0 ]; then
+    if [[ "$num_services" -gt 0 ]]; then
         local i=1
-        while [ "$i" -le "$num_services" ]; do
+        while [[ "$i" -le "$num_services" ]]; do
             local svc_name svc_port
             svc_name="$(gum_input "Service #${i} name" \
                 --value "Service${i}" --placeholder "ServiceName")"
@@ -527,7 +527,7 @@ EOF
 write_env() {
     local dest="${1:-cookiefarm/.env}"
 
-    if [ -d "$dest" ] || [ "${dest: -1}" = "/" ]; then
+    if [[ -d "$dest" || "${dest: -1}" = "/" ]]; then
         dest="${dest%/}/.env"
     fi
     ENV_FILE="$dest"
@@ -558,7 +558,7 @@ EOF
 confirm() {
     gum_section "  REVIEW CONFIGURATION  "
 
-    if [ -f "$CFG_FILE" ]; then
+    if [[ -f "$CFG_FILE" ]]; then
         "$GUM_BIN" style '── config.yml ──' --italic --bold --foreground "$GC_TITLE"
         cat "$CFG_FILE" | "$GUM_BIN" format -t code -l yaml
     fi
@@ -577,7 +577,7 @@ confirm() {
     if gum_confirm "Open a file in ${EDITOR:-vi} before deploying?"; then
         local chosen_file
         chosen_file="$("$GUM_BIN" file . --all --cursor="🍪")"
-        if [ -n "${chosen_file:-}" ] && [ -f "$chosen_file" ]; then
+        if [[ -n "${chosen_file:-}" && -f "$chosen_file" ]]; then
             "${EDITOR:-vi}" "$chosen_file"
         else
             printf "%b⚠%b  No file selected — skipping editor\n" "$C_TITLE" "$RESET"
@@ -614,11 +614,11 @@ GUM_BIN="$(ensure_gum)" || {
 mode=$(gum_choose remote build --header Mode)
 
 # ── Build mode: clone + docker build ─────────────────────────────────────────
-if [ "$mode" = "build" ]; then
+if [[ "$mode" = "build" ]]; then
     require_cmd git "Install git to clone the repository"
     require_cmd docker "Install Docker to run containers"
 
-    if [ -d CookieFarm ]; then
+    if [[ -d CookieFarm ]]; then
         printf "%b⚠%b  CookieFarm directory already exists — skipping clone\n" \
             "$C_TITLE" "$RESET"
     else
