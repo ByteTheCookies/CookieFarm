@@ -250,10 +250,8 @@ func (wp *WorkerPool[T]) cleanup() {
 				}
 			}
 
-			for j = s; j < iws; j++ {
-				if now.Sub(idleWorkerList[s].lastUsed) < wp.idleWorkerLifetime {
-					break
-				}
+			if hasExpiredIdleWorkers(s, iws, now, idleWorkerList, wp) {
+				break
 			}
 
 			if j == 0 {
@@ -270,13 +268,26 @@ func (wp *WorkerPool[T]) cleanup() {
 			shard.idleWorkerList = idleWorkerList[:numMoved]
 			shard.mutex.Unlock()
 
-			for j = 0; j < len(toBeCleaned); j++ {
-				if !toBeCleaned[j].shard.stopped {
-					close(toBeCleaned[j].taskChan)
-				}
-				toBeCleaned[j] = nil
-			}
+			cleanupWorker(toBeCleaned)
 		}
+	}
+}
+
+func hasExpiredIdleWorkers[T any](s, iws int, now time.Time, idleWorkerList []*workerInstance[T], wp *WorkerPool[T]) bool {
+	for j := s; j < iws; j++ {
+		if now.Sub(idleWorkerList[s].lastUsed) < wp.idleWorkerLifetime {
+			return true
+		}
+	}
+	return false
+}
+
+func cleanupWorker[T any](toBeCleaned []*workerInstance[T]) {
+	for j := range len(toBeCleaned) {
+		if !toBeCleaned[j].shard.stopped {
+			close(toBeCleaned[j].taskChan)
+		}
+		toBeCleaned[j] = nil
 	}
 }
 

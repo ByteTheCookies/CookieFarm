@@ -6,7 +6,7 @@ import (
 	_ "embed" // Embed the SQL schema for initializing the database.
 	"time"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/mattn/go-sqlite3" // Import the SQLite3 driver for database/sql.
 )
 
 //go:embed schema.sql
