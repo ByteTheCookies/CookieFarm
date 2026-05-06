@@ -2,9 +2,15 @@ name: Build & Push to GHCR
 on:
   push:
     branches: [main]
+    paths:
+      - "cookiefarm/**"
+      - ".github/workflows/publish-ghcr.yml"
   pull_request:
     types: [closed]
     branches: [main]
+    paths:
+      - "cookiefarm/**"
+      - ".github/workflows/publish-ghcr.yml"
 concurrency:
   group: ghcr-build-main
   cancel-in-progress: true
