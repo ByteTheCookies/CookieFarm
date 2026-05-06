@@ -1,9 +1,9 @@
-name: Release Python package to PyPI
+name: Test Python package on TestPyPI
 
 on:
   push:
     branches:
-      - main
+      - dev
 
 jobs:
   build-go:
@@ -74,6 +74,32 @@ jobs:
 
           echo "[+] Sync complete"
 
+      - name: Set automatic TestPyPI version
+        working-directory: exploiter/python
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          import os
+
+          p = Path("pyproject.toml")
+          text = p.read_text()
+
+          base = re.search(r'^version = "([^"]+)"', text, re.M).group(1)
+          version = f"{base}.dev{os.environ['GITHUB_RUN_NUMBER']}"
+
+          text = re.sub(
+              r'^version = "[^"]+"',
+              f'version = "{version}"',
+              text,
+              count=1,
+              flags=re.M,
+          )
+
+          p.write_text(text)
+          print(f"TestPyPI version: {version}")
+          PY
+
       - name: Build wheel + sdist
         working-directory: exploiter/python
         run: uv build
@@ -84,13 +110,13 @@ jobs:
           name: python-dists
           path: exploiter/python/dist/
 
-  publish-prod:
-    name: Publish to PyPI
+  publish-test:
+    name: Publish to TestPyPI
     needs: build-python
     runs-on: ubuntu-latest
     environment:
-      name: pypi
-      url: https://pypi.org/p/cookiefarm
+      name: testpypi
+      url: https://test.pypi.org/p/cookiefarm
     permissions:
       id-token: write
     steps:
@@ -103,5 +129,5 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v5
 
-      - name: Publish to PyPI
-        run: uv publish
+      - name: Publish to TestPyPI
+        run: uv publish --publish-url https://test.pypi.org/legacy/
