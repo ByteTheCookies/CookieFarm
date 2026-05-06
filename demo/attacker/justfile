@@ -1,0 +1,25 @@
+#!/usr/bin/env just --justfile
+
+ver := `git describe --tags --abbrev=0`
+
+start:
+	docker rm -vf attacker || true
+
+	mkdir -p ./CookieFarm
+	cp -r ../../../CookieFarm/cookiefarm ./CookieFarm
+	cp -r ../../../CookieFarm/exploiter ./CookieFarm
+	cp ../../../CookieFarm/justfile ./CookieFarm
+
+	# "hardcode" because container has no .git
+	cp ../../../CookieFarm/env.just .
+	sed -i -E 's/^VERSION := .*/VERSION := "{{ver}}"/' env.just
+	mv ./env.just ./CookieFarm
+
+	#docker build --no-cache --progress=plain -t atk . 1>/dev/null
+	#docker build --progress=plain -t atk . 1>/dev/null
+	docker build -t atk . 1>/dev/null
+
+	rm -rf ./CookieFarm
+
+	docker run -it --privileged --name attacker atk /bin/sh
+	#docker run -it --privileged --name attacker --entrypoint /bin/sh atk
