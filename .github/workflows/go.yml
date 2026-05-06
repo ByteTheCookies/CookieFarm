@@ -6,8 +6,14 @@ name: Go Build & Test
 on:
   push:
     branches: ["main", "dev"]
+    paths:
+      - "cookiefarm/**"
+      - ".github/workflows/go.yml"
   pull_request:
     branches: ["main", "dev"]
+    paths:
+      - "cookiefarm/**"
+      - ".github/workflows/go.yml"
 
 jobs:
 

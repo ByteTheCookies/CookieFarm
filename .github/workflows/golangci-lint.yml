@@ -3,7 +3,10 @@ name: golangci-lint
 on:
   pull_request:
   push:
-    branches: [ main, master, dev ]
+    branches: [main, master, dev]
+    paths:
+      - "cookiefarm/**"
+      - ".github/workflows/golangci-lint.yml"
 
 env:
   GO_VERSION: 1.26.0
