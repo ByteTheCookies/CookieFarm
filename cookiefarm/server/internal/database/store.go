@@ -215,6 +215,9 @@ func (s *Store) CountFlags(ctx context.Context, q FlagsQuery) (int64, error) {
 	sb, args := buildQuery(CountFlagsQuery, q)
 
 	var count int64
+	if sb == nil {
+		return 0, sql.ErrNoRows
+	}
 	stmt, err := s.db.PrepareContext(ctx, sb.String())
 	if err != nil {
 		return 0, err
