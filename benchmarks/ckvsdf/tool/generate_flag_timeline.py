@@ -21,15 +21,12 @@ Usage:
 """
 
 import argparse
-import json
 import os
 import signal
 import sqlite3
 import sys
 import threading
 import time
-import urllib.error
-import urllib.request
 
 # ── Args ───────────────────────────────────────────────────────────────────────
 
@@ -201,7 +198,7 @@ def worker(source: Source, start_time: float):
 # ── Ticker thread: controls the shared interval ───────────────────────────────
 
 
-def ticker(start_time: float):
+def ticker():
     """Wakes up every `interval` seconds and resets the barrier so all workers fire together."""
     while not stop_event.is_set():
         time.sleep(args.interval)

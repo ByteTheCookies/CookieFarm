@@ -13,7 +13,7 @@ OUTPUT_WARM_DF="${4:-../output/df_latency_warm.json}"
 echo "==> Authenticating to CookieFarm..."
 CF_TOKEN=$(curl -s -i -X POST http://localhost:8080/api/v1/auth/login -d "password=password" | grep -i "set-cookie: token=" | sed -e 's/.*token=\([^;]*\).*/\1/' | tr -d '\r')
 
-if [ -z "$CF_TOKEN" ]; then
+if [[ -z "$CF_TOKEN" ]]; then
     echo "Failed to get CookieFarm token"
     # exit 1
 fi
