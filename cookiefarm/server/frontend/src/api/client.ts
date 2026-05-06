@@ -49,6 +49,65 @@ async function parseResponseBody(response: Response): Promise<unknown> {
   }
 }
 
+function getErrorPayload(body: unknown): Record<string, unknown> | undefined {
+  return body && typeof body === "object" ? (body as Record<string, unknown>) : undefined;
+}
+
+function getFieldErrors(errorPayload: Record<string, unknown> | undefined): Record<string, string> | undefined {
+  if (
+    !errorPayload?.fieldErrors ||
+    typeof errorPayload.fieldErrors !== "object" ||
+    Array.isArray(errorPayload.fieldErrors)
+  ) {
+    return undefined;
+  }
+
+  return Object.fromEntries(
+    Object.entries(errorPayload.fieldErrors).flatMap(([key, value]) =>
+      typeof value === "string" ? [[key, value]] : [],
+    ),
+  );
+}
+
+function getErrorMessage(
+  response: Response,
+  errorPayload: Record<string, unknown> | undefined,
+): string {
+  if (typeof errorPayload?.message === "string") {
+    return errorPayload.message;
+  }
+
+  if (typeof errorPayload?.error === "string") {
+    return errorPayload.error;
+  }
+
+  return response.statusText || "Request failed";
+}
+
+function buildApiError(response: Response, body: unknown): ApiError {
+  const errorPayload = getErrorPayload(body);
+  const errorOptions: {
+    body?: unknown;
+    details?: string;
+    fieldErrors?: Record<string, string>;
+  } = {};
+
+  if (body !== undefined) {
+    errorOptions.body = body;
+  }
+
+  if (typeof errorPayload?.details === "string") {
+    errorOptions.details = errorPayload.details;
+  }
+
+  const fieldErrors = getFieldErrors(errorPayload);
+  if (fieldErrors) {
+    errorOptions.fieldErrors = fieldErrors;
+  }
+
+  return new ApiError(response.status, getErrorMessage(response, errorPayload), errorOptions);
+}
+
 export async function apiFetch<T>(
   path: string,
   init: RequestInit = {},
@@ -68,43 +127,7 @@ export async function apiFetch<T>(
 
   const body = await parseResponseBody(response);
   if (!response.ok) {
-    const errorPayload =
-      body && typeof body === "object" ? (body as Record<string, unknown>) : undefined;
-    const errorOptions: {
-      body?: unknown;
-      details?: string;
-      fieldErrors?: Record<string, string>;
-    } = {};
-
-    if (body !== undefined) {
-      errorOptions.body = body;
-    }
-
-    if (typeof errorPayload?.details === "string") {
-      errorOptions.details = errorPayload.details;
-    }
-
-    if (
-      errorPayload?.fieldErrors &&
-      typeof errorPayload.fieldErrors === "object" &&
-      !Array.isArray(errorPayload.fieldErrors)
-    ) {
-      errorOptions.fieldErrors = Object.fromEntries(
-        Object.entries(errorPayload.fieldErrors).flatMap(([key, value]) =>
-          typeof value === "string" ? [[key, value]] : [],
-        ),
-      );
-    }
-
-    throw new ApiError(
-      response.status,
-      typeof errorPayload?.message === "string"
-        ? errorPayload.message
-        : typeof errorPayload?.error === "string"
-          ? errorPayload.error
-          : response.statusText || "Request failed",
-      errorOptions,
-    );
+    throw buildApiError(response, body);
   }
 
   if (!schema) {
@@ -115,7 +138,7 @@ export async function apiFetch<T>(
 }
 
 export function buildWebSocketUrl(path: string): string {
-  const target = new URL(buildAbsoluteUrl(path), window.location.origin);
+  const target = new URL(buildAbsoluteUrl(path), globalThis.location.origin);
   const protocol = target.protocol === "https:" ? "wss:" : "ws:";
   return `${protocol}//${target.host}${target.pathname}${target.search}`;
 }

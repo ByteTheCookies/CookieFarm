@@ -1,13 +1,13 @@
 import { Button } from "@cloudflare/kumo/components/button";
 import { Input } from "@cloudflare/kumo/components/input";
-import { Minus, Plus } from "@phosphor-icons/react";
+import { MinusIcon, PlusIcon } from "@phosphor-icons/react";
 
-export function ConfigListEditor(props: {
+export function ConfigListEditor(props: Readonly<{
   label: string;
   items: string[];
   placeholder: string;
   onChange: (items: string[]) => void;
-}) {
+}>) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-3">
@@ -23,7 +23,7 @@ export function ConfigListEditor(props: {
             props.onChange([...props.items, ""]);
           }}
         >
-          <Plus size={16} />
+          <PlusIcon size={16} />
           Add row
         </Button>
       </div>
@@ -51,7 +51,7 @@ export function ConfigListEditor(props: {
                 props.onChange(props.items.filter((_, currentIndex) => currentIndex !== index));
               }}
             >
-              <Minus size={16} />
+              <MinusIcon size={16} />
             </Button>
           </div>
         ))}
