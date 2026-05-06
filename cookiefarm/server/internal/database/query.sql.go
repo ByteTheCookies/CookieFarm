@@ -60,53 +60,6 @@ func (q *Queries) CountExploits(ctx context.Context) (int64, error) {
 	return count, err
 }
 
-const countFilteredFlags = `-- name: CountFilteredFlags :one
-SELECT COUNT(*) FROM flags
-WHERE
-    deleted_at IS NULL AND
-    (team_id = ?1 OR ?1 IS NULL)
-    AND (status = ?2 OR ?2 is NULL)
-    AND (service_name = ?3 OR ?3 IS NULL)
-    AND (
-        ?4 IS NULL
-        OR (
-            (?5 = 'flag_code'    AND flag_code    LIKE ?4)
-            OR (?5 = 'service_name' AND service_name LIKE ?4)
-            OR (?5 = 'exploit_name' AND exploit_name LIKE ?4)
-            OR (?5 = 'msg'          AND msg          LIKE ?4)
-            OR (?5 = 'all' AND (
-                flag_code    LIKE ?4
-                OR service_name  LIKE ?4
-                OR exploit_name  LIKE ?4
-                OR msg           LIKE ?4
-                OR CAST(team_id AS TEXT) LIKE ?4
-            ))
-            OR (?5 IS NULL AND flag_code LIKE ?4)
-    )
-)
-`
-
-type CountFilteredFlagsParams struct {
-	TeamID      sql.NullInt64  `json:"team_id"`
-	Status      sql.NullInt64  `json:"status"`
-	ServiceName sql.NullString `json:"service_name"`
-	Search      interface{}    `json:"search"`
-	SearchField interface{}    `json:"search_field"`
-}
-
-func (q *Queries) CountFilteredFlags(ctx context.Context, arg CountFilteredFlagsParams) (int64, error) {
-	row := q.db.QueryRowContext(ctx, countFilteredFlags,
-		arg.TeamID,
-		arg.Status,
-		arg.ServiceName,
-		arg.Search,
-		arg.SearchField,
-	)
-	var count int64
-	err := row.Scan(&count)
-	return count, err
-}
-
 const countFlags = `-- name: CountFlags :one
 SELECT COUNT(*)
 FROM flags
@@ -190,7 +143,7 @@ SELECT
 FROM flags
 WHERE exploit_name IS NOT NULL
 GROUP BY exploit_name
-ORDER BY value DESC, exploit_name
+ORDER BY value DESC, exploit_name ASC
 `
 
 type FlagsExploitShareRow struct {
@@ -234,7 +187,7 @@ FROM flags
 WHERE deleted_at IS NULL
 AND exploit_name IS NOT NULL
 GROUP BY exploit_name
-ORDER BY total DESC, exploit_name
+ORDER BY total DESC, exploit_name ASC
 `
 
 type FlagsExploitStatusStatsRow struct {
@@ -288,7 +241,7 @@ WHERE submit_time > 0
 AND deleted_at IS NULL
 AND exploit_name IS NOT NULL
 GROUP BY exploit_name, bucket
-ORDER BY exploit_name, bucket
+ORDER BY exploit_name ASC, bucket ASC
 `
 
 type FlagsExploitTickStatsRow struct {
@@ -332,7 +285,7 @@ SELECT
 FROM flags
 WHERE deleted_at IS NULL
 GROUP BY team_id
-ORDER BY team_id
+ORDER BY team_id ASC
 `
 
 type FlagsStatsRow struct {
@@ -389,7 +342,7 @@ FROM flags
 WHERE submit_time > 0
 AND deleted_at IS NULL
 GROUP BY bucket
-ORDER BY bucket
+ORDER BY bucket ASC
 `
 
 type FlagsTickStatsRow struct {

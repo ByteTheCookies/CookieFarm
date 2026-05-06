@@ -1,8 +1,7 @@
 import { RootProvider } from 'fumadocs-ui/provider/next';
 import './global.css';
-import { Inter } from 'next/font/google';
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Geist, Geist_Mono, Inter } from 'next/font/google'
 
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });

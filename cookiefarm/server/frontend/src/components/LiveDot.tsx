@@ -9,7 +9,7 @@ const statusClasses: Record<LiveDotStatus, string> = {
   error: "bg-kumo-danger",
 };
 
-const labels: Record<LiveDotStatus, string> = {
+const labels: Readonly<Record<LiveDotStatus, string>> = {
   connecting: "Connecting",
   open: "Live",
   closed: "Offline",

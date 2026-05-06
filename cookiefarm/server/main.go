@@ -2,12 +2,12 @@
 package main
 
 import (
-	_ "embed"
+	_ "embed" // Embed the banner text file for display in the TUI.
 	"logger"
 
 	"server/cmd"
 
-	_ "go.uber.org/automaxprocs"
+	_ "go.uber.org/automaxprocs" // Automatically set GOMAXPROCS to match Linux container CPU quota.
 )
 
 func main() {

@@ -52,7 +52,7 @@ func GetConfig() (sharedconfig.Shared, error) {
 	return shcfg, nil
 }
 
-func Login(username string, password string) error {
+func Login(username, password string) error {
 	data := url.Values{}
 	data.Set("username", username)
 	data.Set("password", password)

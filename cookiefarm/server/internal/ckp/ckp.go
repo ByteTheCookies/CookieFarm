@@ -26,7 +26,6 @@ type Server struct {
 	shutdownDeadline    time.Time
 	requestHandler      RequestHandlerFunc
 	connectionCreator   ConnectionCreatorFunc
-	ctx                 *context.Context
 	activeConnections   int32
 	acceptedConnections int32
 	listenConfig        *ListenConfig
@@ -111,7 +110,7 @@ func (s *Server) GetListenConfig() *ListenConfig {
 	return s.listenConfig
 }
 
-func (s *Server) Listen() error {
+func (s *Server) Listen(ctx context.Context) error {
 	logger.Log.Info().Str("addr", s.listenAddr.String()).Msg("Starting CKP server...")
 	network := "tcp4"
 	if isIPv6Addr(s.listenAddr) {
@@ -119,7 +118,7 @@ func (s *Server) Listen() error {
 	}
 
 	s.listenConfig.lc.Control = applyListenSocketOptions(s.listenConfig)
-	l, err := s.listenConfig.lc.Listen(*s.GetContext(), network, s.listenAddr.String())
+	l, err := s.listenConfig.lc.Listen(ctx, network, s.listenAddr.String())
 	if err != nil {
 		return err
 	}
@@ -197,18 +196,6 @@ func (s *Server) SetRequestHandler(requestHandler RequestHandlerFunc) {
 
 func (s *Server) SetConnectionCreator(f ConnectionCreatorFunc) {
 	s.connectionCreator = f
-}
-
-func (s *Server) SetContext(ctx *context.Context) {
-	s.ctx = ctx
-}
-
-func (s *Server) GetContext() *context.Context {
-	if s.ctx == nil {
-		ctx := context.Background()
-		s.ctx = &ctx
-	}
-	return s.ctx
 }
 
 func (s *Server) SetAllowThreadLocking(allow bool) {
@@ -296,7 +283,7 @@ func StartServer(port uint16) (*Connections, error) {
 
 	s.conns = &Connections{}
 
-	err = s.Listen()
+	err = s.Listen(context.Background())
 	if err != nil {
 		return nil, err
 	}

@@ -75,7 +75,7 @@ export function DeleteResource({
   size = KUMO_DELETE_RESOURCE_DEFAULT_VARIANTS.size,
   errorMessage,
   className,
-}: DeleteResourceProps) {
+}: Readonly<DeleteResourceProps>) {
   const [confirmationInput, setConfirmationInput] = useState("");
   const [copied, setCopied] = useState(false);
 

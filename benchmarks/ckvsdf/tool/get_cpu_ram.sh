@@ -1,7 +1,9 @@
 #!/bin/bash
 
 get_pids() {
-    pgrep -f "$1" 2>/dev/null
+    process_name="$1"
+    pgrep -f "$process_name" 2>/dev/null
+    return $?
 }
 
 get_group_stats() {
@@ -9,7 +11,7 @@ get_group_stats() {
     shift
     local pids=$@
 
-    [ -z "$pids" ] && {
+    [[ -z "$pids" ]] && {
         echo "$label: 0 0 0 0"
         return
     }

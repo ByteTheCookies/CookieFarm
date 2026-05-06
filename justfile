@@ -4,7 +4,6 @@ import 'env.just'
 import 'cookiefarm/cookiefarm.just'
 import 'exploiter/exploiter.just'
 import 'cookiefarm/server/frontend/frontend.just'
-import 'docs/docs.just'
 
 # Display help information
 help:

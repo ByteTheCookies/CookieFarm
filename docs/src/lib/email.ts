@@ -1,10 +1,9 @@
 import { Resend } from 'resend';
 
-const RESEND_API_KEY = process.env.RESEND_API_KEY || ''; /^re_[a-zA-Z0-9_]+$/.test(RESEND_API_KEY) || (() => { throw new Error('Invalid RESEND_API_KEY'); })();
+const RESEND_API_KEY = process.env.RESEND_API_KEY || ''; /^re_[\w]+$/.test(RESEND_API_KEY) || (() => { throw new Error('Invalid RESEND_API_KEY'); })();
 const resend = new Resend(RESEND_API_KEY);
 
 const email_list = ['akiidjk@bytethecookies.org', 'suga@bytethecookes.org','giovanni@bytethecookes.org'];
-// const email_list = ['team@bytethecookies.org'];
 
 export async function sendEmail({ url, opinion, message }: { url: string; opinion: string; message: string }) {
   const html = `
@@ -45,7 +44,7 @@ export async function sendEmail({ url, opinion, message }: { url: string; opinio
     </html>
   `;
 
-  const { data, error } = await resend.emails.send({
+  const { error } = await resend.emails.send({
     from: 'CookieFarm Docs <cookiefarm@bytethecookies.org>',
     to: email_list,
     subject: `Feedback Received - ${opinion}`,

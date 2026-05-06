@@ -76,7 +76,7 @@ export async function updateConfig(config: Config): Promise<Config> {
   });
 
   const nextConfig = await fetchConfig();
-  void mutate(configKey, nextConfig, { revalidate: false });
+  mutate(configKey, nextConfig, { revalidate: false });
   return nextConfig;
 }
 

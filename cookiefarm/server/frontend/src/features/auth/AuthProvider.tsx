@@ -1,7 +1,9 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
   type ReactNode,
 } from "react";
@@ -28,55 +30,65 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-export function AuthProvider(props: { children: ReactNode }) {
+export function AuthProvider(props: Readonly<{ children: ReactNode }>) {
   const [status, setStatus] = useState<AuthStatus>("checking");
   const [user, setUser] = useState<AuthSession | null>(null);
-  const authQuery = useSWR(authVerifyKey, verifyAuth, {
+  const { data: authData, mutate: mutateAuth } = useSWR(authVerifyKey, verifyAuth, {
     refreshInterval: status === "authenticated" ? 60_000 : 0,
   });
 
-  async function refresh(): Promise<boolean> {
-    const session = await authQuery.mutate();
+  const refresh = useCallback(async (): Promise<boolean> => {
+    const session = await mutateAuth();
     setUser(session ?? null);
     setStatus(session ? "authenticated" : "anonymous");
     return Boolean(session);
-  }
+  }, [mutateAuth]);
 
   useEffect(() => {
-    if (authQuery.data === undefined) {
+    if (authData === undefined) {
       return;
     }
-    setUser(authQuery.data ?? null);
-    setStatus(authQuery.data ? "authenticated" : "anonymous");
-  }, [authQuery.data]);
+    setUser(authData ?? null);
+    setStatus(authData ? "authenticated" : "anonymous");
+  }, [authData]);
+
+  const login = useCallback(
+    async (password: string, username?: string) => {
+      await loginRequest({
+        ...(username ? { username } : {}),
+        password,
+      });
+      const session = { username: username || "cookieguest" };
+      mutateAuth(session, { revalidate: false });
+      setUser(session);
+      setStatus("authenticated");
+    },
+    [mutateAuth],
+  );
+
+  const logout = useCallback(async () => {
+    try {
+      await logoutRequest();
+    } finally {
+      mutateAuth(null, { revalidate: false });
+      setUser(null);
+      setStatus("anonymous");
+    }
+  }, [mutateAuth]);
+
+  const contextValue = useMemo(
+    () => ({
+      status,
+      user,
+      login,
+      logout,
+      refresh,
+    }),
+    [status, user, login, logout, refresh],
+  );
 
   return (
-    <AuthContext.Provider
-      value={{
-        status,
-        user,
-        login: async (password: string, username?: string) => {
-          await loginRequest({
-            ...(username ? { username } : {}),
-            password,
-          });
-          const session = { username: username || "cookieguest" };
-          void authQuery.mutate(session, { revalidate: false });
-          setUser(session);
-          setStatus("authenticated");
-        },
-        logout: async () => {
-          try {
-            await logoutRequest();
-          } finally {
-            void authQuery.mutate(null, { revalidate: false });
-            setUser(null);
-            setStatus("anonymous");
-          }
-        },
-        refresh,
-      }}
-    >
+    <AuthContext.Provider value={contextValue}>
       {props.children}
     </AuthContext.Provider>
   );
@@ -90,7 +102,7 @@ export function useAuth() {
   return context;
 }
 
-export function RequireAuth(props: { children: ReactNode }) {
+export function RequireAuth(props: Readonly<{ children: ReactNode }>) {
   const auth = useAuth();
   const location = useLocation();
 

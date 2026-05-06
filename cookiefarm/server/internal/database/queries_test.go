@@ -544,116 +544,96 @@ func TestCountFlags_AfterInserts_ReturnsCorrectCount(t *testing.T) {
 	assertInt64Equal(t, 3, count, "CountFlags after 3 inserts")
 }
 
-// nullOrValue returns nil when s is empty, otherwise the string itself.
-// Used by buildCountFilteredParams to match the sqlc interface{} convention.
-func nullOrValue(s string) any {
-	if s == "" {
-		return nil
-	}
-	return s
+// --- Store.CountFlags (filtered) ---------------------------------------------
+
+func TestCountFlagsFiltered_EmptyDB_ReturnsZero(t *testing.T) {
+	store := newTestStore(t)
+
+	count, err := store.CountFlags(context.Background(),
+		buildStoreQuery(0, 0, "", "", "", 0))
+	assertNoError(t, err, "CountFlags filtered empty DB")
+	assertInt64Equal(t, 0, count, "CountFlags filtered empty DB")
 }
 
-// --- CountFilteredFlags -------------------------------------------------------
-
-// buildCountFilteredParams mirrors buildFilteredParams for the count variant.
-// buildCountFilteredParams builds a CountFilteredFlagsParams with sane defaults.
-func buildCountFilteredParams(teamID uint16, status int64, search, searchField string) CountFilteredFlagsParams {
-	return CountFilteredFlagsParams{
-		TeamID:      sql.NullInt64{Int64: int64(teamID), Valid: teamID != 0},
-		Status:      sql.NullInt64{Int64: status, Valid: status != 0},
-		Search:      nullOrValue(search),
-		SearchField: nullOrValue(searchField),
-	}
-}
-
-func TestCountFilteredFlags_EmptyDB_ReturnsZero(t *testing.T) {
-	q := newTestQueries(t)
-
-	count, err := q.CountFilteredFlags(context.Background(),
-		buildCountFilteredParams(0, 0, "", ""))
-	assertNoError(t, err, "CountFilteredFlags empty DB")
-	assertInt64Equal(t, 0, count, "CountFilteredFlags empty DB")
-}
-
-func TestCountFilteredFlags_NoFilters_CountsAllRows(t *testing.T) {
-	q := newTestQueries(t)
-	insertFlags(t, q, []Flag{
+func TestCountFlagsFiltered_NoFilters_CountsAllRows(t *testing.T) {
+	store := newTestStore(t)
+	insertFlags(t, store.Queries, []Flag{
 		sampleFlag("FLAG{cff_001}"),
 		sampleFlag("FLAG{cff_002}"),
 		sampleFlag("FLAG{cff_003}"),
 	})
 
-	count, err := q.CountFilteredFlags(context.Background(),
-		buildCountFilteredParams(0, 0, "", ""))
-	assertNoError(t, err, "CountFilteredFlags no filters")
-	assertInt64Equal(t, 3, count, "CountFilteredFlags no filters — should count all rows")
+	count, err := store.CountFlags(context.Background(),
+		buildStoreQuery(0, 0, "", "", "", 0))
+	assertNoError(t, err, "CountFlags filtered no filters")
+	assertInt64Equal(t, 3, count, "CountFlags filtered no filters — should count all rows")
 }
 
-func TestCountFilteredFlags_ByStatus_CountsOnlyMatching(t *testing.T) {
-	q := newTestQueries(t)
+func TestCountFlagsFiltered_ByStatus_CountsOnlyMatching(t *testing.T) {
+	store := newTestStore(t)
 
 	for i := range 3 {
 		f := sampleFlag("FLAG{cffs_acc_" + string(rune('A'+i)) + "}")
 		f.Status = 1
-		insertFlag(t, q, f)
+		insertFlag(t, store.Queries, f)
 	}
 	denied := sampleFlag("FLAG{cffs_den}")
 	denied.Status = 2
-	insertFlag(t, q, denied)
+	insertFlag(t, store.Queries, denied)
 
-	count, err := q.CountFilteredFlags(context.Background(),
-		buildCountFilteredParams(0, 1, "", ""))
-	assertNoError(t, err, "CountFilteredFlags by status=ACCEPTED")
-	assertInt64Equal(t, 3, count, "CountFilteredFlags by status=ACCEPTED — should count 3")
+	count, err := store.CountFlags(context.Background(),
+		buildStoreQuery(0, 1, "", "", "", 0))
+	assertNoError(t, err, "CountFlags filtered by status=ACCEPTED")
+	assertInt64Equal(t, 3, count, "CountFlags filtered by status=ACCEPTED — should count 3")
 }
 
-func TestCountFilteredFlags_ByStatus_ExcludesNonMatching(t *testing.T) {
-	q := newTestQueries(t)
+func TestCountFlagsFiltered_ByStatus_ExcludesNonMatching(t *testing.T) {
+	store := newTestStore(t)
 
 	accepted := sampleFlag("FLAG{cffs_excl_acc}")
 	accepted.Status = 1
-	insertFlag(t, q, accepted)
+	insertFlag(t, store.Queries, accepted)
 
 	denied := sampleFlag("FLAG{cffs_excl_den}")
 	denied.Status = 2
-	insertFlag(t, q, denied)
+	insertFlag(t, store.Queries, denied)
 
-	count, err := q.CountFilteredFlags(context.Background(),
-		buildCountFilteredParams(0, 2, "", ""))
-	assertNoError(t, err, "CountFilteredFlags by status=DENIED")
-	assertInt64Equal(t, 1, count, "CountFilteredFlags by status=DENIED — should count 1")
+	count, err := store.CountFlags(context.Background(),
+		buildStoreQuery(0, 2, "", "", "", 0))
+	assertNoError(t, err, "CountFlags filtered by status=DENIED")
+	assertInt64Equal(t, 1, count, "CountFlags filtered by status=DENIED — should count 1")
 }
 
-func TestCountFilteredFlags_ByTeam_CountsOnlyThatTeam(t *testing.T) {
-	q := newTestQueries(t)
+func TestCountFlagsFiltered_ByTeam_CountsOnlyThatTeam(t *testing.T) {
+	store := newTestStore(t)
 
 	for i := range 4 {
 		f := sampleFlag("FLAG{cfft_t1_" + string(rune('A'+i)) + "}")
 		f.TeamID = 10
-		insertFlag(t, q, f)
+		insertFlag(t, store.Queries, f)
 	}
 	other := sampleFlag("FLAG{cfft_t2}")
 	other.TeamID = 20
-	insertFlag(t, q, other)
+	insertFlag(t, store.Queries, other)
 
-	count, err := q.CountFilteredFlags(context.Background(),
-		buildCountFilteredParams(10, 0, "", ""))
-	assertNoError(t, err, "CountFilteredFlags by team=10")
-	assertInt64Equal(t, 4, count, "CountFilteredFlags by team=10 — should count 4")
+	count, err := store.CountFlags(context.Background(),
+		buildStoreQuery(10, 0, "", "", "", 0))
+	assertNoError(t, err, "CountFlags filtered by team=10")
+	assertInt64Equal(t, 4, count, "CountFlags filtered by team=10 — should count 4")
 }
 
-func TestCountFilteredFlags_SearchByFlagCode_CountsMatching(t *testing.T) {
-	q := newTestQueries(t)
+func TestCountFlagsFiltered_SearchByFlagCode_CountsMatching(t *testing.T) {
+	store := newTestStore(t)
 
 	match1 := sampleFlag("FLAG{cffs_search_xyz_001}")
 	match2 := sampleFlag("FLAG{cffs_search_xyz_002}")
 	nomatch := sampleFlag("FLAG{cffs_search_abc_003}")
-	insertFlags(t, q, []Flag{match1, match2, nomatch})
+	insertFlags(t, store.Queries, []Flag{match1, match2, nomatch})
 
-	count, err := q.CountFilteredFlags(context.Background(),
-		buildCountFilteredParams(0, 0, "%search_xyz%", "flag_code"))
-	assertNoError(t, err, "CountFilteredFlags search by flag_code")
-	assertInt64Equal(t, 2, count, "CountFilteredFlags search by flag_code — should count 2")
+	count, err := store.CountFlags(context.Background(),
+		buildStoreQuery(0, 0, "", "search_xyz", "flag_code", 0))
+	assertNoError(t, err, "CountFlags filtered search by flag_code")
+	assertInt64Equal(t, 2, count, "CountFlags filtered search by flag_code — should count 2")
 }
 
 // --- BulkInsertFlags ---------------------------------------------------------

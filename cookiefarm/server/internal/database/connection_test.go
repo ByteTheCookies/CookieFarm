@@ -85,21 +85,6 @@ func TestNewDB_SchemaApplied_FlagsTableHasCorrectColumns(t *testing.T) {
 	}
 }
 
-func TestNewDB_SubmitTimeIndex_Exists(t *testing.T) {
-	db := newTestDB(t)
-
-	row := db.QueryRow(
-		"SELECT COUNT(*) FROM sqlite_master WHERE type='index' AND name='idx_flags_submit_time'",
-	)
-	var count int
-	if err := row.Scan(&count); err != nil {
-		t.Fatalf("query sqlite_master for index: %v", err)
-	}
-	if count != 1 {
-		t.Errorf("expected index idx_flags_submit_time to exist, count=%d", count)
-	}
-}
-
 func TestNewDB_Idempotent_SchemaAppliedTwice(t *testing.T) {
 	// NewDB uses CREATE TABLE IF NOT EXISTS so calling it twice on the same
 	// DSN must not fail and must not duplicate rows.

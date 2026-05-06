@@ -25,10 +25,10 @@ echarts.use([
   CanvasRenderer,
 ]);
 
-export function StatsBar(props: {
+export function StatsBar(props: Readonly<{
   summary: StatsSummary;
   tickSeries: TickPoint[];
-}) {
+}>) {
   const isDarkMode = true;
   const stats = props.summary.flags_stats ?? [];
   const tickSeries = props.tickSeries;

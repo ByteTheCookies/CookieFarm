@@ -59,7 +59,7 @@ export function buildTickSeries(flags: Flag[], tickSeconds: number): TickPoint[]
   }
 
   const firstTimestamp = timestamps[0];
-  const lastTimestamp = timestamps[timestamps.length - 1];
+  const lastTimestamp = timestamps.at(-1);
   if (firstTimestamp === undefined || lastTimestamp === undefined) {
     return [];
   }

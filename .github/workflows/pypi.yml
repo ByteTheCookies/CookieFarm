@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "exploiter/python/**"
+      - "cookiefarm/client/**"
+      - ".github/workflows/pypi-test.yml"
 
 jobs:
   build-go:

@@ -4,7 +4,7 @@ import { Breadcrumbs } from "@cloudflare/kumo/components/breadcrumbs";
 import { Button } from "@cloudflare/kumo/components/button";
 import { Input } from "@cloudflare/kumo/components/input";
 import { useKumoToastManager } from "@cloudflare/kumo/components/toast";
-import { ArrowSquareOut, WarningCircleIcon } from "@phosphor-icons/react";
+import { ArrowSquareOutIcon, WarningCircleIcon } from "@phosphor-icons/react";
 import { Link } from "react-router";
 import { useConfig } from "@/api/config";
 import { deleteFlag, submitFlag, useFlags } from "@/api/flags";
@@ -67,7 +67,7 @@ export function DashboardPage() {
           className="inline-flex h-9 items-center gap-2 rounded-lg bg-kumo-brand px-3 text-base text-white hover:bg-kumo-brand-hover"
         >
           Open Flag Feed
-          <ArrowSquareOut size={16} />
+          <ArrowSquareOutIcon size={16} />
         </Link>
       </PageHeader>
 
@@ -80,7 +80,7 @@ export function DashboardPage() {
         />
       ) : null}
 
-      {!config.configured ? (
+      {config.configured == false ? (
         <Banner
           variant="error"
           title="Configuration incomplete"

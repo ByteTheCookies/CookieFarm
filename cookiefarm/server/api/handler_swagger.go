@@ -1,7 +1,7 @@
 package api
 
 import (
-	_ "embed"
+	_ "embed" // Embed the generated Swagger JSON document.
 	"fmt"
 
 	"github.com/gofiber/fiber/v3"

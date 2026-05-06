@@ -24,6 +24,7 @@ cleanup() {
     pkill -f "flask run --host 0.0.0.0"
     pkill -f "get_cpu_ram.sh"
     echo "==> All processes stopped."
+    return 0
 }
 
 # Trap SIGINT, SIGTERM, and EXIT to ensure cleanup is always called
