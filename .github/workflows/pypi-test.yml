@@ -6,7 +6,7 @@ on:
       - dev
     paths:
       - "exploiter/python/**"
-      - "cookiefarm/**"
+      - "cookiefarm/client/**"
       - ".github/workflows/pypi-test.yml"
 
 jobs:
