@@ -236,7 +236,7 @@ func (wp *WorkerPool[T]) cleanup() {
 			idleWorkerList := shard.idleWorkerList
 			iws := len(idleWorkerList)
 			s := 0
-			j := 0 //nolint
+			j := 0
 
 			if iws > 400 {
 				s = (iws - 1) / 2
