@@ -14,16 +14,16 @@ type Shared struct {
 
 func (cfg *Shared) Print() {
 	for service, port := range cfg.Services {
-		println("Service:", service, "Port:", port)
+		println("Service:", service, "Port:", port) //nolint:forbidigo
 	}
-	println("RegexFlag:", cfg.RegexFlag)
-	println("FormatIPTeams:", cfg.FormatIPTeams)
-	println("MyTeamID:", cfg.MyTeamID)
-	println("URLFlagIds:", cfg.URLFlagIds)
-	println("NOPTeam:", cfg.NOPTeam)
-	println("RangeIPTeams:", cfg.RangeIPTeams)
-	println("Configured:", cfg.Configured)
-	println("FlagIdsFormat:", cfg.FlagIdsFormat)
+	println("RegexFlag:", cfg.RegexFlag)         //nolint:forbidigo
+	println("FormatIPTeams:", cfg.FormatIPTeams) //nolint:forbidigo
+	println("MyTeamID:", cfg.MyTeamID)           //nolint:forbidigo
+	println("URLFlagIds:", cfg.URLFlagIds)       //nolint:forbidigo
+	println("NOPTeam:", cfg.NOPTeam)             //nolint:forbidigo
+	println("RangeIPTeams:", cfg.RangeIPTeams)   //nolint:forbidigo
+	println("Configured:", cfg.Configured)       //nolint:forbidigo
+	println("FlagIdsFormat:", cfg.FlagIdsFormat) //nolint:forbidigo
 }
 
 func (cfg *Shared) Set(newcfg Shared) {

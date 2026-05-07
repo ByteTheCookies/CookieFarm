@@ -35,8 +35,8 @@ type ConfigManager struct {
 }
 
 func (l *LocalConfig) Print() {
-	println("Host:", l.Host)
-	println("Username:", l.Username)
-	println("Port:", l.Port)
-	println("HTTPS:", l.HTTPS)
+	println("Host:", l.Host)         //nolint:forbidigo
+	println("Username:", l.Username) //nolint:forbidigo
+	println("Port:", l.Port)         //nolint:forbidigo
+	println("HTTPS:", l.HTTPS)       //nolint:forbidigo
 }
