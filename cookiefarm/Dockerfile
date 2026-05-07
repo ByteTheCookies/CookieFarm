@@ -58,6 +58,4 @@ RUN touch /app/cookiefarm.db \
 
 USER vincenzino
 
-EXPOSE 8080
-
 ENTRYPOINT ["/bin/sh", "/app/run.sh"]
