@@ -28,7 +28,7 @@ ln -P bin/ckc /usr/local/bin/ckc
 
 python3 -m venv .venv
 . ./.venv/bin/activate
-pip install cookiefarm
+pip install --upgrade -i https://test.pypi.org/simple cookiefarm
 
 
 exec "$@"
