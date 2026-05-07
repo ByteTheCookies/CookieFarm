@@ -20,6 +20,8 @@ var whiteListCommand []string = []string{
 	"help",
 	"edit",
 	"reset",
+	"logout",
+	"login",
 }
 
 func configCheck(cm *config.ConfigManager) error {

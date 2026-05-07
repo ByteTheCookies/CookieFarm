@@ -116,7 +116,6 @@ func login(cmd *cobra.Command, args []string) {
 	}
 
 	logger.Log.Info().Str("path", sessionPath).Msg("Session token stored.")
-
 	cm := config.GetInstance()
 	cm.WriteShared()
 }
@@ -152,7 +151,9 @@ func show(cmd *cobra.Command, args []string) {
 
 func LoginHandler(username, password string) (string, error) {
 	cm := config.GetInstance()
+	cm.Read()
 	cm.SetUsername(username)
+	cm.Get()
 	err := api.Login(username, password)
 	if err != nil {
 		return "", err
