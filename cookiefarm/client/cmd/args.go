@@ -62,9 +62,9 @@ var showConfigCmd = &cobra.Command{
 }
 
 func buildConfigCmd() *cobra.Command {
-	editConfigCmd.Flags().StringVarP(&host, "host", "H", "localhost", "Server host to connect to")
-	editConfigCmd.Flags().Uint16VarP(&port, "port", "p", 8080, "Server port to connect to")
-	editConfigCmd.Flags().StringVarP(&username, "username", "u", "cookieguest", "Username for authenticating to the server")
+	editConfigCmd.Flags().StringVarP(&host, "host", "H", "", "Server host to connect to")
+	editConfigCmd.Flags().Uint16VarP(&port, "port", "p", 0, "Server port to connect to")
+	editConfigCmd.Flags().StringVarP(&username, "username", "u", "", "Username for authenticating to the server")
 	editConfigCmd.Flags().BoolVarP(&https, "https", "s", false, "Use HTTPS for secure communication with the server")
 
 	loginConfigCmd.Flags().StringVarP(&username, "username", "u", "cookieguest", "Username for authenticating to the server")
@@ -93,14 +93,21 @@ func reset(cmd *cobra.Command, args []string) {
 
 func edit(cmd *cobra.Command, args []string) {
 	cm := config.GetInstance()
-	if host == "localhost" && port == 8080 && username == "cookieguest" && !https {
+	cm.Read()
+	if host == "" && port == 0 && username == "" {
 		logger.Log.Warn().Msg("All default args detected. Update skipped. For available options, run `ckc config edit --help`")
 		return
 	}
 
-	cm.SetHost(host)
-	cm.SetPort(port)
-	cm.SetUsername(username)
+	if host != "" {
+		cm.SetHost(host)
+	}
+	if port != 0 {
+		cm.SetPort(port)
+	}
+	if username != "" {
+		cm.SetUsername(username)
+	}
 	cm.SetHTTPS(https)
 
 	cm.WriteLocal()
