@@ -4,6 +4,7 @@ import (
 	"logger"
 	"os"
 	"path/filepath"
+	"sharedconfig"
 
 	"client/api"
 	"client/config"
@@ -108,7 +109,7 @@ func edit(cmd *cobra.Command, args []string) {
 }
 
 func login(cmd *cobra.Command, args []string) {
-	sessionPath, err := LoginHandler(password)
+	sessionPath, err := LoginHandler(username, password)
 	if err != nil {
 		logger.Log.Error().Err(err).Msg("Login failed")
 		return
@@ -131,27 +132,28 @@ func logout(cmd *cobra.Command, args []string) {
 }
 
 func show(cmd *cobra.Command, args []string) {
-	cm := config.GetInstance()
-	local, err := cm.ShowContent("client.yml")
+	local, err := config.ReadConfig[config.LocalConfig]("client.yml")
 	if err != nil {
 		logger.Log.Error().Err(err).Msg("Show configuration failed")
 		return
 	}
 
-	shared, err := cm.ShowContent("shared.yml")
+	shared, err := config.ReadConfig[sharedconfig.Shared]("shared.yml")
 	if err != nil {
 		logger.Log.Error().Err(err).Msg("Show configuration failed")
 		return
 	}
 
-	logger.Log.Info().Msg("Current configuration: \n```yaml\n" + local + "```")
-	logger.Log.Info().Msg("Shared configuration: \n```yaml\n" + shared + "```")
+	logger.Log.Info().Msg("Current client configuration:")
+	local.Print()
+	logger.Log.Info().Msg("Current shared configuration:")
+	shared.Print()
 }
 
-func LoginHandler(password string) (string, error) {
+func LoginHandler(username, password string) (string, error) {
 	cm := config.GetInstance()
-
-	err := api.Login(cm.GetUsername(), password)
+	cm.SetUsername(username)
+	err := api.Login(username, password)
 	if err != nil {
 		return "", err
 	}
