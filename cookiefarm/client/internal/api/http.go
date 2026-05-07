@@ -39,7 +39,7 @@ func getClient() *Client {
 		instance = &Client{
 			baseURL: baseURL,
 			http: &http.Client{
-				Timeout: 10 * time.Second,
+				Timeout: 1 * time.Second,
 			},
 		}
 	})
