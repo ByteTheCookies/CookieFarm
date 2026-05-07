@@ -4,6 +4,7 @@ import (
 	"logger"
 	"os"
 	"path/filepath"
+	"sharedconfig"
 
 	"client/api"
 	"client/config"
@@ -61,9 +62,9 @@ var showConfigCmd = &cobra.Command{
 }
 
 func buildConfigCmd() *cobra.Command {
-	editConfigCmd.Flags().StringVarP(&host, "host", "H", "localhost", "Server host to connect to")
-	editConfigCmd.Flags().Uint16VarP(&port, "port", "p", 8080, "Server port to connect to")
-	editConfigCmd.Flags().StringVarP(&username, "username", "u", "cookieguest", "Username for authenticating to the server")
+	editConfigCmd.Flags().StringVarP(&host, "host", "H", "", "Server host to connect to")
+	editConfigCmd.Flags().Uint16VarP(&port, "port", "p", 0, "Server port to connect to")
+	editConfigCmd.Flags().StringVarP(&username, "username", "u", "", "Username for authenticating to the server")
 	editConfigCmd.Flags().BoolVarP(&https, "https", "s", false, "Use HTTPS for secure communication with the server")
 
 	loginConfigCmd.Flags().StringVarP(&username, "username", "u", "cookieguest", "Username for authenticating to the server")
@@ -92,14 +93,21 @@ func reset(cmd *cobra.Command, args []string) {
 
 func edit(cmd *cobra.Command, args []string) {
 	cm := config.GetInstance()
-	if host == "localhost" && port == 8080 && username == "cookieguest" && !https {
+	cm.Read()
+	if host == "" && port == 0 && username == "" {
 		logger.Log.Warn().Msg("All default args detected. Update skipped. For available options, run `ckc config edit --help`")
 		return
 	}
 
-	cm.SetHost(host)
-	cm.SetPort(port)
-	cm.SetUsername(username)
+	if host != "" {
+		cm.SetHost(host)
+	}
+	if port != 0 {
+		cm.SetPort(port)
+	}
+	if username != "" {
+		cm.SetUsername(username)
+	}
 	cm.SetHTTPS(https)
 
 	cm.WriteLocal()
@@ -108,14 +116,13 @@ func edit(cmd *cobra.Command, args []string) {
 }
 
 func login(cmd *cobra.Command, args []string) {
-	sessionPath, err := LoginHandler(password)
+	sessionPath, err := LoginHandler(username, password)
 	if err != nil {
 		logger.Log.Error().Err(err).Msg("Login failed")
 		return
 	}
 
 	logger.Log.Info().Str("path", sessionPath).Msg("Session token stored.")
-
 	cm := config.GetInstance()
 	cm.WriteShared()
 }
@@ -131,27 +138,30 @@ func logout(cmd *cobra.Command, args []string) {
 }
 
 func show(cmd *cobra.Command, args []string) {
-	cm := config.GetInstance()
-	local, err := cm.ShowContent("client.yml")
+	local, err := config.ReadConfig[config.LocalConfig]("client.yml")
 	if err != nil {
 		logger.Log.Error().Err(err).Msg("Show configuration failed")
 		return
 	}
 
-	shared, err := cm.ShowContent("shared.yml")
+	shared, err := config.ReadConfig[sharedconfig.Shared]("shared.yml")
 	if err != nil {
 		logger.Log.Error().Err(err).Msg("Show configuration failed")
 		return
 	}
 
-	logger.Log.Info().Msg("Current configuration: \n```yaml\n" + local + "```")
-	logger.Log.Info().Msg("Shared configuration: \n```yaml\n" + shared + "```")
+	logger.Log.Info().Msg("Current client configuration:")
+	local.Print()
+	logger.Log.Info().Msg("Current shared configuration:")
+	shared.Print()
 }
 
-func LoginHandler(password string) (string, error) {
+func LoginHandler(username, password string) (string, error) {
 	cm := config.GetInstance()
-
-	err := api.Login(cm.GetUsername(), password)
+	cm.Read()
+	cm.SetUsername(username)
+	cm.Get()
+	err := api.Login(username, password)
 	if err != nil {
 		return "", err
 	}

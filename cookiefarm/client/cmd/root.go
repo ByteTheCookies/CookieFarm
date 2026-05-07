@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"logger"
 	"os"
+	"slices"
 	"strings"
 
 	"client/api"
@@ -13,6 +14,15 @@ import (
 
 	"github.com/spf13/cobra"
 )
+
+var whiteListCommand []string = []string{
+	"completion",
+	"help",
+	"edit",
+	"reset",
+	"logout",
+	"login",
+}
 
 func configCheck(cm *config.ConfigManager) error {
 	remoteCfg, err := api.GetConfig()
@@ -86,7 +96,7 @@ func buildCmd(useTUI *bool) *cobra.Command {
 		}
 
 		logger.Log.Debug().Msgf("Running command: %s", cmd.CalledAs())
-		if cmd.CalledAs() == "completion" || cmd.CalledAs() == "help" || cmd.CalledAs() == "edit" {
+		if slices.Contains(whiteListCommand, cmd.CalledAs()) {
 			return
 		}
 

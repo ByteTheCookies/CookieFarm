@@ -109,3 +109,18 @@ html>body[data-scroll-locked] {
     margin-right: 0px !important;
     --removed-body-scroll-bar-size: 0px !important;
 }
+
+@media (width < 64rem) {
+    #nd-docs-layout {
+        --fd-header-height: calc(var(--spacing) * 14) !important;
+        --fd-sidebar-width: 0px !important;
+    }
+
+    #nd-docs-layout [data-sidebar-placeholder] {
+        display: none !important;
+    }
+
+    #nd-subnav {
+        display: flex !important;
+    }
+}

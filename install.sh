@@ -645,7 +645,7 @@ else
     cd CookieFarm
 
     gum_spin "Downloading compose.yml..." \
-        wget -q -O compose.yml https://raw.githubusercontent.com/ByteTheCookies/CookieFarm/dev/cookiefarm/compose.yml
+        wget -q -O compose.yml https://raw.githubusercontent.com/ByteTheCookies/CookieFarm/main/cookiefarm/compose.yml
 
     gum_ask_basic
     write_env .      # → ./.env

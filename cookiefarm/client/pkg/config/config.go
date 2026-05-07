@@ -33,3 +33,10 @@ type RuntimeConfig struct {
 type ConfigManager struct {
 	state atomic.Value // *RuntimeConfig
 }
+
+func (l *LocalConfig) Print() {
+	println("Host:", l.Host)         //nolint:forbidigo
+	println("Username:", l.Username) //nolint:forbidigo
+	println("Port:", l.Port)         //nolint:forbidigo
+	println("HTTPS:", l.HTTPS)       //nolint:forbidigo
+}
