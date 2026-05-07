@@ -1,0 +1,37 @@
+#!/usr/bin/env just --justfile
+
+# hardcode because container has no .git
+ver := `git describe --tags --abbrev=0`
+name := "attacker"
+tag := "atk"
+
+help:
+	@just --list
+
+build: check clean-container copy-files && clean-files
+	@#@docker build --no-cache --progress=plain -t atk . 1>/dev/null
+	@#@docker build --progress=plain -t {{tag}} . 1>/dev/null
+	@docker build --progress=plain -t {{tag}} .
+	@#@docker build -t {{tag}} . 1>/dev/null
+
+	@docker run -it --privileged --name {{name}} {{tag}} /bin/sh
+	@#@docker run -it --privileged --name attacker --entrypoint /bin/sh atk
+
+copy-files:
+	@mkdir -p ./CookieFarm
+	@cp -r ../../../CookieFarm/cookiefarm ./CookieFarm
+	@cp -r ../../../CookieFarm/exploiter ./CookieFarm
+	@cp ../../../CookieFarm/justfile ./CookieFarm
+
+	@cp ../../../CookieFarm/env.just .
+	@sed -i -E 's/^VERSION := .*/VERSION := "{{ver}}"/' env.just
+	@mv ./env.just ./CookieFarm
+
+clean-files:
+	@rm -rf ./CookieFarm
+
+clean-container:
+	@docker rm -vf {{name}} || true
+
+check:
+	@test -f ".env" || echo "Create a file named .env defining PORT, PASSWORD, CONFIG_FILE and DEBUG"
