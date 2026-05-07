@@ -8,7 +8,7 @@ tag := "atk"
 help:
 	@just --list
 
-build: clean-container copy-files && clean-files
+build: check clean-container copy-files && clean-files
 	@#@docker build --no-cache --progress=plain -t atk . 1>/dev/null
 	@#@docker build --progress=plain -t {{tag}} . 1>/dev/null
 	@docker build --progress=plain -t {{tag}} .
@@ -32,3 +32,6 @@ clean-files:
 
 clean-container:
 	@docker rm -vf {{name}} || true
+
+check:
+	@test -f ".env" || echo "Create a file named .env defining PORT, PASSWORD, CONFIG_FILE and DEBUG"
