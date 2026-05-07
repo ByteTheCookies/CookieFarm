@@ -7,9 +7,10 @@ import (
 	"fmt"
 	"models"
 	"net"
-	"protocols"
 	"strings"
 	"time"
+
+	"protocols"
 )
 
 func Submit(url string, teamToken string, flags []string) ([]protocols.ResponseProtocol, error) {
