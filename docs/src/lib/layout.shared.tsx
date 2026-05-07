@@ -2,9 +2,22 @@ import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
 import { gitConfig } from './shared';
 import { Nav } from '@/app/(home)/page';
 
-export function baseOptions(): BaseLayoutProps {
+type BaseOptionsConfig = {
+  customNav?: boolean;
+};
+
+export function baseOptions({ customNav = true }: BaseOptionsConfig = {}): BaseLayoutProps {
   return {
-    nav: { component: <Nav /> },
+    nav: customNav
+      ? { component: <Nav /> }
+      : {
+        title: (
+          <span>
+            <span className="font-mono font-bold text-(--green)">CookieFarm</span>
+          </span>
+        ),
+        url: '/',
+      },
     themeSwitch: {
       enabled: false
     },

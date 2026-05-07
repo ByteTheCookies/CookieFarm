@@ -41,7 +41,7 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
   return (
     <DocsPage toc={page.data.toc} tableOfContent={
       {
-        style: 'normal' // normal because clerk is broken in firefox based browser
+        style: 'normal' // `normal` because `clerk` is broken in firefox based browser
       }
     } full={page.data.full}>
       <DocsTitle>{page.data.title}</DocsTitle>
