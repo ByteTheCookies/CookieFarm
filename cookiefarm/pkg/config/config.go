@@ -12,6 +12,20 @@ type Shared struct {
 	FlagIdsFormat string            `json:"flagids_format" yaml:"flagids_format"`   // Format string for generating flag IDs
 }
 
+func (cfg *Shared) Print() {
+	for service, port := range cfg.Services {
+		println("Service:", service, "Port:", port)
+	}
+	println("RegexFlag:", cfg.RegexFlag)
+	println("FormatIPTeams:", cfg.FormatIPTeams)
+	println("MyTeamID:", cfg.MyTeamID)
+	println("URLFlagIds:", cfg.URLFlagIds)
+	println("NOPTeam:", cfg.NOPTeam)
+	println("RangeIPTeams:", cfg.RangeIPTeams)
+	println("Configured:", cfg.Configured)
+	println("FlagIdsFormat:", cfg.FlagIdsFormat)
+}
+
 func (cfg *Shared) Set(newcfg Shared) {
 	*cfg = newcfg
 }
