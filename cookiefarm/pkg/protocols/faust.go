@@ -7,10 +7,9 @@ import (
 	"fmt"
 	"models"
 	"net"
+	"protocols"
 	"strings"
 	"time"
-
-	"protocols"
 )
 
 func Submit(url string, teamToken string, flags []string) ([]protocols.ResponseProtocol, error) {
@@ -123,7 +122,7 @@ func matchFlag(line string, flagIndex map[string][]int) string {
 	return ""
 }
 
-func hasFlagPrefix(line string, flag string) bool {
+func hasFlagPrefix(line, flag string) bool {
 	rest, ok := strings.CutPrefix(line, flag)
 	return ok && (rest == "" || rest[0] == ' ' || rest[0] == '\t')
 }
@@ -139,7 +138,7 @@ func nextFlagIndex(matchedFlag string, flagIndex map[string][]int) (int, error) 
 	return idx, nil
 }
 
-func parseStatusAndMessage(line string, matchedFlag string) (string, string, error) {
+func parseStatusAndMessage(line, matchedFlag string) (string, string, error) {
 	rest := strings.TrimLeft(line[len(matchedFlag):], " \t")
 	parts := strings.Fields(rest)
 	if len(parts) == 0 {
