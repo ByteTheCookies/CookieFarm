@@ -14,11 +14,11 @@ export function MotionSection({
   children,
   className = "",
   delay = 0,
-}: {
+}: Readonly<{
   children: React.ReactNode;
   className?: string;
   delay?: number;
-}) {
+}>) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 

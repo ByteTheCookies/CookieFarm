@@ -10,7 +10,7 @@ const variants = {
   4: { variant: "warning", label: "Invalid" },
 } satisfies Record<FlagStatus, { label: string; variant: BadgeVariant }>;
 
-export function FlagStatusBadge(props: { status: FlagStatus }) {
+export function FlagStatusBadge(props: Readonly<{ status: FlagStatus }>) {
   const config = variants[props.status];
   return (
     <Badge variant={config.variant} className="text-[11px]">

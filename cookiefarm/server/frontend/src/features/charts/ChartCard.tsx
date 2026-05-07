@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
 
-export function ChartCard(props: {
+export function ChartCard(props: Readonly<{
   title: string;
   description?: string;
   children: ReactNode;
   className?: string;
-}) {
+}>) {
   return (
     <section
       className={`rounded-2xl border border-kumo-line bg-kumo-base p-4 ${props.className ?? ""}`}

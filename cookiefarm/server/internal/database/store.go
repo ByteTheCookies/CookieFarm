@@ -171,7 +171,13 @@ func (s *Store) QueryFlagsParams(ctx context.Context, q FlagsQuery) ([]Flag, err
 	sb.WriteString(" LIMIT ?")
 	args = append(args, q.Limit.Int64)
 
-	rows, err := s.db.QueryContext(ctx, sb.String(), args...)
+	stmt, err := s.db.PrepareContext(ctx, sb.String())
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.QueryContext(ctx, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -209,6 +215,14 @@ func (s *Store) CountFlags(ctx context.Context, q FlagsQuery) (int64, error) {
 	sb, args := buildQuery(CountFlagsQuery, q)
 
 	var count int64
-	err := s.db.QueryRowContext(ctx, sb.String(), args...).Scan(&count)
+	if sb == nil {
+		return 0, sql.ErrNoRows
+	}
+	stmt, err := s.db.PrepareContext(ctx, sb.String())
+	if err != nil {
+		return 0, err
+	}
+	defer stmt.Close()
+	err = stmt.QueryRowContext(ctx, args...).Scan(&count)
 	return count, err
 }

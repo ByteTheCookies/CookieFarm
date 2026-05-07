@@ -6,7 +6,7 @@ import { echarts } from "./chartRuntime";
 
 const isDarkMode = true;
 
-export function TeamStatusChart(props: { summary: StatsSummary }) {
+export function TeamStatusChart(props: Readonly<{ summary: StatsSummary }>) {
   const stats = props.summary.flags_stats ?? [];
 
   const flagDistributionOption = useMemo(() => {

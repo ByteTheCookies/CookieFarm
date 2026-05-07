@@ -1,7 +1,7 @@
 package logger
 
 import (
-	_ "embed"
+	_ "embed" // Embed the banner text file for display in the TUI.
 	"fmt"
 	"image/color"
 	"os"
@@ -53,7 +53,7 @@ func setLevel(level string) {
 }
 
 func setupLogFile() {
-	_ = os.MkdirAll(defaultLogPath, 0o755)
+	_ = os.MkdirAll(defaultLogPath, 0o750)
 	logPath := filepath.Join(defaultLogPath, "cookiefarm-"+strconv.Itoa(int(time.Now().UnixMilli()))) + ".log"
 
 	var err error

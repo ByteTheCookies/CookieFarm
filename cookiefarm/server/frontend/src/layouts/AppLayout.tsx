@@ -5,12 +5,12 @@ import { Sidebar } from "@cloudflare/kumo/components/sidebar";
 import { Text } from "@cloudflare/kumo/components/text";
 import { z } from "zod";
 import {
-  Bug,
-  ChartBar,
-  Flag,
-  Gear,
-  SignOut,
-  SidebarSimple,
+  BugIcon,
+  ChartBarIcon,
+  FlagIcon,
+  GearIcon,
+  SignOutIcon,
+  SidebarSimpleIcon,
 } from "@phosphor-icons/react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 import { apiFetch } from "@/api/client";
@@ -27,10 +27,10 @@ const apiStatusSchema = z.object({
 
 const navigationItems = [
   { href: "/", label: "Dashboard", icon: HouseIcon },
-  { href: "/charts", label: "Charts", icon: ChartBar },
-  { href: "/flags", label: "Flags", icon: Flag },
-  { href: "/exploits", label: "Exploits", icon: Bug },
-  { href: "/config", label: "Config", icon: Gear },
+  { href: "/charts", label: "Charts", icon: ChartBarIcon },
+  { href: "/flags", label: "Flags", icon: FlagIcon },
+  { href: "/exploits", label: "Exploits", icon: BugIcon },
+  { href: "/config", label: "Config", icon: GearIcon },
 ] as const;
 
 function getUserInitials(username: string): string {
@@ -52,14 +52,17 @@ export function AppLayout() {
     () => apiFetch("/", {}, apiStatusSchema),
     { refreshInterval: 15_000 },
   );
-  const status: "connecting" | "open" | "closed" | "error" =
-    apiStatus.isLoading
-      ? "connecting"
-      : apiStatus.error
-        ? "closed"
-        : apiStatus.data?.message
-          ? "open"
-          : "error";
+  let status: "connecting" | "open" | "closed" | "error";
+
+  if (apiStatus.isLoading) {
+    status = "connecting";
+  } else if (apiStatus.error) {
+    status = "closed";
+  } else if (apiStatus.data?.message) {
+    status = "open";
+  } else {
+    status = "error";
+  }
 
   return (
     <Sidebar.Provider defaultOpen variant="inset" collapsible="icon">
@@ -106,7 +109,7 @@ export function AppLayout() {
           {/* ③ Footer: trigger on left, label only visible when expanded */}
           <Sidebar.Footer className="flex items-center gap-2 px-3 py-4">
             <Sidebar.Trigger aria-label="Toggle sidebar">
-              <SidebarSimple size={18} />
+              <SidebarSimpleIcon size={18} />
             </Sidebar.Trigger>
           </Sidebar.Footer>
 
@@ -157,10 +160,10 @@ export function AppLayout() {
                   </DropdownMenu.Trigger>
                   <DropdownMenu.Content>
                     <DropdownMenu.Item
-                      icon={SignOut}
+                      icon={SignOutIcon}
                       variant="danger"
                       onClick={() => {
-                        void auth.logout().then(() => {
+                        auth.logout().then(() => {
                           navigate("/login", { replace: true });
                         });
                       }}

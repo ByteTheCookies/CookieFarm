@@ -2,6 +2,7 @@ import {
   createContext,
   useContext,
   useEffect,
+  useMemo,
   useState,
   type ReactNode,
 } from "react";
@@ -22,25 +23,27 @@ function getInitialThemeMode(): ThemeMode {
   return "dark";
 }
 
-export function ThemeProvider(props: { children: ReactNode }) {
+export function ThemeProvider(props: Readonly<{ children: ReactNode }>) {
   const [mode, setMode] = useState<ThemeMode>(getInitialThemeMode);
+  const contextValue = useMemo<ThemeContextValue>(
+    () => ({
+      mode,
+      setMode,
+      toggleMode: () => {
+        setMode((current) => (current === "dark" ? "light" : "dark"));
+      },
+    }),
+    [mode],
+  );
 
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme", "kumo");
-    document.documentElement.setAttribute("data-mode", "dark");
+    document.documentElement.dataset.data_theme = "kumo";
+    document.documentElement.dataset.data_mode = "dark";
     localStorage.setItem(themeStorageKey, "dark");
   }, [mode]);
 
   return (
-    <ThemeContext.Provider
-      value={{
-        mode,
-        setMode,
-        toggleMode: () => {
-          setMode((current) => (current === "dark" ? "light" : "dark"));
-        },
-      }}
-    >
+    <ThemeContext.Provider value={contextValue}>
       {props.children}
     </ThemeContext.Provider>
   );

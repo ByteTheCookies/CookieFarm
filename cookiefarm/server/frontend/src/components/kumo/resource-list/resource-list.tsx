@@ -11,10 +11,10 @@ export interface ResourceListPageProps {
   className?: string;
 }
 
-export function ResourceList(props: {
+export function ResourceList(props: Readonly<{
   children: ReactNode;
   className?: string;
-}) {
+}>) {
   return (
     <div
       className={cn(
@@ -41,7 +41,7 @@ export function ResourceListPage({
   additionalContent,
   children,
   className,
-}: ResourceListPageProps) {
+}: Readonly<ResourceListPageProps>) {
   return (
     <div
       className={cn(

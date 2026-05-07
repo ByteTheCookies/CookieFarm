@@ -8,11 +8,11 @@ import { echarts } from "./chartRuntime";
 
 const isDarkMode = true;
 
-export function TimeCharts(props: {
+export function TimeCharts(props: Readonly<{
   chartStats: ChartStats;
   dataZoom: NonNullable<KumoChartOption["dataZoom"]>;
   onDataZoom: ChartEvents["datazoom"];
-}) {
+}>) {
   const tickSeries = props.chartStats.tick_series;
   const exploitTickSeries = props.chartStats.exploit_tick_series;
 

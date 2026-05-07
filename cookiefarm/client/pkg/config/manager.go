@@ -201,6 +201,20 @@ func (*ConfigManager) Logout() (string, error) {
 	return "Logout successfully", nil
 }
 
+func ReadConfig[T any](filename string) (*T, error) {
+	content, err := os.ReadFile(filepath.Join(DefaultPath, filename))
+	if err != nil {
+		return nil, fmt.Errorf("error reading config: %w", err)
+	}
+
+	var cfg T
+	if err := yaml.Unmarshal(content, &cfg); err != nil {
+		return nil, fmt.Errorf("error unmarshaling config: %w", err)
+	}
+
+	return &cfg, nil
+}
+
 func (*ConfigManager) ShowContent(filename string) (string, error) {
 	content, err := os.ReadFile(filepath.Join(DefaultPath, filename))
 	if err != nil {

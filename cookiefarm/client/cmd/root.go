@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"logger"
 	"os"
+	"slices"
 	"strings"
 
 	"client/api"
@@ -13,6 +14,15 @@ import (
 
 	"github.com/spf13/cobra"
 )
+
+var whiteListCommand []string = []string{
+	"completion",
+	"help",
+	"edit",
+	"reset",
+	"logout",
+	"login",
+}
 
 func configCheck(cm *config.ConfigManager) error {
 	remoteCfg, err := api.GetConfig()
@@ -43,6 +53,23 @@ var rootCmd = &cobra.Command{
 	Long:  `CookieFarm is an automated exploitation framework developed by the ByteTheCookies team for the CyberChallenge competition. This CLI client connects to the CookieFarm server to deploy and manage exploits against target teams. To launch the terminal-based user interface (TUI), simply run the command "ckc" without any arguments.`, //nolint:revive
 }
 
+func syncConfig() {
+	cm := config.GetInstance()
+	cm.Read()
+	checkErr := configCheck(cm)
+	if checkErr != nil {
+		if strings.Contains(checkErr.Error(), "Shared configuration has changed") {
+			fmt.Fprintf(os.Stderr, "\n\033[1;33m[!] %v\033[0m\n", checkErr)
+		} else {
+			if strings.Contains(checkErr.Error(), "connect: connection refused") {
+				fmt.Fprintf(os.Stderr, "\n\033[1;31m[+] Error connecting to server: %v\033[0m\n", checkErr)
+				os.Exit(1)
+			}
+			fmt.Fprintf(os.Stderr, "\n\033[1;31m[+] Error checking configuration: %v\033[0m\n", checkErr)
+		}
+	}
+}
+
 func buildCmd(useTUI *bool) *cobra.Command {
 	var debug bool
 	var useBanner bool
@@ -69,24 +96,11 @@ func buildCmd(useTUI *bool) *cobra.Command {
 		}
 
 		logger.Log.Debug().Msgf("Running command: %s", cmd.CalledAs())
-		if cmd.CalledAs() == "completion" || cmd.CalledAs() == "help" || cmd.CalledAs() == "edit" {
+		if slices.Contains(whiteListCommand, cmd.CalledAs()) {
 			return
 		}
 
-		cm := config.GetInstance()
-		cm.Read()
-		checkErr := configCheck(cm)
-		if checkErr != nil {
-			if strings.Contains(checkErr.Error(), "Shared configuration has changed") {
-				fmt.Fprintf(os.Stderr, "\n\033[1;33m[!] %v\033[0m\n", checkErr)
-			} else {
-				if strings.Contains(checkErr.Error(), "connect: connection refused") {
-					fmt.Fprintf(os.Stderr, "\n\033[1;31m[+] Error connecting to server: %v\033[0m\n", checkErr)
-					os.Exit(1)
-				}
-				fmt.Fprintf(os.Stderr, "\n\033[1;31m[+] Error checking configuration: %v\033[0m\n", checkErr)
-			}
-		}
+		syncConfig()
 	}
 
 	return rootCmd

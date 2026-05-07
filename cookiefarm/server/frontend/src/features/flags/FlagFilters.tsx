@@ -21,11 +21,11 @@ export type FlagFilterState = {
   searchField: string;
 };
 
-export function FlagFilters(props: {
+export function FlagFilters(props: Readonly<{
   filters: FlagFilterState;
   services: ConfigServices;
   onChange: (nextFilters: FlagFilterState) => void;
-}) {
+}>) {
   return (
     <section className="space-y-4 rounded-2xl border border-kumo-line bg-kumo-base p-4">
       <div className="flex items-center justify-between">

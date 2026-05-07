@@ -1,7 +1,6 @@
 package ckp
 
 import (
-	"context"
 	"net"
 )
 
@@ -11,8 +10,6 @@ type Connection interface {
 	GetServer() *Server
 	GetClientAddr() *net.TCPAddr
 	GetServerAddr() *net.TCPAddr
-	SetContext(ctx *context.Context)
-	GetContext() *context.Context
 
 	Reset(netConn net.Conn)
 	SetServer(server *Server)
@@ -21,7 +18,6 @@ type Connection interface {
 type TCPConn struct {
 	net.Conn
 	server            *Server
-	ctx               *context.Context
 	ts                int64    //nolint
 	_cacheLinePadding [24]byte //nolint
 }
@@ -32,18 +28,6 @@ func (conn *TCPConn) GetClientAddr() *net.TCPAddr {
 
 func (conn *TCPConn) GetServerAddr() *net.TCPAddr {
 	return conn.LocalAddr().(*net.TCPAddr)
-}
-
-func (conn *TCPConn) SetContext(ctx *context.Context) {
-	conn.ctx = ctx
-}
-
-func (conn *TCPConn) GetContext() *context.Context {
-	if conn.ctx == nil {
-		ctx := context.Background()
-		conn.ctx = &ctx
-	}
-	return conn.ctx
 }
 
 func (conn *TCPConn) GetNetConn() net.Conn {
@@ -65,5 +49,4 @@ func (conn *TCPConn) GetServer() *Server {
 
 func (conn *TCPConn) Reset(netConn net.Conn) {
 	conn.Conn = netConn
-	conn.ctx = nil
 }

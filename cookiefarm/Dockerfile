@@ -17,8 +17,8 @@ RUN GOOS="linux" GOARCH="amd64" \
 # plugins build
 RUN for file in $(find ./pkg/protocols -name '*.go' ! -name 'protocols.go'); do \
  if grep -q '^package main' "$file"; then \
-  filename=$(basename $file); \
-  pluginname=${filename%.go}; \
+  filename=$(basename "$file"); \
+  pluginname="${filename%.go}"; \
   GOOS="linux" GOARCH="amd64" \
     go build -trimpath \
         -ldflags="-s -w -X 'main.Version=${VERSION}'" \
@@ -35,7 +35,7 @@ WORKDIR /app/server/frontend
 
 COPY ./server/frontend/ /app/server/frontend/
 
-RUN bun install --frozen-lockfile
+RUN bun install --frozen-lockfile --ignore-scripts
 RUN bun run build
 
 FROM alpine:3.23.3 AS prod
@@ -57,7 +57,5 @@ RUN touch /app/cookiefarm.db \
     && chown -R vincenzino:vincenzino /app
 
 USER vincenzino
-
-EXPOSE 8080
 
 ENTRYPOINT ["/bin/sh", "/app/run.sh"]

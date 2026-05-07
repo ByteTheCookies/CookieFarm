@@ -3,7 +3,7 @@ import type { ChartStats } from "@/api/stats";
 
 const isDarkMode = true;
 
-export function ChartsSummary(props: { chartStats: ChartStats }) {
+export function ChartsSummary(props: Readonly<{ chartStats: ChartStats }>) {
   const tickSeries = props.chartStats.tick_series;
   const exploitShare = props.chartStats.exploit_share;
   const latestTickCount = tickSeries[tickSeries.length - 1]?.total ?? 0;
