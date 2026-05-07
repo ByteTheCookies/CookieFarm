@@ -1,25 +1,34 @@
 #!/usr/bin/env just --justfile
 
+# hardcode because container has no .git
 ver := `git describe --tags --abbrev=0`
+name := "attacker"
+tag := "atk"
 
-start:
-	docker rm -vf attacker || true
+help:
+	@just --list
 
-	mkdir -p ./CookieFarm
-	cp -r ../../../CookieFarm/cookiefarm ./CookieFarm
-	cp -r ../../../CookieFarm/exploiter ./CookieFarm
-	cp ../../../CookieFarm/justfile ./CookieFarm
+build: clean-container copy-files && clean-files
+	@#@docker build --no-cache --progress=plain -t atk . 1>/dev/null
+	@#@docker build --progress=plain -t {{tag}} . 1>/dev/null
+	@docker build --progress=plain -t {{tag}} .
+	@#@docker build -t {{tag}} . 1>/dev/null
 
-	# "hardcode" because container has no .git
-	cp ../../../CookieFarm/env.just .
-	sed -i -E 's/^VERSION := .*/VERSION := "{{ver}}"/' env.just
-	mv ./env.just ./CookieFarm
+	@docker run -it --privileged --name {{name}} {{tag}} /bin/sh
+	@#@docker run -it --privileged --name attacker --entrypoint /bin/sh atk
 
-	#docker build --no-cache --progress=plain -t atk . 1>/dev/null
-	#docker build --progress=plain -t atk . 1>/dev/null
-	docker build -t atk . 1>/dev/null
+copy-files:
+	@mkdir -p ./CookieFarm
+	@cp -r ../../../CookieFarm/cookiefarm ./CookieFarm
+	@cp -r ../../../CookieFarm/exploiter ./CookieFarm
+	@cp ../../../CookieFarm/justfile ./CookieFarm
 
-	rm -rf ./CookieFarm
+	@cp ../../../CookieFarm/env.just .
+	@sed -i -E 's/^VERSION := .*/VERSION := "{{ver}}"/' env.just
+	@mv ./env.just ./CookieFarm
 
-	docker run -it --privileged --name attacker atk /bin/sh
-	#docker run -it --privileged --name attacker --entrypoint /bin/sh atk
+clean-files:
+	@rm -rf ./CookieFarm
+
+clean-container:
+	@docker rm -vf {{name}} || true

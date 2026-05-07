@@ -3,7 +3,7 @@ set -eu
 
 rm -f /var/run/docker.pid /var/run/docker.sock
 export DOCKER_HOST=unix:///var/run/docker.sock
-dockerd --host=unix:///var/run/docker.sock --storage-driver=overlay2 2>&1 | tee /var/log/dockerd.log &
+nohup dockerd --host=unix:///var/run/docker.sock --storage-driver=overlay2 > /var/log/dockerd.log 2>&1 &
 
 for _ in $(seq 1 30); do
     if docker info >/dev/null 2>&1; then
@@ -21,6 +21,14 @@ cd CookieFarm/
 
 docker compose -f cookiefarm/compose.build.yml up -d --build
 
-just client-build-linux-prod
+export CGO_ENABLED=1
+just client-build-linux
+
+ln -P bin/ckc /usr/local/bin/ckc
+
+python3 -m venv .venv
+. ./.venv/bin/activate
+pip install cookiefarm
+
 
 exec "$@"
