@@ -23,7 +23,7 @@
     "fumadocs-openapi": "^10.8.0",
     "fumadocs-ui": "16.7.12",
     "lucide-react": "^1.8.0",
-    "next": "16.2.3",
+    "next": "16.2.6",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-syntax-highlighter": "^16.1.1",
