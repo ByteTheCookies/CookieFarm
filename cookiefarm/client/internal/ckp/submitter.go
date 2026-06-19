@@ -16,7 +16,7 @@ func Start(flagsChan <-chan database.Flag) {
 
 	conn, err := NewClient(addr)
 	if err != nil {
-		logger.Log.Fatal().Err(err).Msg("Error connecting to WebSocket")
+		logger.Log.Fatal().Err(err).Msg("Error connecting to ckp")
 	}
 
 	defer conn.Close()
