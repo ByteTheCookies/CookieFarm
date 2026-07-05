@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@cloudflare/kumo/components/button";
 import { Input } from "@cloudflare/kumo/components/input";
 import { MinusIcon, PlusIcon } from "@phosphor-icons/react";
@@ -6,6 +7,19 @@ export function ConfigServicesEditor(props: Readonly<{
   services: Array<[string, number]>;
   onChange: (services: Array<[string, number]>) => void;
 }>) {
+  const [localEntries, setLocalEntries] = useState<Array<[string, number]>>(
+    () => props.services,
+  );
+
+  const ownLengthRef = useRef(props.services.length);
+
+  useEffect(() => {
+    if (props.services.length !== ownLengthRef.current) {
+      ownLengthRef.current = props.services.length;
+      setLocalEntries(props.services);
+    }
+  }, [props.services]);
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-3">
@@ -20,10 +34,13 @@ export function ConfigServicesEditor(props: Readonly<{
           size="sm"
           variant="secondary"
           onClick={() => {
-            props.onChange([
-              ...props.services,
-              ["", 8080],
-            ]);
+            const newEntries: Array<[string, number]> = [
+              ...localEntries,
+              ["service_name", 8080],
+            ];
+            ownLengthRef.current = newEntries.length;
+            setLocalEntries(newEntries);
+            props.onChange(newEntries);
           }}
         >
           <PlusIcon size={16} />
@@ -32,22 +49,24 @@ export function ConfigServicesEditor(props: Readonly<{
       </div>
 
       <div className="space-y-3">
-        {props.services.map(([name, port], index) => (
+        {localEntries.map(([name, port], index) => (
           <div
-            key={`${name}-${index}`}
+            key={index}
             className="grid gap-3 rounded-xl border border-kumo-line bg-kumo-overlay p-3 md:grid-cols-[minmax(0,1fr)_180px_auto]"
           >
             <Input
               label="Name"
               value={name}
+              {...(name === "" ? { error: "Name is required" } : {})}
               onChange={(event) => {
-                props.onChange(
-                  props.services.map((currentService, currentIndex) =>
-                    currentIndex === index
-                      ? [event.target.value, currentService[1]]
-                      : currentService,
-                  ),
+                const newName = event.target.value;
+                const newEntries = localEntries.map((entry, i) =>
+                  i === index ? [newName, entry[1]] as [string, number] : entry,
                 );
+                setLocalEntries(newEntries);
+                if (newName.trim() !== "") {
+                  props.onChange(newEntries);
+                }
               }}
             />
 
@@ -58,13 +77,12 @@ export function ConfigServicesEditor(props: Readonly<{
               max={65535}
               value={port}
               onChange={(event) => {
-                props.onChange(
-                  props.services.map((currentService, currentIndex) =>
-                    currentIndex === index
-                      ? [currentService[0], Number(event.target.value)]
-                      : currentService,
-                  ),
+                const newPort = Number(event.target.value);
+                const newEntries = localEntries.map((entry, i) =>
+                  i === index ? [entry[0], newPort] as [string, number] : entry,
                 );
+                setLocalEntries(newEntries);
+                props.onChange(newEntries);
               }}
             />
 
@@ -73,11 +91,12 @@ export function ConfigServicesEditor(props: Readonly<{
                 type="button"
                 size="sm"
                 variant="secondary"
-                disabled={props.services.length === 1}
+                disabled={localEntries.length === 1}
                 onClick={() => {
-                  props.onChange(
-                    props.services.filter((_, currentIndex) => currentIndex !== index),
-                  );
+                  const newEntries = localEntries.filter((_, i) => i !== index);
+                  ownLengthRef.current = newEntries.length;
+                  setLocalEntries(newEntries);
+                  props.onChange(newEntries);
                 }}
               >
                 <MinusIcon size={16} />
