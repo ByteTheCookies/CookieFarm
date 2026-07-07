@@ -239,12 +239,6 @@ services:
     networks:
       net:
         ipv4_address: 10.10.39.1
-  service40:
-    build:
-      context: ./app
-    networks:
-      net:
-        ipv4_address: 10.10.40.1
 
 networks:
   net:
