@@ -13,4 +13,4 @@ RUN rm -f ./vulnify.c ./vulnify.h ./justfile
 
 EXPOSE 1337
 
-CMD ["socat", "-t", "10", "-T", "10", "TCP-LISTEN:1337,reuseaddr,fork", "EXEC:/app/vulnify"]
+CMD ["socat", "-t", "10", "-W", "10", "TCP-LISTEN:1337,reuseaddr,fork", "EXEC:/app/vulnify"]

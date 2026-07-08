@@ -147,8 +147,8 @@ ckc login -u team01 -P SuperSecret
 ckc exploit create -n web_sqli
 
 # Test exploit
-ckc exploit test -e web_sqli -n CookieService -t 30 -T 10
+ckc exploit test -e web_sqli -n CookieService -t 30 -W 10
 
 # Run exploit continuously
-ckc exploit run -e web_sqli -n CookieService -t 60 -T 20
+ckc exploit run -e web_sqli -n CookieService -t 60 -W 20
 ```

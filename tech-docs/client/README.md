@@ -103,7 +103,7 @@ pip install --upgrade cookiefarm requests
 5. **Run the exploit**:
    ```bash
    # In CLI mode (with no environment variable setted):
-   ckc exploit run -e my_exploit.py -n CookieService -t 120 -T 40
+   ckc exploit run -e my_exploit.py -n CookieService -t 120 -W 40
    ```
 
 ---
@@ -221,32 +221,32 @@ In this case, the exploit will be created in the current directory.
 Test an exploit against the NOP team:
 ```bash
 # In CLI mode (with no environment variable setted):
-ckc exploit test -e <exploit_file> -n <service_name> [-t <timeout>] [-T <threads>]
+ckc exploit test -e <exploit_file> -n <service_name> [-t <timeout>] [-W <workers>]
 ```
 Parameters:
 - `-e <exploit_file>`: Path to the exploit file (Python script).
 - `-n <service_name>`: Name of the service to test the exploit against.
 - `-t <timeout>`: Timeout for the exploit in seconds (default is 120).
-- `-T <threads>`: Number of threads to use (default is 10).
+- `-W <workers>`: Number of workers to use (default is 10).
 
 ### Exploit Run Command
 Run an exploit:
 ```bash
 # In CLI mode (with no environment variable setted):
-ckc exploit run -e <exploit_file> -n <service_name> [-t <timeout>] [-T <threads>] [-D]
+ckc exploit run -e <exploit_file> -n <service_name> [-t <timeout>] [-W <workers>] [-D]
 
 ```
 Parameters:
 - `-e <exploit_file>`: Path to the exploit file (Python script).
 - `-n <service_name>`: Name of the service to run the exploit against.
 - `-t <timeout>`: Timeout for the exploit in seconds (default is 120).
-- `-T <threads>`: Number of threads to use (default is 10).
+- `-W <workers>`: Number of workers to use (default is 10).
 - `-D`: Enable debug mode for more verbose output.
 
 *Example:*
 ```bash
 # In CLI mode (with no environment variable setted):
-ckc exploit run -e my_exploit.py -n CookieService -t 120 -T 40
+ckc exploit run -e my_exploit.py -n CookieService -t 120 -W 40
 # This will return the PID of the running exploit.
 ```
 

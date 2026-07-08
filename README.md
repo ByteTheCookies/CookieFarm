@@ -140,7 +140,7 @@ This will generate `your_exploit_name.py` in `~/.cookiefarm/exploits/`.
 
 5. Run your exploit:
 ```bash
-ckc exploit run -e your_exploit_name.py -n CookieService -t 120 -T 40
+ckc exploit run -e your_exploit_name.py -n CookieService -t 120 -W 40
 ```
 > [!NOTE]
 > For more usage examples, check out the [client documentation](https://cookiefarm.bytethecookies.org/docs/client/overview).
