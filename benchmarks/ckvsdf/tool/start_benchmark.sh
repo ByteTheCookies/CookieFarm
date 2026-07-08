@@ -49,7 +49,7 @@ echo "==> Starting CookieFarm Exploit..."
 # Example command to run CF exploit:
 just client-build-linux-prod
 ../../../bin/ckc login -P password
-../../../bin/ckc exploit run -e benchmark -n CookieService -t 5 -T 10 &
+../../../bin/ckc exploit run -e benchmark -n CookieService -t 5 -W 10 &
 PIDS+=($!)
 
 echo "==> Starting DestructiveFarm Exploit..."
@@ -75,7 +75,7 @@ echo "==> Benchmark is running. Waiting for $BENCHMARK_DUR seconds for completio
 wait $TIMELINE_PID
 
 echo "==> Benchmark duration completed. Stopping exploits and monitoring..."
-pkill -f "../../../bin/ckc exploit run -e benchmark -n CookieService -t 5 -T 10"
+pkill -f "../../../bin/ckc exploit run -e benchmark -n CookieService -t 5 -W 10"
 pkill -f "python3 ./start_sploit.py benchmark.py -u http://localhost:5000 --attack-period 5"
 pkill -f "python3 /tmp/DestructiveFarm/client/benchmark.py"
 

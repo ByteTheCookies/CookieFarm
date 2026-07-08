@@ -35,7 +35,7 @@ LAN
 LAN
 
 - Build command: `just client-build-prod`
-- Command run: `./bin/ckc exploit run -e benchmark -n CookieService -t 5 -T 10`
+- Command run: `./bin/ckc exploit run -e benchmark -n CookieService -t 5 -W 10`
 - Run command: `time python3 riempire_db_daiii.py`
 
 ### Cks config used:
