@@ -23,9 +23,11 @@ Login and shared config sync.
 Flags:
 - `-u, --username`
 - `-P, --password` (required)
+- `-H, --host`
+- `-p, --port`
 
 Note:
-- Configure host/port/https with `ckc config edit` before login.
+- `-H/-p` update and persist local config during login; https is still configured via `ckc config edit`.
 
 ![ckc login example](/docs/login.png)
 

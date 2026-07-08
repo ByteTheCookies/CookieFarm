@@ -10,26 +10,25 @@ Client auth is cookie-JWT based, with token stored locally in `~/.config/cookief
 ## Login
 
 ```bash
-ckc login -u <username> -P <password>
+ckc login -u <username> -P <password> [-H <host>] [-p <port>]
 ```
 
 Example:
 
 ```bash
-ckc config edit -H 127.0.0.1 -p 8080 -u team01
-ckc login -u team01 -P SuperSecret
+ckc login -u team01 -P SuperSecret -H 127.0.0.1 -p 8080
 ```
 
 What it does:
 
-1. updates local config (`client.yml`)
+1. if `-H/-p` are given, updates and persists local config (`client.yml`) with the new host/port
 2. logs in through `/api/v1/auth/login`
 3. stores session token
 4. fetches shared config and writes `shared.yml`
 
 <Callout type='warn'>
 
-Login flags are `username/password`; host/port are configured via `ckc config edit`.
+`-H/-p` on `login` only set host/port. https is still configured via `ckc config edit -s`.
 
 </Callout>
 
