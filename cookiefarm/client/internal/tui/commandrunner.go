@@ -155,10 +155,10 @@ func (*CommandRunner) ExecuteConfigUpdate(host, port, username string, useHTTPS 
 
 func executeExploit(
 	exploitPath, serviceName string,
-	tickTime, threadCount string, _ bool, isTest bool, // _ is submitValue
+	tickTime, workerCount string, _ bool, isTest bool, // _ is submitValue
 ) (string, error) {
 	tickTimeInt := 120  // default
-	threadCountInt := 5 // default
+	workerCountInt := 5 // default
 	var err error
 
 	if tickTime != "" {
@@ -168,10 +168,10 @@ func executeExploit(
 		}
 	}
 
-	if threadCount != "" {
-		threadCountInt, err = strconv.Atoi(threadCount)
+	if workerCount != "" {
+		workerCountInt, err = strconv.Atoi(workerCount)
 		if err != nil {
-			return "", fmt.Errorf("invalid thread count: %s", threadCount)
+			return "", fmt.Errorf("invalid thread count: %s", workerCount)
 		}
 	}
 
@@ -182,7 +182,7 @@ func executeExploit(
 	args := exploit.ExploitArgs{
 		ExploitPath: exploitPath,
 		TickTime:    tickTimeInt,
-		ThreadCount: threadCountInt,
+		WorkerCount: workerCountInt,
 		ServiceName: serviceName,
 	}
 
@@ -193,7 +193,7 @@ func executeExploit(
 	}
 
 	var initialOutput strings.Builder
-	fmt.Fprintf(&initialOutput, "Running with %d threads, tick time %d seconds\n", threadCountInt, tickTimeInt)
+	fmt.Fprintf(&initialOutput, "Running with %d threads, tick time %d seconds\n", workerCountInt, tickTimeInt)
 	initialOutput.WriteString("Output streaming started. Live updates will appear below...\n")
 
 	return initialOutput.String(), nil
