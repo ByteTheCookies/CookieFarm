@@ -69,6 +69,8 @@ func buildConfigCmd() *cobra.Command {
 
 	loginConfigCmd.Flags().StringVarP(&username, "username", "u", "cookieguest", "Username for authenticating to the server")
 	loginConfigCmd.Flags().StringVarP(&password, "password", "P", "", "Password for authenticating to the server")
+	loginConfigCmd.Flags().StringVarP(&host, "host", "H", "", "Server host to connect to")
+	loginConfigCmd.Flags().Uint16VarP(&port, "port", "p", 0, "Server port to connect to")
 	loginConfigCmd.MarkFlagRequired("password")
 
 	configCmd.AddCommand(resetConfigCmd)
@@ -116,6 +118,17 @@ func edit(cmd *cobra.Command, args []string) {
 }
 
 func login(cmd *cobra.Command, args []string) {
+	cm := config.GetInstance()
+	cm.Read()
+	if host != "" {
+		cm.SetHost(host)
+	}
+	if port != 0 {
+		cm.SetPort(port)
+	}
+	cm.SetHTTPS(https)
+	cm.WriteLocal()
+
 	sessionPath, err := LoginHandler(username, password)
 	if err != nil {
 		logger.Log.Error().Err(err).Msg("Login failed")
@@ -123,7 +136,6 @@ func login(cmd *cobra.Command, args []string) {
 	}
 
 	logger.Log.Info().Str("path", sessionPath).Msg("Session token stored.")
-	cm := config.GetInstance()
 	cm.WriteShared()
 }
 
