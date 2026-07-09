@@ -59,7 +59,7 @@ echo -e "\n🎯 Cookie Farm Server ready to use!"
 
 echo ""
 echo "Report:"
-echo "- Server started at localhost:808"
+echo "- Server started at localhost:8080"
 echo "- Started $1 container(s) with a service called CookieServer at port 8081"
 echo "- Test command:"
 echo '  `ckc login -P password`'

@@ -15,8 +15,8 @@ ckc login -u team01 -P SuperSecret # The username is optional and not required
 
 ```bash
 ckc exploit create -n first
-ckc exploit test -e first -n CookieService -t 30 -T 5
-ckc exploit run -e first -n CookieService -t 60 -T 15
+ckc exploit test -e first -n CookieService -t 30 -W 5
+ckc exploit run -e first -n CookieService -t 60 -W 15
 ```
 
 Open dashboard: `http://127.0.0.1:8080/dashboard`.

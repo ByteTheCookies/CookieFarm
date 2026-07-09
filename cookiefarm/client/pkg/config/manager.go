@@ -26,8 +26,10 @@ https: false
 username: "cookieguest"
 `
 
-// ConfigManager is a singleton that manages the runtime configuration of the client application. It provides thread-safe access to the configuration state, allowing for reading and updating configuration values.
-// IS RACCOMANDED TO USE WITH the Read() function to load the configuration from files and the Get() function to retrieve the current configuration state.
+// ConfigManager is a singleton that manages the runtime configuration of the client application.
+// It provides thread-safe access to the configuration state, allowing for reading and updating configuration values.
+// IS RACCOMANDED TO USE WITH the Read() function to load the configuration from files and the Get()
+// function to retrieve the current configuration state.
 func GetInstance() *ConfigManager {
 	once.Do(func() {
 		instance = &ConfigManager{}
@@ -139,7 +141,9 @@ func (cm *ConfigManager) SetUsername(username string) {
 	})
 }
 
-// This function reads the local and shared configuration files, and also retrieves the session token from the session file. It updates the ConfigManager's state with the read configurations and token.
+// This function reads the local and shared configuration files,
+// and also retrieves the session token from the session file.
+// It updates the ConfigManager's state with the read configurations and token.
 func (cm *ConfigManager) Read() error {
 	if err := read(&cm.Get().Local, clientNameConfig); err != nil {
 		return err

@@ -92,7 +92,7 @@ Flags:
 - `-n, --name`
 - `-d, --detach`
 - `-t, --tick` (default `120`)
-- `-T, --thread` (default `5`)
+- `-W, --workers_number` (default `5`)
 
 ![ckc exploit test example](/docs/exploit_test.png)
 
@@ -105,8 +105,9 @@ Flags:
 - `-n, --name`
 - `-d, --detach`
 - `-t, --tick` (default `120`)
-- `-T, --thread` (default `5`)
+- `-W, --workers_number` (default `5`)
 - `-S, --submit` (direct HTTP submit)
+- `-P, --process_mode` (default using `multi-threading`)
 
 ![ckc exploit run example](/docs/exploit_run.png)
 
@@ -148,8 +149,8 @@ ckc login -u team01 -P SuperSecret
 ckc exploit create -n web_sqli
 
 # Test exploit
-ckc exploit test -e web_sqli -n CookieService -t 30 -T 10
+ckc exploit test -e web_sqli -n CookieService -t 30 -W 10
 
 # Run exploit continuously
-ckc exploit run -e web_sqli -n CookieService -t 60 -T 20
+ckc exploit run -e web_sqli -n CookieService -t 60 -W 20
 ```

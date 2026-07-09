@@ -77,7 +77,7 @@ func Login(username, password string) error {
 	return nil
 }
 
-// @IMPORTANT: prefer websockets
+// @IMPORTANT: prefer ckp
 func SubmitBatchDirect(flags []database.Flag) error {
 	payload, err := json.Marshal(models.SubmitFlagsRequest{
 		Flags: flags,
