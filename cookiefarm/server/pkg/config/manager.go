@@ -1,8 +1,12 @@
 package config
 
 import (
+	"logger"
+	"os"
 	"sharedconfig"
 	"sync"
+
+	"gopkg.in/yaml.v3"
 )
 
 var (
@@ -139,6 +143,18 @@ func (cm *ConfigManager) GetFullConfig() FullConfig {
 func (cm *ConfigManager) SetFullConfig(f FullConfig) {
 	cm.Get().Server = f.Server
 	cm.Get().Shared = f.Shared
+}
+
+// Write the config file
+func (cm *ConfigManager) Write() {
+	fullConfig := cm.Get()
+	marshalConfig, err := yaml.Marshal(fullConfig)
+	if err != nil {
+		logger.Log.Err(err).Msg("error during the unmarshal of the config")
+	}
+	if err := os.WriteFile(ConfigFile, marshalConfig, 0o644); err != nil {
+		logger.Log.Err(err).Msg("error writing config file")
+	}
 }
 
 func (cm *ConfigManager) MapServiceToPort(service string) uint16 {
