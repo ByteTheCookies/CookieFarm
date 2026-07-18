@@ -119,15 +119,12 @@ func UploadExploit(exploitPath string) error {
 	logger.Log.Debug().Str("exploitPath", exploitPath).Msg("Uploading exploit")
 	resp, body, err := client.uploadFile("/api/v1/exploit/upload", exploitPath, AUTHED)
 	if err != nil {
-		if resp.StatusCode == http.StatusConflict {
-			return nil
-		}
 		return err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusConflict {
-		logger.Log.Debug().Str("exploitPath", exploitPath).Msg("Exploit already exists, skipping upload")
+		logger.Log.Warn().Str("exploitPath", exploitPath).Msg("Exploit already exists, skipping upload")
 		return checkStatus(200, body)
 	}
 
