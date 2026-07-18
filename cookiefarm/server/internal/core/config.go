@@ -29,11 +29,6 @@ func (r *Runner) Submission() {
 	r.shutdownCancel = cancel
 
 	go r.StartFlagProcessingLoop(ctx)
-
-	if r.config.GetFlagTTL() != 0 {
-		logger.Log.Warn().Msgf("Flag TTL is set to %d ticks, starting validation loop", r.config.GetFlagTTL())
-		go r.ValidateFlagTTL(ctx, r.config.GetFlagTTL(), uint64(r.config.GetTickTime()))
-	}
 }
 
 // LoadConfigAndRun loads the configuration from the given path.
