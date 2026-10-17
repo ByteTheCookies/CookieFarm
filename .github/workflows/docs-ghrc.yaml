@@ -56,6 +56,7 @@ jobs:
         with:
           context: ${{ matrix.context }}
           push: true
+          file: ${{ matrix.file }}
           tags: ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.tag }}
           # Links the package to this repo: it inherits the repo's access, and this repo can push to it again
           labels: org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
