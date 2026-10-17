@@ -26,7 +26,8 @@ jobs:
         # One entry per image. A single Dockerfile at the root: keep the first entry only.
         include:
           - suffix: "-docs" # ghcr.io/<owner>/<repo>
-            context: docs
+            context: .
+            file: docs/Dockerfile
           # - suffix: "-backend"  # ghcr.io/<owner>/<repo>-backend, Dockerfile in backend/
           #   context: backend
     steps:
