@@ -1,11 +1,33 @@
 import { Resend } from 'resend';
 
-const RESEND_API_KEY = process.env.RESEND_API_KEY || ''; /^re_[\w]+$/.test(RESEND_API_KEY) || (() => { throw new Error('Invalid RESEND_API_KEY'); })();
-const resend = new Resend(RESEND_API_KEY);
+let resend: Resend | undefined;
 
-const email_list = ['akiidjk@bytethecookies.org', 'suga@bytethecookes.org','giovanni@bytethecookes.org'];
+function getResend(): Resend {
+  if (!resend) {
+    const key = process.env.RESEND_API_KEY ?? '';
+    if (!/^re_\w+$/.test(key)) throw new Error('Invalid RESEND_API_KEY');
+    resend = new Resend(key);
+  }
+  return resend;
+}
 
-export async function sendEmail({ url, opinion, message }: { url: string; opinion: string; message: string }) {
+// Feedback fields come from anonymous visitors: escape before putting them in HTML.
+function escapeHtml(s: string): string {
+  return s
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+const email_list = ['akiidjk@bytethecookies.org', 'suga@bytethecookies.org', 'giovanni@bytethecookies.org'];
+
+export async function sendEmail(feedback: { url: string; opinion: string; message: string }) {
+  const url = escapeHtml(feedback.url);
+  const opinion = escapeHtml(feedback.opinion);
+  const message = escapeHtml(feedback.message);
+
   const html = `
     <html>
       <head>
@@ -44,7 +66,7 @@ export async function sendEmail({ url, opinion, message }: { url: string; opinio
     </html>
   `;
 
-  const { error } = await resend.emails.send({
+  const { error } = await getResend().emails.send({
     from: 'CookieFarm Docs <cookiefarm@bytethecookies.org>',
     to: email_list,
     subject: `Feedback Received - ${opinion}`,
