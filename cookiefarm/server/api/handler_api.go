@@ -552,6 +552,7 @@ func (h *Handler) HandlePostConfig(c fiber.Ctx) error {
 
 	h.config.SetFullConfig(nextConfig)
 	h.config.SetConfigured(true)
+	h.config.Write()
 
 	h.runner.Submission()
 

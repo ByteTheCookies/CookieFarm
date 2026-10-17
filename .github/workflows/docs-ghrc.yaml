@@ -1,0 +1,62 @@
+# Copy to .github/workflows/image.yaml in an app repo (docs/gitops.md#image-updates).
+# On every push to main: build, push ghcr.io/<owner>/<repo>[suffix]:main-<sha7>-<unix time>.
+# That tag format is what the Flux ImagePolicy sorts on; don't change it in one repo only.
+# Login uses the job's own GITHUB_TOKEN: no personal token anywhere.
+name: image
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+# Builds of the same branch run one after the other, so timestamps follow commit order.
+concurrency:
+  group: image-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # One entry per image. A single Dockerfile at the root: keep the first entry only.
+        include:
+          - suffix: "-docs" # ghcr.io/<owner>/<repo>
+            context: docs
+          # - suffix: "-backend"  # ghcr.io/<owner>/<repo>-backend, Dockerfile in backend/
+          #   context: backend
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Image name and tag
+        id: meta
+        env:
+          SUFFIX: ${{ matrix.suffix }}
+        run: |
+          # GHCR names must be lowercase (ByteTheCookies -> bytethecookies)
+          echo "image=ghcr.io/${GITHUB_REPOSITORY,,}${SUFFIX}" >> "$GITHUB_OUTPUT"
+          echo "tag=main-${GITHUB_SHA::7}-$(date +%s)" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@v4.4.1
+
+      - uses: docker/login-action@v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v7.4.0
+        with:
+          context: ${{ matrix.context }}
+          push: true
+          tags: ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.tag }}
+          # Links the package to this repo: it inherits the repo's access, and this repo can push to it again
+          labels: org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+          cache-from: type=gha,scope=image${{ matrix.suffix }}
+          cache-to: type=gha,mode=max,scope=image${{ matrix.suffix }}

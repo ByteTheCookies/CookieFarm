@@ -42,11 +42,6 @@ func verifyAndHandlePath(path string) error {
 }
 
 func Create(name string) (string, error) {
-	exploitPath := filepath.Join(config.DefaultPath, "exploits")
-	if err := verifyAndHandlePath(exploitPath); err != nil {
-		return "", err
-	}
-
 	if name == "" {
 		return "", errors.New("exploit name cannot be empty")
 	}
@@ -56,7 +51,19 @@ func Create(name string) (string, error) {
 		return "", fmt.Errorf("error normalizing exploit name: %v", err)
 	}
 
-	path := filepath.Join(exploitPath, name)
+	var path string
+	if system.IsPath(name) {
+		path = name
+		if err := verifyAndHandlePath(filepath.Dir(path)); err != nil {
+			return "", err
+		}
+	} else {
+		exploitPath := filepath.Join(config.DefaultPath, "exploits")
+		if err := verifyAndHandlePath(exploitPath); err != nil {
+			return "", err
+		}
+		path = filepath.Join(exploitPath, name)
+	}
 	exploitFile, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_SYNC, 0o777)
 	if err != nil {
 		return "", fmt.Errorf("error creating exploit file: %v", err)

@@ -21,7 +21,6 @@ builds:
       - GO111MODULE=on
       - GOFLAGS=-trimpath
       - GODEBUG=asyncpreemptoff=1
-      - VERSION={{.Tag}}
     flags:
       - -trimpath
     ldflags:
