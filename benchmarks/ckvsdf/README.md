@@ -6,7 +6,7 @@
 > **Host OS:** Linux 6.18.25-1-lts 
 > **CPU:** AMD Ryzen 7 3700X (16) @ 4.43 GHz  
 > **RAM:** 32 GB DDR4 @ 3200 MHz
-> **GO Version:** go1.26.2
+> **GO Version:** go1.27.3
 > **Python Version:** Python 3.14.4
 
 ---
