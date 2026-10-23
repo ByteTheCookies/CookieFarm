@@ -20,8 +20,8 @@
     "framer-motion": "^12.43.0",
     "fumadocs-core": "^16.17.8",
     "fumadocs-mdx": "^14.3.2",
-    "fumadocs-openapi": "^10.10.3",
-    "fumadocs-ui": "16.7.12",
+    "fumadocs-openapi": "^12.5.5",
+    "fumadocs-ui": "^16.17.8",
     "lucide-react": "^1.61.0",
     "next": "16.3.6",
     "react": "^19.3.1",
@@ -45,5 +45,8 @@
     "typescript": "^6.0.3",
     "eslint-config-next": "16.2.2",
     "eslint": "^10.13.0"
+  },
+  "overrides": {
+    "mdast-util-to-markdown": "2.1.2"
   }
 }

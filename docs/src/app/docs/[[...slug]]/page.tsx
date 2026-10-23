@@ -22,13 +22,13 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
   const page = source.getPage(params.slug);
   if (!page) notFound();
 
-  if ('getAPIPageProps' in page.data) {
+  if ('getOpenAPIPageProps' in page.data) {
     return (
       <DocsPage full>
         <DocsTitle>{page.data.title}</DocsTitle>
         <DocsDescription className="mb-0">{page.data.description}</DocsDescription>
         <DocsBody>
-          <APIPage {...page.data.getAPIPageProps()} />
+          <APIPage {...page.data.getOpenAPIPageProps()} />
         </DocsBody>
       </DocsPage>
     );
