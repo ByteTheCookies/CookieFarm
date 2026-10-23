@@ -1,4 +1,4 @@
-FROM golang:1.26.0-alpine AS build
+FROM golang:1.27.3-alpine AS build
 
 RUN apk add --no-cache alpine-sdk
 
@@ -10,23 +10,23 @@ ARG VERSION=dev
 
 # server builds
 RUN GOOS="linux" GOARCH="amd64" \
-  go build -trimpath \
-  -ldflags="-s -w -X 'main.Version=${VERSION}'" \
-  -o ./bin/cks ./server/main.go
+    go build -trimpath \
+    -ldflags="-s -w -X 'main.Version=${VERSION}'" \
+    -o ./bin/cks ./server/main.go
 
 # plugins build
 RUN for file in $(find ./pkg/protocols -name '*.go' ! -name 'protocols.go'); do \
- if grep -q '^package main' "$file"; then \
-  filename=$(basename "$file"); \
-  pluginname="${filename%.go}"; \
-  GOOS="linux" GOARCH="amd64" \
+    if grep -q '^package main' "$file"; then \
+    filename=$(basename "$file"); \
+    pluginname="${filename%.go}"; \
+    GOOS="linux" GOARCH="amd64" \
     go build -trimpath \
-        -ldflags="-s -w -X 'main.Version=${VERSION}'" \
-        -buildmode=plugin -o "./pkg/protocols/$pluginname.so" "$file"; \
- else \
-  echo "Skipping $file: not a main package"; \
- fi; \
-done
+    -ldflags="-s -w -X 'main.Version=${VERSION}'" \
+    -buildmode=plugin -o "./pkg/protocols/$pluginname.so" "$file"; \
+    else \
+    echo "Skipping $file: not a main package"; \
+    fi; \
+    done
 
 
 FROM oven/bun:1.3.0-alpine AS bun
