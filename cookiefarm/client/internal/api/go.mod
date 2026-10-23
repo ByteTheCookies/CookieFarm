@@ -1,6 +1,6 @@
 module client/api
 
-go 1.26.0
+go 1.27.3
 
 require github.com/bytedance/sonic v1.15.0
 
@@ -14,5 +14,5 @@ require (
 	github.com/stretchr/testify v1.11.1 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	golang.org/x/arch v0.24.0 // indirect
-	golang.org/x/sys v0.43.0 // indirect
+	golang.org/x/sys v0.47.0 // indirect
 )

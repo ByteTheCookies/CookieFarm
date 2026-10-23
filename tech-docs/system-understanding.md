@@ -57,7 +57,7 @@ CookieFarm automates the flag lifecycle in Attack/Defense CTF competitions:
 
 ## 4. Assumptions and Constraints
 
-- Go `1.26.0+` is required by the Go workspace.
+- Go `1.27.3+` is required by the Go workspace.
 - Python 3 is required to execute exploit scripts.
 - Docker can be used for server deployment.
 - The server is designed for Linux production environments.

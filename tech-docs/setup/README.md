@@ -17,7 +17,7 @@ Need to install:
 
 ## Server
 
-- Go v1.26.0
+- Go v1.27.3
 - [Air](https://github.com/air-verse/air) (Live reload for Go)
 - golangci-lint (For linting Go code)
 - gofumpt (For formatting Go code)
