@@ -2,7 +2,7 @@
 
 # use the official Bun image
 # see all versions at https://hub.docker.com/r/oven/bun/tags
-FROM oven/bun:alpine AS base
+FROM oven/bun:1.4.4-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
